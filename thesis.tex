@@ -1,4 +1,4 @@
-% !TEX root = thesis.tex
+%!TEX root = thesis.tex
 \documentclass[12pt,a4paper,titlepage,listof=totoc,bibliography=totoc,chapteratlists=0pt]{scrreprt}
 \input{global-const.tex}
 \input{header}
@@ -57,7 +57,7 @@
 {
  % keep at list of listing
 }
-
+\setcounter{tocdepth}{2}
 \tableofcontents
 \newpage
 \setcounter{RPages}{\value{page}}
@@ -71,17 +71,18 @@
 \input{./sections/introduction}
 
 \begin{spacing}{1}
-\chapter{Umfeldanalyse}
+\chapter{Projektverwaltung}\label{chapter:projectmanagement}
 \end{spacing}
-\input{./sections/related_work}
+\input{./sections/projectmanagement}
+
 
 \begin{spacing}{1}
-\chapter{Technologien}\label{chapter:tech}
+\chapter{Technologie-Entscheidungen}\label{chapter:tech}
 \end{spacing}
 \input{./sections/technologies}
 
 \begin{spacing}{1}
-\chapter{Umsetzung}\label{chapter:implementation}
+\chapter{Praktische Umsetzung}\label{chapter:implementation}
 \end{spacing}
 \input{./sections/implementation}
 
