@@ -1,0 +1,32 @@
+https://editor.plantuml.com/
+
+@startuml
+left to right direction
+
+actor "Admin" as A
+actor "Schüler/User" as U
+
+rectangle "Fragen-System" {
+
+  (Frage erstellen) as create
+  (Frage bearbeiten) as edit
+  (Frage löschen) as delete
+  (Fragen anzeigen) as view
+  (Fragen lernen) as learn
+
+}
+
+A --> create
+A --> view
+A --> edit
+A --> delete
+A --> learn
+
+U --> view
+U --> learn
+
+view --> edit : <<extend>>
+view --> delete : <<extend>>
+view --> learn : <<extend>>
+
+@enduml
