@@ -8,21 +8,44 @@
 \end{figure}
 \subsubsection{Auswahl zwischen Lernmodus und Fragenkonfigurator}
 Die Auswahl ermöglicht dem/der Nutzer:in, entweder in den Lernmodus zu wechseln oder den Fragenkonfigurator zur Erstellung und Verwaltung von Fragen zu nutzen. \par
-Ein Klick auf "Lernen" führt zur Fachauswahl, in der alle verfügbaren Fächer angezeigt werden \ref{chapter:lernbereich}. \par
-Ein Klick auf "Fragenkonfigurator" öffnet die Option Fragen zu Bearbeiten ("Erstellen" oder "Bearbeiten") \ref{chapter:fragen_verwalten}.
+Ein Klick auf "Lernen" führt zur Fachauswahl, in der alle verfügbaren Fächer angezeigt werden \ref{sec:lernbereich}. \par
+Ein Klick auf „Fragenkonfigurator“ öffnet die Auswahl zur Erstellung oder Bearbeitung von Fragen.\ref{sec:fragen-verwalten}.
 
-\subsection{Lernbereich} \label{chapter:lernbereich}
-\begin{figure}[h t]
-    \centering
-    \includegraphics[width=0.6\textwidth]{pics/fragenkonf_lernen_fachauswahl.png}
-    \caption{Lernbereich auswählen/Fachauswahl}
-    \label{fig:lernbereich-auswahl}
-\end{figure}
+\subsection{Lernbereich} \label{sec:lernbereich}
 
 \subsubsection{Fachauswahl} \label{sec:fachauswahl}
-In der Fachauswahl werden per Drop-Down-Menü die zugehörigen Themenpools angezeigt. Wechselt der/die Nutzer:in das Fach, wird der zuvor geöffnete Themenpool geschlossen.\par
-Innerhalb eines geöffneten Themenpools stehen zwei Buttons zur Verfügung: ein grüner Kreis mit einem Plus (+) und ein orangener Kreis mit einem "Play"-Symbol.\par
-Durch einen Klick auf den grünen Button gelangt der/die Nutzer:in zum Fragenkonfigurator, wobei Fach und Themenpool bereits vorausgewählt sind \ref{sec:frage-erstellen-vorausgewählt}. Der orangene Button führt zum Lernmodus \ref{sec:lernmodus}.\par
+In der Fachauswahl kann zwischen öffentlichen und persönlichen Fragen gewechselt werden.\par
+Im persönlichen Bereich werden dem/der Nutzer:in die eigenen Fragen angezeigt.
+In der Fachauswahl werden per Drop-Down-Menü die zugehörigen Themenpools dargestellt. Wird ein anderes Fach geöffnet, schließt sich der zuvor geöffnete Themenpool automatisch.\par
+Innerhalb eines geöffneten Themenpools stehen zwei Buttons zur Verfügung: ein grüner Kreis mit einem Plus (+) und ein orangener Kreis mit einem Play-Symbol.\par
+Durch einen Klick auf den grünen Button gelangt der/die Nutzer:in zum Fragenkonfigurator, wobei Fach und Themenpool bereits vorausgewählt sind \ref{sec:frage-erstellen-vorausgewählt}.\par
+Der orangene Button führt zum Lernmodus \ref{sec:lernmodus}. Falls noch keine Fragen für den jeweiligen Themenpool vorhanden sind, ist der Play-Button ausgegraut und nicht klickbar.
+
+\begin{figure}[h t]
+    \centering
+    \includegraphics[width=0.6\textwidth]{pics/fragenkonf_fachauswahl_persoenlich.png}
+    \caption{Fachauswahl: Persönlich}
+    \label{fig:lernbereich-fachauswahl-persoenlich}
+\end{figure}
+
+Im öffentlichen Bereich unterscheidet sich die Ansicht je nach Nutzerrolle:\par
+\textbf{Als Schüler:in} werden ausschließlich jene Fächer und Themenpools angezeigt, für die öffentliche Fragen verfügbar sind. Hier gibt es nur den orangefarbenen Play-Button, der zum Lernmodus führt \ref{sec:lernmodus}. \par
+\begin{figure}[h t]
+    \centering
+    \includegraphics[width=0.6\textwidth]{pics/fragenkonf_fachauswahl_oeffentlich_schueler.png}
+    \caption{Fachauswahl: Öffentlich, Rolle: Schüler:in}
+    \label{fig:lernbereich-fachauswahl-oeffentlich-schueler}
+\end{figure}
+\textbf{Als Administrator:in} werden alle Fächer angezeigt, unabhängig davon ob öffentliche Fragen vorhanden sind. Wie im persönlichen Bereich stehen beide Buttons zur Verfügung.
+Ein Klick auf den grünen Plus-Button führt zum Fragenkonfigurator. Wie im persönlichen Bereich sind Fach und Themenpool bereits vorausgewählt.
+Zusätzlich ist ausgewählt, dass die Frage öffentlich gespeichert werden soll.
+
+\begin{figure}[h t]
+    \centering
+    \includegraphics[width=0.6\textwidth]{pics/fragenkonf_fachauswahl_oeffentlich_admin.png}
+    \caption{Fachauswahl: Öffentlich, Rolle: Admin}
+    \label{fig:lernbereich-fachauswahl-oeffentlich-admin}
+\end{figure}
 
 \begin{figure}[h t]
     \centering
@@ -31,8 +54,14 @@ Durch einen Klick auf den grünen Button gelangt der/die Nutzer:in zum Fragenkon
     \label{fig:fragenkonfigurator-vorausgewählt}
 \end{figure}
 \subsubsection{Frage erstellen mit vorausgewähltem Fach und Themenpool} \label{sec:frage-erstellen-vorausgewählt}
-Der/die Nutzer:in wählt den Fragetyp aus, formuliert die Frage, gibt die Antwortmöglichkeiten ein und markiert die korrekte Antwort. Nach Ausfüllen aller erforderlichen Felder kann die Frage durch einen Klick auf den "Veröffentlichen"-Button gespeichert werden. \par
-Der Fragenkonfigurator wird im Kapitel xyz \ref{chapter:implementation} detalliert erläutert. % TODO: Kapitelnummer anpassen
+Der/die Nutzer:in wählt den Fragetyp aus, formuliert die Frage, gibt die Antwortmöglichkeiten ein und markiert die korrekte Antwort.
+Nach Ausfüllen aller erforderlichen Felder kann die Frage durch einen Klick auf den Veröffentlichen-Button gespeichert werden. \par
+Der Fragenkonfigurator wird im Kapitel \ref{chapter:implementation} detailliert erläutert. 
+
+\subsubsection{Lernmodus} \label{sec:lernmodus}
+Im Lernbereich werden die Fragen in Form von hell-orangefarbenen Lernkarten präsentiert. Jede Karte zeigt die Frage, optional ergänzt durch ein Bild. Oben rechts wird der Schwierigkeitsgrad angezeigt: Leicht, Mittel oder Schwer. \par
+Unten links befindet sich ein Aufdecken-Button. Unter der Karte befinden sich zwei Pfeile zur Navigation durch die Fragen. Darunter wird die aktuelle Frage sowie die Gesamtzahl angezeigt (z.B. 1/12). \par
+Durch einen Klick auf den Aufdecken-Button kann der/die Nutzer:in die Antwort einsehen.
 
 \begin{figure}[H]
     \centering
@@ -41,10 +70,8 @@ Der Fragenkonfigurator wird im Kapitel xyz \ref{chapter:implementation} detallie
     \label{fig:lernkarte-zugedeckt}
 \end{figure}
 
-\subsubsection{Lernmodus} \label{sec:lernmodus}
-Im Lernbereich werden die Fragen in Form von hell-orangefarbenen Lernkarten präsentiert. Jede Karte zeigt die Frage, optional ergänzt durch ein Bild. Oben rechts wird der Schwierigkeitsgrad angezeigt: Leicht, Mittel oder Schwer. \par
-Unten links befindet sich ein "Aufdecken"-Button. Unter der Karte befinden sich zwei Pfeile zur Navigation durch die Fragen. Darunter wird die aktuelle Frage sowie die Gesamtzahl angezeigt (z.B. 1/12). \par
-Durch einen Klick auf den "Aufdecken"-Button kann der/die Nutzer:in die Antwort einsehen.
+\subsubsection{Aufgedeckte Lernkarte}
+Nach dem Aufdecken erscheint die Antwort im blauen Bereich. Bei Multiple-Choice-Fragen werden die korrekten Antwortmöglichkeiten und die Erklärung angezeigt. Bei Freitextfragen wird die richtige Antwort oder Erklärung dargestellt.\par
 \begin{figure}[h t]
     \centering
     \includegraphics[width=0.6\textwidth]{pics/fragenkonf_lernkarte_aufgedeckt.png}
@@ -52,9 +79,10 @@ Durch einen Klick auf den "Aufdecken"-Button kann der/die Nutzer:in die Antwort 
     \label{fig:lernkarte-aufgedeckt}
 \end{figure}
 
-\subsubsection{Aufgedeckte Lernkarte}
-Nach dem Aufdecken erscheint die Antwort im blauen Bereich. Bei Multiple-Choice-Fragen werden die korrekten Antwortmöglichkeiten und die Erklärung angezeigt. Bei Freitextfragen wird die richtige Antwort oder Erklärung dargestellt.\par
-Unter der blauen Box befinden sich zwei Buttons: "Zudecken" (grau) und "Weiter" (blau). Der "Zudecken"-Button verschließt die Karte wieder, während der "Weiter"-Button zur nächsten Frage führt. Bei der letzten Frage ersetzt der "Beenden"-Button den "Weiter"-Button und führt zur Glückwunschseite.\par
+Unter der blauen Box befinden sich zwei Buttons: Zudecken (grau) und Weiter (blau). Der Zudecken-Button verschließt die Karte wieder, 
+während der Weiter-Button zur nächsten Frage führt. Bei der letzten Frage ersetzt der Beenden-Button den Weiter-Button und führt zur Glückwunschseite.\ref{sec:glueckwunsch}\par
+\subsubsection{Glückwunschseite} \label{sec:glueckwunsch}
+Nach Abschluss des Lernmodus erscheint eine kurze Glückwunschmeldung. Sie informiert den/die Nutzer:in über den erfolgreichen Abschluss und bietet einen Button "Weiter Lernen", über den die Fachauswahl \ref{sec:fachauswahl} erneut geöffnet werden kann.
 \begin{figure}[h t]
     \centering
     \includegraphics[width=0.6\textwidth]{pics/glueckwunsch.png} 
@@ -62,18 +90,131 @@ Unter der blauen Box befinden sich zwei Buttons: "Zudecken" (grau) und "Weiter" 
     \label{fig:glueckwunsch}
 \end{figure}
 
-\subsubsection{Glückwunschseite}
-Nach Abschluss des Lernmodus erscheint eine kurze Glückwunschmeldung. Sie informiert den/die Nutzer:in über den erfolgreichen Abschluss und bietet einen Button "Weiter Lernen", über den die Fachauswahl erneut geöffnet werden kann.
+\subsection{Fragenkonfigurator} \label{sec:fragenkonfigurator}
+\subsubsection{Fragen verwalten} \label{sec:fragen-verwalten}
+In der Fragenverwaltungsansicht \ref{fig:fragen-verwalten} kann der/die Nutzer:in wählen, ob eine neue Frage erstellt oder eine bestehende Frage bearbeitet werden soll.
+Ein Klick auf „Erstellen“ öffnet den Fragenkonfigurator \ref{sec:fragen-erstellen}, in dem eine neue Frage formuliert werden kann.
+Wird stattdessen „Bearbeiten“ ausgewählt, erscheint eine Liste der bereits vorhandenen Fragen, aus der eine Frage zur Bearbeitung ausgewählt werden kann \ref{sec:fragen-bearbeiten-loeschen}.
 
-\subsection{Fragen verwalten} \label{sec:fragen-verwalten}
 \begin{figure}[h t]
     \centering
     \includegraphics[width=0.6\textwidth]{pics/fragenkonf_erstellen_lernen.png} 
     \caption{Fragen verwalten}
-    \label{fig:fragen-vewalten}
+    \label{fig:fragen-verwalten}
 \end{figure}
 
-In der Fragenverwaltungsansicht \ref{fig:fragen-verwalten} kann der/die Nutzer:in wählen, ob eine neue Frage erstellt oder eine bestehende Frage bearbeitet werden soll.
-Ein Klick auf „Erstellen“ öffnet den Fragenkonfigurator, in dem eine neue Frage formuliert werden kann.
-Wird stattdessen „Bearbeiten“ ausgewählt, erscheint eine Liste der bereits vorhandenen Fragen, aus der eine Frage zur Bearbeitung ausgewählt werden kann.
+\subsubsection{Fragenkonfigurator/Fragen erstellen} \label{sec:fragen-erstellen}
+Im Fragenkonfigurator können neue Fragen erstellt werden. Die Oberfläche bietet verschiedene Eingabefelder und Auswahlmöglichkeiten, die je nach gewähltem Fragetyp variieren.\par
 
+\textbf{Fragentyp auswählen}\par
+Zunächst muss der/die Nutzer:in einen Fragetyp auswählen: entweder Freitext oder Multiple Choice. Diese Auswahl bestimmt die weiteren Eingabemöglichkeiten.\par
+
+\textbf{Schulfach und Themenpool}\par
+Anschließend wird ein Schulfach aus den bereits bestehenden Schulfächern ausgewählt. Die Erstellung neuer Schulfächer und Themenpools wird im Kapitel zur Maturavorbereitung erläutert \ref{sec:maturaupload-faecher-themenpools}.\par
+Sobald ein Schulfach ausgewählt wurde, kann ein zugehöriger Themenpool ausgewählt werden. Standardmäßig ist die Themenpool-Auswahl ausgegraut, solange kein Schulfach gewählt wurde.\par
+
+\textbf{Frage formulieren}\par
+Das Fragefeld ist ein Pflichtfeld und kann jederzeit ausgefüllt werden. Hier gibt der/die Nutzer:in die eigentliche Fragestellung ein.\par
+
+\textbf{Schwierigkeitsgrad und Sichtbarkeit}\par
+Der Schwierigkeitsgrad (Leicht, Mittel, Schwer) kann für jede Frage festgelegt werden. Administrator:innen haben zusätzlich die Möglichkeit, die Frage als öffentlich zu kennzeichnen. Für Schüler:innen ist dieser Toggle ausgegraut und nicht verfügbar.\par
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.6\textwidth]{pics/fragenkonf_erstellen_basis.png}
+    \caption{Fragenkonfigurator: Grundansicht}
+    \label{fig:fragenkonfigurator-basis}
+\end{figure}
+
+\textbf{Freitext-Fragen}\par
+Bei Auswahl des Fragetyps "Freitext" erscheint ein zusätzliches Textfeld für die Musterlösung bzw. Erklärung. Dieses Feld ist ein Pflichtfeld und muss ausgefüllt werden.\par
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.6\textwidth]{pics/fragenkonf_freitext.png}
+    \caption{Fragenkonfigurator: Freitext-Frage}
+    \label{fig:fragenkonfigurator-freitext}
+\end{figure}
+
+\textbf{Multiple-Choice-Fragen}\par
+Bei Multiple-Choice-Fragen erscheinen Eingabefelder für die Antwortmöglichkeiten. Jede Antwortmöglichkeit kann als richtig oder falsch gekennzeichnet werden. Standardmäßig werden zwei Antwortfelder angezeigt. Der/die Nutzer:in kann weitere Antwortmöglichkeiten hinzufügen, wobei maximal sieben Antwortmöglichkeiten erstellt werden können.\par
+Zusätzlich steht ein optionales Erklärungsfeld zur Verfügung, in dem ergänzende Informationen zur Frage hinterlegt werden können.\par
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.6\textwidth]{pics/fragenkonf_multiplechoice.png}
+    \caption{Fragenkonfigurator: Multiple-Choice-Frage}
+    \label{fig:fragenkonfigurator-multiplechoice}
+\end{figure}
+
+\textbf{Veröffentlichen}\par
+Der Veröffentlichen-Button ist so lange deaktiviert, bis alle Pflichtfelder ausgefüllt sind. Nach erfolgreicher Veröffentlichung einer Frage bleiben Schulfach und Themenpool automatisch ausgewählt, um die schnelle Erstellung mehrerer Fragen zum selben Themenbereich zu erleichtern.\par
+
+
+\subsubsection{Fragen bearbeiten und löschen} \label{sec:fragen-bearbeiten-loeschen}
+In der Bearbeitungsansicht können bestehende Fragen verwaltet (bearbeitet oder gelöscht) werden. Die verfügbaren Funktionen unterscheiden sich je nach Nutzerrolle.\par
+
+Über einen Toggle kann zwischen öffentlichen und persönlichen Fragen gewechselt werden.\par
+
+\textbf{Ansicht als Schüler:in}\par
+Schüler:innen haben ausschließlich Zugriff auf ihre persönlichen Fragen. Der Toggle für öffentliche Fragen ist für diese Nutzergruppe nicht verfügbar, da keine Berechtigung zum Bearbeiten oder Löschen öffentlicher Fragen besteht.\par
+
+Im persönlichen Bereich werden alle Fächer angezeigt, in denen der/die Nutzer:in eigene Fragen erstellt hat. Durch Aufklappen eines Fachs werden die zugehörigen Themenpools sichtbar. Innerhalb der Themenpools werden alle eigenen Fragen aufgelistet. Zur besseren Übersicht wird jeweils ein Ausschnitt der Fragestellung dargestellt.\par
+
+Rechts neben jeder Frage befinden sich zwei Icons: ein rotes Mülleimer-Symbol zum Löschen und ein grünes Stift-Symbol zum Bearbeiten der Frage.\par
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.6\textwidth]{pics/fragenkonf_bearbeiten_schueler.png}
+    \caption{Fragen bearbeiten/löschen: Persönlich, Rolle: Schüler:in}
+    \label{fig:fragen-bearbeiten-schueler}
+\end{figure}
+
+\textit{Frage löschen:} Durch einen Klick auf das Mülleimer-Symbol wird die Frage nach Bestätigung endgültig gelöscht.\par
+
+\textit{Frage bearbeiten:} Ein Klick auf das Stift-Symbol öffnet den Bearbeitungsmodus. Hier können sowohl die Fragestellung als auch die zugehörigen Antworten bzw. Erklärungen angepasst werden.\par
+
+Bei \textbf{Freitext-Fragen} können die Fragestellung und die Musterlösung bzw. Erklärung bearbeitet werden.\par
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.6\textwidth]{pics/fragenkonf_bearbeiten_schueler_freitext.png}
+    \caption{Freitextfrage bearbeiten, Rolle: Schüler:in}
+    \label{fig:fragen-bearbeiten-freitext}
+\end{figure}
+
+Bei \textbf{Multiple-Choice-Fragen} können die Fragestellung und die Antwortmöglichkeiten angepasst werden. Wie beim Erstellen von Fragen können bis zu sieben Antwortmöglichkeiten hinzugefügt werden. Bestehende Antwortmöglichkeiten können gelöscht oder verändert werden. Eine (optionale) Erklärung kann nachträglich hinzugefügt oder geändert werden.\par
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.6\textwidth]{pics/fragenkonf_bearbeiten_schueler_multiple_choice.png}
+    \caption{Multiple Choice Frage bearbeiten, Rolle: Schüler:in}
+    \label{fig:fragen-bearbeiten-freitext}
+\end{figure}
+
+Der Toggle zur Veröffentlichung als öffentliche Frage ist für Schüler:innen ausgegraut und kann nicht aktiviert werden. Diese Funktion steht ausschließlich Administrator:innen zur Verfügung.\par
+
+Falls noch keine persönlichen Fragen vorhanden sind, wird eine entsprechende Meldung angezeigt. Der/die Nutzer:in wird dann zum Fragenkonfigurator weitergeleitet, um persönliche Fragen zu erstellen \ref{sec:fragen-erstellen}.\par
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.6\textwidth]{pics/fragenkonf_bearbeiten_leer.png}
+    \caption{Meldung bei fehlenden persönlichen Fragen}
+    \label{fig:fragen-bearbeiten-leer}
+\end{figure}
+
+\textbf{Ansicht als Administrator:in}\par
+Administrator:innen haben zusätzlich Zugriff auf den öffentlichen Bereich und können öffentliche Fragen bearbeiten und löschen.\par
+
+Im persönlichen Bereich funktioniert die Ansicht identisch zur persönlichen Ansicht.\par
+
+Im öffentlichen Bereich werden alle Fächer angezeigt, in deren Themenpools öffentliche Fragen vorhanden sind. Die Struktur und Bedienung entspricht dem persönlichen Bereich: Fächer können aufgeklappt werden, Themenpools werden angezeigt und die darin enthaltenen Fragen können über die Icons bearbeitet oder gelöscht werden.\par
+
+Der wesentliche Unterschied beim Bearbeiten öffentlicher Fragen besteht darin, dass Administrator:innen den Toggle zwischen öffentlich und privat nutzen können. Eine öffentliche Frage kann somit von einer/m Administrator:in zu einer privaten Frage geändert werden und umgekehrt.\par
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.6\textwidth]{pics/fragenkonf_bearbeiten_admin_oeffentlich.png}
+    \caption{Fragen bearbeiten/löschen: Öffentlich, Rolle: Admin}
+    \label{fig:fragen-bearbeiten-admin-oeffentlich}
+\end{figure}
