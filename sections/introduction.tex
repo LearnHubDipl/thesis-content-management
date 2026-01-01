@@ -1,11 +1,69 @@
-\section{Ausgangslage}
+\setauthor{\firstauthor}
 
+\section{Ausgangslage}
+Die Vorbereitung auf die Matura stellt für viele Schüler:innen eine besondere Herausforderung dar.
+Der Überblick über verschiedene Fächer, Themenpools und Unterlagen geht schnell verloren, 
+während der Stresspegel vor den Prüfungen steigt. Besonders schwierig gestaltet sich dabei 
+die Strukturierung des umfangreichen Lernstoffs sowie die Suche nach geeigneten Lernmaterialien.\par
+Aktuell werden Mitschriften und Lernmaterialien an der HTL Leonding über verschiedene Kanäle verteilt - 
+über Microsoft Teams, Moodle, Schul-Laufwerke oder in Papierform.
+Dies führt dazu, dass wertvolle Materialien schwer auffindbar sind oder mit der Zeit verloren gehen. 
+Schüler:innen müssen Unterlagen aus verschiedenen Jahren mühsam zusammensuchen und sortieren.\par
+Zusätzlich kommt hinzu, dass es für HTL-spezifische Fächer online nur begrenzte Lernhilfen gibt. 
+Anders als bei allgemeinbildenden Fächern finden Schüler:innen einer HTL oft keine passenden externen Ressourcen.\par
+Um diesen Problemen entgegenzuwirken, entwickeln zwei Diplomarbeitsteams gemeinsam die Web-Plattform 
+\textit{LearnHub}, die es Schüler:innen und Lehrer:innen der HTL ermöglicht, Mitschriften zentral zu 
+verwalten, um sich gezielt, ohne zusätzlichen Stress, auf die Matura vorzubereiten.
+
+Die Entwicklung von LearnHub wurde in Zusammenarbeit mit einem zweiten Diplomarbeitsteam der HTL Leonding realisiert. 
+Während sich die vorliegende Arbeit auf das Content-Management-System (Maturaupload und Fragenkonfigurator) konzentriert, 
+entwickelte das Partnerteam den Maturatrainer - ein Lern- und Prüfungsmodus.
 
 \section{Marktanalyse}
+Es befinden sich bereits verschiedene Lernplattformen auf dem Markt. Im Folgenden werden vier dieser Konkurrenten genauer analysiert, 
+um die Besonderheiten von LearnHub hervorzuheben.\par
+Die meisten dieser Plattformen sind kostenpflichtig oder bieten in ihrer kostenlosen Version nur eingeschränkte Funktionen. 
+Beispielhaft sind hier einige Konkurrenzprodukte aufgeführt: 
+\subsubsection{School Fox, Study Smarter, Evernote, Studyflix}
+
 \subsection{Schlussfolgerung}
+Der Vergleich mit verschiedenen Lernplattformen zeigt, dass zwar viele Tools für die Lernunterstützung existieren, 
+jedoch keine Plattform die speziell auf die Bedürfnisse der Schüler:innen der HTL Leonding zugeschnitten ist.\par
+Besonders fehlt bei analysierten Plattformen:
+\begin{itemize}
+    \item Schultypspezifische Mitschriften
+    \item Strukturierte Verwaltung nach Fächern und Themenpool
+    \item Integriertem Fragenkonfigurator
+    \item Kostenfreier Zugang 
+\end{itemize}
+
+LearnHub schließt diese Lücke, indem es eine Lösung für die HTL Leonding bietet. Die Lernplattform bietet  
+das erstellen von Maturaunterlagen und Maturafragen von HTL-spezifischen Maturafächern. 
 
 \section{Motivation und Zielsetzung}
+LearnHub soll Schüler:innen der HTL Leonding dabei helfen, sich strukturiert und effizient auf die Matura vorzubereiten, 
+indem sie Zugriff auf Lernmaterialien zum Lernen für die Matura erhalten.\par
+Im Rahmen dieser Diplomarbeit wird das \textbf{Content-Management-System} entwickelt, welches zwei zentrale Punkte beinhaltet:
 
-\section{Aufbau der Arbeit}
+\subsubsection{Maturaupload}
+Der Maturaupload ermöglicht die strukturierte Verwaltung von Mitschriften und Lernunterlagen:
+\begin{enumerate}
+    \item \textbf{Upload und Verwaltung}: Schüler:innen können eigene Mitschriften hochladen, bearbeiten und löschen.
+        Lehrer:innen haben erweiterte Rechte und können alle Mitschriften verwalten.
+    \item \textbf{Freigabeprozess}: Hochgeladene Mitschriften müssen von Lehrer:innen freigegeben werden, bevor sie für alle sichtbar sind.
+    \item \textbf{Strukturierung}: Mitschriften werden nach Fächern und Themenpools organisiert, sodass Schüler:innen schnell die 
+        benötigten Unterlagen finden können. Nur Lehrer:innen können neue Fächer und Themenpools anlegen und verwalten.
+    \item \textbf{Nutzung}: Alle freigegebenen Mitschriften können von Schüler:innen eingesehen werden.
+\end{enumerate}
 
-\section{Verweis auf anderes Team}
+\subsubsection{Fragenkonfigurator}
+Der Fragenkonfigurator bietet ein flexibles System zum Erstellen und Lernen von Fragen:
+\begin{enumerate}
+    \item \textbf{Private Fragen}: Schüler:innen können eigene private Fragen erstellen, bearbeiten und löschen.
+        Diese sind nur für die/den Nutzer:in selbst sichtbar. Diese Fragen dienen zur persönlichen Vorbereitung.
+    \item \textbf{Öffentliche Fragen}: Lehrer:innen können öffentliche Fragen erstellen, bearbeiten und löschen. 
+        Diese sind für alle Nutzer:innen sichtbar.
+    \item \textbf{Lernmodus}: Schüler:innen können sowohl mit öffentlichen als auch mit ihren eigenen privaten Fragen üben.
+        Der Lernmodus funktioniert wie ein digitales Karteikartensystem, dabei können Fragen geübt werden, 
+        die richtigen Antworten können eingeblendet werden.
+\end{enumerate}
