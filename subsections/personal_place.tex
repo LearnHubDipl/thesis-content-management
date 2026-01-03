@@ -1,11 +1,26 @@
 \setauthor{\firstauthor}
-Über die Navigationsleiste im oberen Bereich der Anwendung gelangt der/die Nutzer:in durch einen Klick auf das Personen-Symbol zum persönlichen Bereich.
+Über die Navigationsleiste im oberen Bereich der Anwendung gelangt der/die Nutzer:in durch einen Klick auf das Personen-Symbol zum persönlichen Bereich.\par
+Im persönlichen Bereich werden eine Willkommensnachricht sowie die Nutzerdaten angezeigt. Über den Logout-Button kann die aktive Sitzung beendet werden. 
+Anschließend wird der/die Nutzer:in zum Anmeldebildschirm zurückgeleitet.
 
-Im persönlichen Bereich werden eine Willkommensnachricht sowie die Nutzerdaten (Name und Klasse) angezeigt. Über den Logout-Button kann die aktive Sitzung beendet werden. Anschließend wird der/die Nutzer:in zum Anmeldebildschirm zurückgeleitet. 
+\subsection{Ansicht als Schüler:in}
+Schüler:innen sehen im persönlichen Bereich ausschließlich ihre Nutzerdaten und den Logout-Button.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{pics/persoenlicher_bereich.png}
-    \caption{Persönlicher Bereich}
-    \label{fig:persoenlicher-bereich}
+    \includegraphics[width=0.6\textwidth]{pics/persoenlicher_bereich_schueler.png}
+    \caption{Persönlicher Bereich: Schüler:in}
+    \label{fig:persoenlicher-bereich-schueler}
+\end{figure}
+
+\subsection{Ansicht als Administrator:in}
+Administrator:innen haben zusätzlich Zugriff auf den Button \textit{„Fragen genehmigen"}, 
+der oberhalb des Logout-Buttons angezeigt wird. Dieser Button führt zur Freigabeverwaltung \ref{sec:fragen-genehmigen}, 
+in der alle zur Freigabe angefragten Fragen eingesehen und bearbeitet werden können.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{pics/persoenlicher_bereich_admin.png}
+    \caption{Persönlicher Bereich: Administrator:in mit Freigabe-Button}
+    \label{fig:persoenlicher-bereich-admin}
 \end{figure}

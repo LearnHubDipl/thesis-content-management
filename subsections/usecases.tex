@@ -1,67 +1,15 @@
-\setauthor{\firstauthor}
 \begin{figure}[h t]
     \centering
     \includegraphics[width=0.95\textwidth]{pics/usecase.png}
     \caption{Usecases Fragenkonfigurator}
 \end{figure}
 
-\setauthor{\firstauthor}
-\subsection{Fragenkonfigurator}
-Das Fragen-System der Matura-Vorbereitungsplattform ermöglicht den Nutzern, gezielt Fragen zu erstellen, zu verwalten und zum Lernen zu verwenden. Dabei unterscheiden sich die Rechte der Akteure deutlich:
+% usecase Fragenkonfigurator
+% Isabella
+\input{./subsections/usecase_fragenkonf.tex}
 
-\subsubsection{Schüler:innen-/User-Rechte}
-\begin{itemize}
-    \item Schüler:innen haben eingeschränkte Rechte innerhalb des Systems.
-    \item Sie können eigene Fragen erstellen, bearbeiten und löschen, solange diese privat sind.
-    \item Von Schüler:innen erstellte Fragen sind standardmäßig privat und nur für die/den jeweilig:e Schüler:in sichtbar.
-    \item Lehrer:innen (Admins) können diese Fragen prüfen und bei Bedarf öffentlich freigeben, sodass sie für alle Nutzer:innen sichtbar werden.
-    \item Beim Lernen können Schüler:innen zwischen öffentlichen Fragen und ihren eigenen privaten Fragen wählen.
-    \item Der Lernmodus gibt keine Rückmeldung über richtige oder falsche Antworten, um ein stressfreies Wiederholen zu ermöglichen (in der Diplomarbeit *Maturatrainer* ist die Überprüfung der Antworten im Lernmodus jedoch implementiert).
-\end{itemize}
-
-\subsubsection{Lehrer:innen-/Admin-Rechte}
-\begin{itemize}
-    \item Lehrer:innen besitzen Adminrechte und haben somit vollen Zugriff auf den Fragenpool.
-    \item Sie können:
-    \begin{itemize}
-        \item neue Fragen erstellen,
-        \item bestehende Fragen bearbeiten oder löschen,
-        \item Schüler:innenfragen prüfen und öffentlich freigeben oder privat belassen.
-    \end{itemize}
-    \item Lehrer:innen können den gesamten Fragenpool (öffentliche und private Fragen) einsehen.
-    \item Sie verwalten die Qualität und Sichtbarkeit der Inhalte im System.
-\end{itemize}
-
-\subsubsection{Funktionale Übersicht}
-\begin{itemize}
-    \item Fragen erstellen:
-    \begin{itemize}
-        \item Lehrer:innen (Admins): können neue Fragen anlegen.
-        \item Schüler:innen: können eigene private Fragen anlegen.
-    \end{itemize}
-    \item Fragen bearbeiten/löschen:
-    \begin{itemize}
-        \item Lehrer:innen (Admins): dürfen alle Fragen bearbeiten oder löschen.
-        \item Schüler:innen: dürfen nur ihre eigenen privaten Fragen bearbeiten oder löschen.
-    \end{itemize}
-    \item Fragen freigeben:
-    \begin{itemize}
-        \item Nur Lehrer:innen (Admins) dürfen Schüler:innenfragen öffentlich machen.
-    \end{itemize}
-    \item Fragen anzeigen:
-    \begin{itemize}
-        \item Öffentliche Fragen sind für alle Nutzer:innen sichtbar.
-        \item Schüler:innen sehen zusätzlich ihre eigenen privaten Fragen.
-    \end{itemize}
-    \item Fragen lernen:
-    \begin{itemize}
-        \item Alle Nutzer:innen können Fragen im Lernmodus durchgehen.
-        \item Schüler:innen können zwischen öffentlichen und privaten Fragen wechseln.
-        \item Der Lernprozess erfolgt ohne Rückmeldung über richtig oder falsch.
-    \end{itemize}
-\end{itemize}
-
-
+% usecase Maturaupload
+% Lien
 \setauthor{\secondauthor}
 \subsection{Maturaupload}
 Der Maturaupload ermöglicht es den Nutzer:innen, das Hochladen, Verändern und Löschen von Mitschriften innerhalb der Plattform. Ziel ist es, das Lernmaterial zentral zu sammeln und durch Lehrer:innen geprüfte Inhalte, für andere Nutzer:innen bereitzustellen. Dabei wird in unterschiedliche Rechte für Schüler:innen und Lehrer:innen unterschieden:

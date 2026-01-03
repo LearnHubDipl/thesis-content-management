@@ -117,13 +117,28 @@ Sobald ein Schulfach ausgewählt wurde, kann ein zugehöriger Themenpool ausgew�
 Das Fragefeld ist ein Pflichtfeld und kann jederzeit ausgefüllt werden. Hier gibt der/die Nutzer:in die eigentliche Fragestellung ein.\par
 
 \textbf{Schwierigkeitsgrad und Sichtbarkeit}\par
-Der Schwierigkeitsgrad (Leicht, Mittel, Schwer) kann für jede Frage festgelegt werden. Administrator:innen haben zusätzlich die Möglichkeit, die Frage als öffentlich zu kennzeichnen. Für Schüler:innen ist dieser Toggle ausgegraut und nicht verfügbar.\par
+Der Schwierigkeitsgrad (Leicht, Mittel, Schwer) kann für jede Frage festgelegt werden.\par
+
+\textbf{Als Schüler:in} stehen zwei Optionen zur Verfügung:
+\begin{itemize}
+    \item \textbf{Private Frage:} Die Frage bleibt nur für den/die Ersteller:in sichtbar und dient zur persönlichen Vorbereitung.
+    \item \textbf{Freigabe anfragen:} Die Frage wird zur Prüfung an Administrator:innen gesendet. Bei Genehmigung wird sie als öffentliche Frage für alle Nutzer:innen sichtbar.
+\end{itemize}
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=0.6\textwidth]{pics/fragenkonf_erstellen_basis.png}
-    \caption{Fragenkonfigurator: Grundansicht}
-    \label{fig:fragenkonfigurator-basis}
+    \includegraphics[width=0.6\textwidth]{pics/fragenkonf_erstellen_schueler_freigabe.png}
+    \caption{Fragenkonfigurator: Freigabeoptionen für Schüler:innen}
+    \label{fig:fragenkonfigurator-schueler-freigabe}
+\end{figure}
+
+\textbf{Als Administrator:in} kann die Frage direkt als öffentlich gekennzeichnet werden, ohne den Freigabeprozess durchlaufen zu müssen.\par
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.6\textwidth]{pics/fragenkonf_erstellen_admin_oeffentlich.png}
+    \caption{Fragenkonfigurator: Öffentliche Frage als Admin erstellen}
+    \label{fig:fragenkonfigurator-admin-oeffentlich}
 \end{figure}
 
 \textbf{Freitext-Fragen}\par
@@ -189,7 +204,7 @@ Bei \textbf{Multiple-Choice-Fragen} können die Fragestellung und die Antwortmö
     \centering
     \includegraphics[width=0.6\textwidth]{pics/fragenkonf_bearbeiten_schueler_multiple_choice.png}
     \caption{Multiple Choice Frage bearbeiten, Rolle: Schüler:in}
-    \label{fig:fragen-bearbeiten-freitext}
+    \label{fig:fragen-bearbeiten-multiple}
 \end{figure}
 
 Der Toggle zur Veröffentlichung als öffentliche Frage ist für Schüler:innen ausgegraut und kann nicht aktiviert werden. Diese Funktion steht ausschließlich Administrator:innen zur Verfügung.\par
@@ -217,4 +232,102 @@ Der wesentliche Unterschied beim Bearbeiten öffentlicher Fragen besteht darin, 
     \includegraphics[width=0.6\textwidth]{pics/fragenkonf_bearbeiten_admin_oeffentlich.png}
     \caption{Fragen bearbeiten/löschen: Öffentlich, Rolle: Admin}
     \label{fig:fragen-bearbeiten-admin-oeffentlich}
+\end{figure}
+
+\subsubsection{Fragen genehmigen} \label{sec:fragen-genehmigen}
+
+Die Freigabeverwaltung ist ausschließlich für Administrator:innen zugänglich. Sie dient der Prüfung und Genehmigung von Fragen, die Schüler:innen zur Veröffentlichung eingereicht haben.
+
+\textbf{Zugriffsmöglichkeiten}
+Administrator:innen können die Freigabeverwaltung auf zwei Wegen erreichen:
+\begin{itemize}
+    \item Über den Button \textit{„Fragen genehmigen"} im persönlichen Bereich \ref{fig:persoenlicher-bereich-admin}
+    \item Über den Button im Bereich „Fragen bearbeiten", wenn der Toggle auf „Öffentlich" gestellt ist \ref{fig:fragen-bearbeiten-admin-oeffentlich}
+\end{itemize}
+
+\textbf{Übersicht der angefragten Fragen}
+In der Freigabeverwaltung werden alle Fragen angezeigt, die von Schüler:innen zur Genehmigung eingereicht wurden.
+
+\textbf{Filtermöglichkeiten:}\par
+\begin{itemize}
+    \item \textbf{Nach Fach filtern:} Über ein Dropdown-Menü können Administrator:innen entweder alle Fächer anzeigen lassen oder nach einem bestimmten Fach filtern.
+    \item \textbf{Sortierung:} Die Fragen können nach verschiedenen Kriterien sortiert werden:
+    \begin{itemize}
+        \item Neueste zuerst
+        \item Älteste zuerst
+        \item Alphabetisch nach Fach
+    \end{itemize}
+\end{itemize}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.6\textwidth]{pics/fragen_genehmigen_uebersicht.png}
+    \caption{Freigabeverwaltung: Übersicht der angefragten Fragen}
+    \label{fig:fragen-genehmigen-uebersicht}
+\end{figure}
+
+\textbf{Fragendetails}\par
+Durch einen Klick auf eine Frage in der Übersicht öffnet sich die Detailansicht. Diese zeigt umfassende Informationen zur eingereichten Frage und ermöglicht die Genehmigung oder Ablehnung.\par
+
+Die Detailansicht ist in mehrere Bereiche gegliedert:
+
+\textbf{Ersteller:in-Informationen}\par
+Im oberen Bereich werden Name und Klasse des/der Ersteller:in angezeigt. Dies ermöglicht es Administrator:innen nachzuvollziehen, wer die Frage eingereicht hat.\par
+
+\textbf{Fragestellung}\par
+Die vollständige Fragestellung wird angezeigt, sodass die Qualität und Korrektheit der Frage beurteilt werden kann.\par
+
+\textbf{Antworten und Erklärung}\par
+Die Darstellung der Antworten unterscheidet sich je nach Fragetyp:\par
+
+Bei \textbf{Freitext-Fragen} wird die von dem/der Schüler:in eingegebene Musterlösung bzw. Erklärung angezeigt.\par
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.6\textwidth]{pics/fragen_genehmigen_freitext.png}
+    \caption{Fragendetails: Freitext-Frage}
+    \label{fig:fragen-genehmigen-freitext}
+\end{figure}
+
+Bei \textbf{Multiple-Choice-Fragen} werden alle Antwortmöglichkeiten aufgelistet. Die korrekte Antwort ist grün hinterlegt und mit einem grünen Haken markiert, während falsche Antworten mit einem roten Kreuz gekennzeichnet sind. Falls eine Erklärung vorhanden ist, wird diese ebenfalls angezeigt. Ist keine Erklärung vorhanden, erscheint der Hinweis: \textit{„Keine Erklärung vorhanden"}.\par
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.6\textwidth]{pics/fragen_genehmigen_multiplechoice.png}
+    \caption{Fragendetails: Multiple-Choice-Frage}
+    \label{fig:fragen-genehmigen-multiplechoice}
+\end{figure}
+
+\textbf{Metainformationen}\par
+Am unteren Rand der Detailansicht werden weitere Informationen zur Frage dargestellt:
+\begin{itemize}
+    \item \textbf{Typ:} Freitext oder Multiple Choice
+    \item \textbf{Schwierigkeit:} Leicht, Mittel oder Schwer
+    \item \textbf{Themenpool:} Der zugehörige Themenpool der Frage
+\end{itemize}
+
+\textbf{Aktionen}\par
+Im unteren Bereich befinden sich zwei Buttons:
+\begin{itemize}
+    \item \textbf{Zurück zur Liste:} Führt zurück zur Übersicht aller Freigabeanfragen
+    \item \textbf{Frage genehmigen (orangener Button):} Genehmigt die Frage und macht sie öffentlich
+\end{itemize}
+
+\textbf{Frage genehmigen}\par
+Durch einen Klick auf den orangener Button \textit{„Frage genehmigen"} wird die Frage nach Bestätigung als öffentliche Frage veröffentlicht. 
+Sie ist anschließend für alle Nutzer:innen im öffentlichen Bereich sichtbar und kann im Lernmodus verwendet werden.\par
+Die Frage verschwindet nach der Genehmigung aus der Freigabeverwaltung und wird in den öffentlichen Fragenpool verschoben.\par
+
+%\textbf{Frage ablehnen}\par
+%Aktuell gibt es keinen direkten Ablehnen-Button in der Detailansicht. Administrator:innen können zur Übersicht zurückkehren und die Frage dort verwalten, oder die Frage genehmigen.\par
+
+\textbf{Keine offenen Anfragen}
+Falls keine Fragen zur Freigabe vorhanden sind, wird eine entsprechende Meldung angezeigt: \textit{„Keine offenen Freigabeanfragen vorhanden."}\par
+
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.6\textwidth]{pics/fragen_genehmigen_leer.png}
+    \caption{Meldung bei fehlenden Freigabeanfragen}
+    \label{fig:fragen-genehmigen-leer}
 \end{figure}

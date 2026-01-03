@@ -1,0 +1,67 @@
+\setauthor{\firstauthor}
+\subsection{Fragenkonfigurator}
+Das Fragen-System der Matura-Vorbereitungsplattform ermöglicht den Nutzern, gezielt Fragen zu erstellen, zu verwalten und zum Lernen zu verwenden. Dabei unterscheiden sich die Rechte der Akteure deutlich:
+
+\subsubsection{Schüler:innen-/User-Rechte}
+\begin{itemize}
+    \item Schüler:innen haben eingeschränkte Rechte innerhalb des Systems.
+    \item Sie können eigene Fragen erstellen. Dabei haben sie zwei Möglichkeiten:
+    \begin{itemize}
+        \item \textbf{Private Fragen:} Diese bleiben nur für die/den jeweilige:n Schüler:in sichtbar und dienen zur persönlichen Vorbereitung.
+        \item \textbf{Fragen mit Freigabeanfrage:} Schüler:innen können beim Erstellen einer Frage direkt eine Freigabe anfragen, damit diese von Admins geprüft und möglicherweise öffentlich gemacht wird.
+    \end{itemize}
+    \item Schüler:innen können ihre eigenen privaten Fragen bearbeiten und löschen.
+    \item Alle öffentlichen Fragen sind für Schüler:innen sichtbar, können jedoch nur von Admins bearbeitet oder gelöscht werden.
+    \item Beim Lernen können Schüler:innen zwischen öffentlichen Fragen und ihren eigenen privaten Fragen wählen.
+    \item Der Lernmodus gibt keine Rückmeldung über richtige oder falsche Antworten, um ein stressfreies Wiederholen zu ermöglichen (in der Diplomarbeit \textit{Maturatrainer} ist die Überprüfung der Antworten im Lernmodus jedoch implementiert).
+\end{itemize}
+
+\subsubsection{Admin-Rechte}
+\begin{itemize}
+    \item Admins haben vollen Zugriff auf den öffentlichen Fragenpool.
+    \item Sie können:
+    \begin{itemize}
+        \item neue öffentliche Fragen direkt erstellen,
+        \item neue private Fragen für sich selbst erstellen,
+        \item alle öffentlichen Fragen bearbeiten oder löschen,
+        \item eigene private Fragen bearbeiten oder löschen,
+        \item Fragen von Schüler:innen, für die eine Freigabe angefragt wurde, prüfen und öffentlich machen.
+    \end{itemize}
+    \item Admins haben Zugriff auf alle öffentlichen Fragen sowie auf Fragen, für die eine Freigabe angefragt wurde.
+    \item Sie verwalten die Qualität und Sichtbarkeit der öffentlichen Inhalte im System.
+\end{itemize}
+
+\subsubsection{Funktionale Übersicht}
+\begin{itemize}
+    \item \textbf{Fragen erstellen:}
+    \begin{itemize}
+        \item Admins: können öffentliche Fragen direkt erstellen oder private Fragen für sich selbst.
+        \item Schüler:innen: können private Fragen erstellen oder Fragen mit Freigabeanfrage erstellen.
+    \end{itemize}
+
+    \item \textbf{Fragen bearbeiten/löschen:}
+    \begin{itemize}
+        \item Admins: können alle öffentlichen Fragen sowie eigene private Fragen bearbeiten oder löschen.
+        \item Schüler:innen: können nur ihre eigenen privaten Fragen bearbeiten oder löschen.
+    \end{itemize}
+
+    \item \textbf{Fragen freigeben:}
+    \begin{itemize}
+        \item Schüler:innen können beim Erstellen einer Frage eine Freigabe anfragen.
+        \item Nur Admins können angefragte Fragen prüfen und bei öffentlich machen.
+    \end{itemize}
+
+    \item \textbf{Fragen anzeigen:}
+    \begin{itemize}
+        \item Öffentliche Fragen sind für alle Nutzer:innen sichtbar.
+        \item Schüler:innen sehen zusätzlich ihre eigenen privaten Fragen.
+        \item Admins sehen alle öffentlichen Fragen, Fragen mit Freigabeanfragen und eigene private Fragen.
+    \end{itemize}
+
+    \item \textbf{Fragen lernen:}
+    \begin{itemize}
+        \item Alle Nutzer:innen können Fragen im Lernmodus durchgehen.
+        \item Schüler:innen können zwischen öffentlichen und ihren eigenen privaten Fragen wechseln.
+        \item Der Lernprozess erfolgt ohne Rückmeldung über richtig oder falsch.
+    \end{itemize}
+\end{itemize}
