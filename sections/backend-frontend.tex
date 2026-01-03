@@ -1,0 +1,149 @@
+
+\section{Backend}
+Das Backend der LearnHub-Plattform wurde gemeinsam mit dem Partnerteam entwickelt und bildet die zentrale Schnittstelle zwischen Frontend, 
+Datenbank und Geschäftslogik. Für die Implementierung fiel die Wahl auf \textbf{Quarkus}, ein modernes Java-Framework, das sich durch geringe Startzeiten, 
+niedrigen Ressourcenverbrauch und optimale Eignung für containerbasierte Deployments auszeichnet. \cite{quarkus}\par
+
+Die Entscheidung für Quarkus basierte auf mehreren Faktoren: Zum einen bietet es durch die Build-Time-Augmentation 
+eine deutlich bessere Performance im Vergleich zu klassischen Frameworks wie Spring Boot. \cite{quarkus-augmentation} 
+Zum anderen wurde Quarkus bereits im Unterricht behandelt, wodurch das Entwicklerteam auf vorhandenes Wissen zurückgreifen konnte.\par
+
+Das Backend verarbeitet alle Anfragen aus dem Frontend, validiert diese und persistiert die Daten in der Datenbank. Dabei werden sowohl die Funktionen 
+des Content-Management-Systems (Maturaupload, Fragenkonfigurator) als auch die des Maturatrainers zentral verwaltet.\par
+
+Eine detaillierte Analyse der Backend-Technologien findet sich in der Diplomarbeit des Partnerteams.
+\section{Frontend}
+Das Frontend der LearnHub-Plattform wurde mit \textbf{Angular} entwickelt, einem TypeScript-basierten Framework 
+für Single-Page-Applications (SPAs). Angular bietet eine strukturierte Architektur, die besonders für komplexe 
+Webanwendungen geeignet ist. \cite{angular}
+
+Die Entscheidung für Angular basierte auf mehreren Faktoren: Zum einen wurde Angular bereits im Unterricht behandelt, 
+wodurch das Entwicklerteam auf vorhandenes Wissen zurückgreifen konnte. Zum anderen bietet Angular durch TypeScript 
+eine starke Typisierung, die Fehler reduziert und die Zusammenarbeit im Team erleichtert.
+
+Angular verwendet ein Component-basiertes System, bei dem die Benutzeroberfläche in wiederverwendbare Komponenten 
+aufgeteilt ist. Dies erhöht die Wartbarkeit und Erweiterbarkeit der Anwendung. Zentrale Konzepte wie Routing für 
+die Navigation zwischen verschiedenen Ansichten, Services für die Geschäftslogik und HTTP-Kommunikation mit dem Backend, 
+sowie Reactive Forms für komplexe Formulare wurden in der Implementierung verwendet.
+
+Das Frontend kommuniziert über REST-Schnittstellen mit dem Quarkus-Backend und verarbeitet sowohl die Funktionen 
+des Content-Management-Systems (Maturaupload, Fragenkonfigurator) als auch die des Maturatrainers.
+
+Eine detaillierte Analyse der Frontend-Architektur findet sich in der Diplomarbeit des Partnerteams.
+
+\subsection{UI-Frameworks}
+Für das Styling und die Gestaltung der Benutzeroberfläche wurden verschiedene UI-Frameworks in Betracht gezogen. 
+Im Folgenden werden drei populäre Frameworks verglichen:
+
+\subsubsection{Bootstrap}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\textwidth]{pics/Bootstrap_logo.png}
+    \caption{Logo von Bootstrap}
+    \label{fig:bootstrap}
+\end{figure}
+
+Bootstrap ist eines der bekanntesten CSS-Frameworks und bietet vorgefertigte Komponenten wie Buttons, Formulare, 
+Navigationsleisten und Modals. \cite{bootstrap} Es basiert auf einem 12-Spalten-Grid-System und ermöglicht 
+responsives Design für verschiedene Bildschirmgrößen.
+
+\textbf{Vorteile:}
+\begin{itemize}
+    \item Umfangreiche Dokumentation und große Community
+    \item Viele vorgefertigte Komponenten, die sofort einsatzbereit sind
+    \item Gute Integration mit Angular über \texttt{ng-bootstrap}
+    \item Konsistentes Design durch standardisierte Komponenten
+    \item Schnelle Entwicklung durch Ready-to-Use-Komponenten
+\end{itemize}
+
+\textbf{Nachteile:}
+\begin{itemize}
+    \item Designs können generisch wirken, wenn nicht stark angepasst
+    \item Größere Bundle-Size durch viele CSS-Klassen
+    \item Weniger Flexibilität bei individuellen Designs
+\end{itemize}
+
+\subsubsection{Tailwind CSS}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\textwidth]{pics/Tailwind_CSS_Logo.png}
+    \caption{Logo von Tailwind CSS}
+    \label{fig:tailwind}
+\end{figure}
+
+Tailwind CSS ist ein Utility-First-CSS-Framework, das statt vorgefertigter Komponenten einzelne CSS-Klassen 
+für jede Stilanpassung bereitstellt. \cite{tailwind} Entwickler:innen kombinieren diese Klassen direkt im HTML, 
+um das gewünschte Design zu erstellen.
+
+\textbf{Vorteile:}
+\begin{itemize}
+    \item Maximale Flexibilität und Kontrolle über das Design
+    \item Kleinere Bundle-Sizes durch automatisches Entfernen ungenutzter Klassen (PurgeCSS)
+    \item Moderne, individuelle Designs möglich
+    \item Konsistente Design-Tokens (Farben, Abstände)
+\end{itemize}
+
+\textbf{Nachteile:}
+\begin{itemize}
+    \item Steilere Lernkurve, besonders für Einsteiger:innen
+    \item HTML wird durch viele Utility-Klassen unübersichtlich
+    \item Keine vorgefertigten Komponenten, alles muss selbst gebaut werden
+    \item Höherer initialer Entwicklungsaufwand
+\end{itemize}
+
+\subsubsection{Angular Material}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\textwidth]{pics/angular-material_logo.png}
+    \caption{Logo von Angular Material}
+    \label{fig:angular-material}
+\end{figure}
+
+Angular Material ist ein UI-Framework, das speziell für Angular entwickelt wurde und das Material Design von Google 
+implementiert. \cite{angular-material} Es bietet fertige Angular-Komponenten mit einheitlichem Look-and-Feel.
+
+\textbf{Vorteile:}
+\begin{itemize}
+    \item Nahtlose Integration in Angular-Projekte
+    \item Hochwertige, moderne Material-Design-Komponenten
+    \item Barrierefreiheit (Accessibility) ist standardmäßig integriert
+    \item Konsistentes Design über alle Komponenten hinweg
+\end{itemize}
+
+\textbf{Nachteile:}
+\begin{itemize}
+    \item Starker Material-Design-Look, der möglicherweise nicht zu allen Projekten passt
+    \item Größere Bundle-Size durch Angular-spezifische Implementierung
+    \item Anpassungen erfordern tieferes Verständnis des Theming-Systems
+    \item Einarbeitungszeit für das Theming-System notwendig
+\end{itemize}
+
+\subsubsection{Auswahl des UI-Frameworks für die Lernplattform}
+Nach Analyse der drei betrachteten UI-Frameworks \textbf{Bootstrap}, \textbf{Tailwind CSS} und \textbf{Angular Material} 
+fiel die Wahl auf Bootstrap. Im Folgenden wird diese Entscheidung sowohl durch technische Kriterien als auch durch 
+praktische Erwägungen begründet.
+
+\paragraph{Technische Eignung}
+Bootstrap überzeugt vor allem durch seine umfangreiche Sammlung vorgefertigter Komponenten und die schnelle 
+Integration in Angular-Projekte. Für eine Lernplattform, bei der Funktionalität und schnelle Entwicklung im 
+Vordergrund stehen, bietet Bootstrap einen klaren Vorteil gegenüber individuell zu gestaltenden Frameworks.
+
+Im Vergleich dazu bietet Tailwind CSS zwar maximale Flexibilität, erfordert aber deutlich mehr Entwicklungszeit, 
+da alle Komponenten selbst erstellt werden müssen. Angular Material wäre technisch eine gute Alternative gewesen, 
+allerdings war das Framework zu Projektbeginn dem Team noch nicht bekannt.
+
+\paragraph{Praktische Erwägungen}
+Ein ausschlaggebender Faktor bei der Wahl des UI-Frameworks war die bisherige Erfahrung des Entwicklerteams. 
+Bootstrap wurde bereits im Unterricht behandelt und in kleineren Projekten eingesetzt. Dadurch konnte auf 
+vorhandenes Wissen zurückgegriffen werden, was den Einstieg erleichterte und die Entwicklungsgeschwindigkeit förderte.
+
+Angular Material wurde erst später im Unterricht behandelt und war zu Projektbeginn dem Team noch nicht bekannt. 
+Eine Einarbeitung hätte zusätzliche Zeit erfordert. Tailwind CSS wurde im Unterricht nicht behandelt und hätte 
+aufgrund des Utility-First-Ansatzes eine längere Einarbeitungszeit sowie höheren initialen Entwicklungsaufwand bedeutet.
+
+\paragraph{Fazit}
+Auf Basis der technischen Analyse und der praktischen Erfahrung des Teams wurde Bootstrap als UI-Framework 
+für die Lernplattform ausgewählt. Durch diese Entscheidung ist sichergestellt, dass die Plattform schnell entwickelt 
+werden kann, ein konsistentes Design aufweist und das Entwicklerteam effizient arbeiten kann. Tailwind CSS und 
+Angular Material bleiben interessante Alternativen für zukünftige Projekte, entsprachen aber nicht im gleichen Maße 
+den Anforderungen des Projekts.
