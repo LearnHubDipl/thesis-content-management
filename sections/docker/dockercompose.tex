@@ -1,0 +1,124 @@
+\label{sec:docker-compose}
+
+Docker Compose findet im Projekt Anwendung, um mehrere Container als kohärente
+Anwendungseinheit zu orchestrieren. Anstelle der manuellen Initialisierung und
+gegenseitigen Konfiguration einzelner Container ermöglicht Compose die deklarative
+Beschreibung erforderlicher Services, Netzwerke und Volumes in einer YAML-Datei.
+Dies gewährleistet reproduzierbare Deployments, die sowohl in lokalen Umgebungen
+als auch auf der virtuellen Maschine konsistent ausgeführt werden können
+\cite{docker-compose-docs}.
+
+Im Produktiveinsatz auf der virtuellen Maschine umfasst die Compose-Konfiguration
+mehrere Services: die Benutzeroberfläche, das Quarkus-Backend, eine MySQL-Datenbank
+sowie einen Nginx-Container für die Bereitstellung hochgeladener Dateien. Ergänzend
+fungiert Traefik als Reverse-Proxy, der eingehende Anfragen basierend auf Host-
+und Pfadregeln an die entsprechenden Container weiterleitet. Die hierfür benötigten
+Routing-Regeln werden mittels Labels direkt an den jeweiligen Services spezifiziert.
+Das vollständige Compose-File zeigt Listing~\ref{lst:compose-vm}.
+
+\begin{lstlisting}[caption={Docker Compose Setup für den Betrieb auf der virtuellen Maschine}, label={lst:compose-vm}]
+services:
+  frontend:
+    image: lienhochbichler/learnhub-frontend:latest
+    container_name: learnhub-ui
+    restart: always
+    networks:
+      - learnhubnet
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`vm91.htl-leonding.ac.at`) && PathPrefix(`/`)"
+      - "traefik.http.services.frontend.loadbalancer.server.port=80"
+
+  mysql:
+    image: mysql:8
+    container_name: learnhub-mysql
+    environment:
+      MYSQL_DATABASE: learnhub-db
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: quarkus
+      MYSQL_PASSWORD: quarkus
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -proot || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+    volumes:
+      - learnhub-data:/var/lib/mysql
+    networks:
+      - learnhubnet
+
+  quarkus:
+    image: lienhochbichler/learnhub-backend:latest
+    container_name: learnhub-backend
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      QUARKUS_PROFILE: prod
+      QUARKUS_DATASOURCE_USERNAME: quarkus
+      QUARKUS_DATASOURCE_PASSWORD: quarkus
+      QUARKUS_DATASOURCE_JDBC_URL: jdbc:mysql://mysql:3306/learnhub-db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION: update
+      MOCKDATA_PATH: /app/mock-data
+    volumes:
+      - ./mock-data:/app/mock-data:Z
+      - learnhub-uploads:/app/uploads
+    networks:
+      - learnhubnet
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=Host(`vm91.htl-leonding.ac.at`) && PathPrefix(`/backend`)"
+      - "traefik.http.services.backend.loadbalancer.server.port=8080"
+      - "traefik.http.middlewares.backend-strip-prefix.stripprefix.prefixes=/backend"
+      - "traefik.http.routers.backend.middlewares=backend-strip-prefix"
+
+  nginx:
+    image: nginx:alpine
+    container_name: learnhub-nginx
+    volumes:
+      - learnhub-uploads:/usr/share/nginx/html/uploads:ro
+    networks:
+      - learnhubnet
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.uploads.rule=Host(`vm91.htl-leonding.ac.at`) && PathPrefix(`/uploads`)"
+      - "traefik.http.services.uploads.loadbalancer.server.port=80"
+
+networks:
+  learnhubnet:
+    external: true
+
+volumes:
+  learnhub-data:
+    name: learnhub-data
+  learnhub-uploads:
+    name: learnhub-uploads
+\end{lstlisting}
+
+Die im Compose-File spezifizierten Services erfüllen jeweils distinkte Funktionen.
+Die MySQL-Datenbank persistiert die Anwendungsdaten und nutzt hierzu ein Volume
+(\icode{learnhub-data}). Durch dieses Volume bleibt die Datenpersistenz auch bei
+Neustarts oder Aktualisierungen des Containers gewährleistet. Ein Healthcheck
+mittels \icode{mysqladmin ping} verifiziert die Betriebsbereitschaft der Datenbank.
+Das Backend wird erst initialisiert, wenn die Datenbank den Status \textit{healthy}
+erreicht hat (\icode{depends\_on} mit \icode{condition: service\_healthy}). Dies
+verhindert Startprobleme durch verfrühte Verbindungsversuche.
+
+Das Backend integriert zusätzlich ein Volume (\icode{learnhub-uploads}) zur
+persistenten Speicherung hochgeladener Dateien. Ein dedizierter Nginx-Container
+stellt diese Dateien über einen separaten Pfad (\icode{/uploads}) zur Verfügung.
+Das Frontend operiert als eigenständiger Service und wird über Traefik unter der
+Root-URL bereitgestellt. Die Weiterleitung zum Backend erfolgt über einen Prefix
+(\icode{/backend}), der durch eine Traefik-Middleware entfernt wird, bevor die
+Anfrage den Backend-Container erreicht. Diese Separation ermöglicht eine übersichtliche
+URL-Struktur sowie eine präzise Aufgabentrennung.
+
+Durch die Nutzung eines externen Docker-Netzwerks (\icode{learnhubnet}) kann
+Traefik als zentraler Reverse-Proxy unabhängig vom Compose-Stack betrieben werden,
+während gleichzeitig der Zugriff auf die Services gewährleistet bleibt. Das
+Compose-Setup konstituiert somit die Basis für einen reproduzierbaren Produktivbetrieb
+auf der virtuellen Maschine und bietet zugleich eine solide Grundlage für Wartungs-
+und Erweiterungsmaßnahmen \cite{docker-compose-docs,traefik-docs}.

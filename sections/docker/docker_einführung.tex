@@ -1,0 +1,41 @@
+Die zuverlässige Bereitstellung und der kontinuierliche Betrieb von Softwareanwendungen 
+bilden heute einen fundamentalen Baustein moderner IT-Infrastrukturen. Während die 
+Entwicklung von Backend- und Frontend-Komponenten nach wie vor im Mittelpunkt steht, 
+rückt parallel dazu die Frage in den Vordergrund, wie Anwendungen verlässlich, 
+wiederholbar und mit vertretbarem Wartungsaufwand betrieben werden können. Diesem 
+Themenkomplex widmet sich das vorliegende Kapitel, indem es die Containerisierung 
+der entwickelten Anwendung sowie deren Bereitstellung auf einer virtuellen Maschine 
+beleuchtet.
+
+Innerhalb des Gesamtprojekts werden fachliche und funktionale Themen, darunter die 
+Umsetzung von Backend und Frontend sowie die Implementierung von Authentifizierungs- 
+und Autorisierungsmechanismen, von anderen Teammitgliedern bearbeitet. Dieses Kapitel 
+konzentriert sich dagegen gezielt auf die technische Infrastruktur, die den Betrieb 
+der Anwendung trägt. Im Zentrum steht dabei die Fragestellung, wie durch Container-
+Technologien eine einheitliche Ausführungsumgebung etabliert werden kann, die 
+plattformunabhängig funktioniert.
+
+In den vergangenen Jahren hat sich Containerisierung als weitverbreiteter Standard 
+für die Bereitstellung von Software etabliert. Technologien wie Docker erlauben es, 
+Anwendungen mitsamt sämtlicher Abhängigkeiten in isolierten Containern zu bündeln. 
+Dadurch werden klassische Herausforderungen der Softwareverteilung, etwa inkompatible 
+Bibliotheksversionen oder komplexe manuelle Konfigurationsschritte, spürbar 
+reduziert \cite{pahl2015containerization}. Für das hier beschriebene Projekt ergibt 
+sich daraus ein wesentlicher Nutzen: Die Anwendung läuft sowohl in der Entwicklungs- 
+als auch in der Produktivumgebung unter vergleichbaren Bedingungen.
+
+Das Kapitel verfolgt das Ziel, die verwendeten Container-Technologien und den 
+konkreten Deployment-Ablauf transparent zu dokumentieren. Es wird dargelegt, wie 
+Docker zur Containerisierung genutzt wird, wie Docker Compose das koordinierte 
+Zusammenspiel mehrerer Dienste ermöglicht und wie die Bereitstellung auf einer 
+virtuellen Maschine erfolgt. Ein besonderes Augenmerk liegt dabei auf der 
+Nachvollziehbarkeit der technischen Entscheidungen, um künftige Wartungsarbeiten 
+und Erweiterungen zu vereinfachen.
+
+Zur inhaltlichen Eingrenzung ist festzuhalten, dass erweiterte Infrastrukturthemen 
+wie Continuous Integration, Continuous Deployment oder Cloud-native Plattformen 
+nicht behandelt werden. Kubernetes wird zwar im weiteren Verlauf konzeptionell 
+eingeordnet, kommt jedoch nicht zum produktiven Einsatz. Der Schwerpunkt liegt 
+bewusst auf einer überschaubaren, gut handhabbaren Lösung, die den Projektanforderungen 
+gerecht wird und einen praxisnahen Betrieb auf einer virtuellen Maschine 
+ermöglicht \cite{dockerdocs}.

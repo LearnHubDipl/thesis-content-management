@@ -1,0 +1,65 @@
+Containerisierung bezeichnet ein zeitgemäßes Virtualisierungsverfahren, bei dem
+Anwendungen zusammen mit allen erforderlichen Abhängigkeiten in abgeschotteten
+Laufzeitumgebungen bereitgestellt werden. Diese Umgebungen werden als Container
+bezeichnet. Anders als herkömmliche virtuelle Maschinen emulieren Container nicht
+die vollständige Hardware-Schicht, sondern nutzen gemeinsam den Kernel des
+zugrundeliegenden Betriebssystems. Dies führt zu einem erheblich geringeren
+Ressourcenverbrauch und ermöglicht kürzere Startzeiten.
+
+Die Wurzeln der Container-Technologie reichen zurück bis zu frühen Isolationsmechanismen
+wie \textit{chroot}-Umgebungen in Unix-Systemen. Mit der Einführung von Linux
+Containers (LXC) entstand erstmals eine strukturierte Methode zur Trennung von
+Prozessen, Dateisystemen und Netzwerkressourcen. Der eigentliche Wendepunkt für
+die breite Akzeptanz der Containerisierung war jedoch die Einführung von Docker
+im Jahr 2013. Docker vereinfachte den Umgang mit Containern erheblich und machte
+die Technologie einem breiten Entwicklerkreis zugänglich \cite{pahl2015containerization}.
+
+Der grundlegende Unterschied zwischen Containern und virtuellen Maschinen manifestiert
+sich in der Isolationsstrategie. Virtuelle Maschinen betreiben jeweils ein vollständiges
+Betriebssystem mit eigenem Kernel, während Container sich den Kernel des Host-Systems
+teilen. Abbildung~\ref{fig:container-vs-vm} visualisiert diesen fundamentalen
+Unterschied. Das Entfallen separater Betriebssysteminstanzen führt zu deutlich
+reduziertem Speicherbedarf und beschleunigten Startzeiten. Diese Eigenschaften
+prädestinieren Container für den Einsatz in skalierbaren und dynamischen
+Anwendungsszenarien.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{pics/container-vs-vm-inline1_tcm19-82163.jpg}
+    \caption{Vergleich zwischen Containern und virtuellen Maschinen}
+    \label{fig:container-vs-vm}
+\end{figure}
+
+Über die Effizienzgewinne hinaus zeichnet sich Containerisierung insbesondere
+durch verbesserte Portabilität und Reproduzierbarkeit aus. Eine in einem Container
+verpackte Anwendung lässt sich auf verschiedenen Plattformen betreiben, ohne dass
+umgebungsspezifische Anpassungen notwendig werden. Dadurch werden häufige
+Fehlerursachen eliminiert, die aus heterogenen Betriebssystemen, divergierenden
+Bibliotheksversionen oder abweichenden Konfigurationen resultieren.
+
+Docker repräsentiert eine umfassende Plattform für die Verwaltung des kompletten
+Container-Lebenszyklus. Dies umfasst die Erstellung von Container-Images, deren
+Verwaltung sowie das Starten und Monitoring aktiver Container. Die Docker-Architektur
+setzt sich aus mehreren Kernkomponenten zusammen, unter anderem dem Docker-Daemon,
+der Docker-CLI und den Container-Images. Abbildung~\ref{fig:docker-architecture}
+illustriert die grundsätzliche Struktur dieser Architektur.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{pics/0414-how-does-docker-work.png}
+    \caption{Grundlegende Architektur von Docker}
+    \label{fig:docker-architecture}
+\end{figure}
+
+Docker-Images bilden unveränderliche Vorlagen, auf deren Basis Container instanziiert
+werden. Sie enthalten sowohl den Anwendungscode als auch sämtliche erforderlichen
+Abhängigkeiten. Container selbst stellen die ausführenden Instanzen dieser Images
+dar. Diese Trennung erlaubt die Versionierung, Wiederverwendung und effiziente
+Distribution von Images.
+
+Abschließend lässt sich konstatieren, dass Containerisierung einen fundamentalen
+Pfeiler moderner Software-Deployment-Strategien bildet. Sie realisiert eine klare
+Separation zwischen Anwendungslogik und Infrastruktur, erhöht die Wartungsfreundlichkeit
+und gewährleistet einen homogenen Betrieb über unterschiedliche Umgebungen hinweg.
+Diese Charakteristika bilden das Fundament für den Docker-Einsatz im vorliegenden
+Projekt und werden in den nachfolgenden Abschnitten detaillierter erörtert.

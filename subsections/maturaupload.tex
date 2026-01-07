@@ -1,83 +1,117 @@
 \setauthor{\secondauthor}
-\subsection{Strukturierung der Fächer und Themenpools} \label{sec:maturaupload-faecher-themenpools}
-Ein Klick auf „Maturavorbereitung“ in der Navigationsleiste führt die User zur Auswahl der Fächer.
+\subsection{Strukturierung der Fächer und Themenpools}
+\label{sec:maturaupload-faecher-themenpools}
+
+Über den Menüpunkt „Maturavorbereitung“ in der Navigationsleiste gelangen die
+Nutzer:innen zur Fachauswahl. Diese Ansicht stellt den zentralen Einstiegspunkt
+für die Arbeit mit Mitschriften und Fragen dar. Abhängig von der jeweiligen
+Nutzerrolle unterscheidet sich die zur Verfügung stehende Funktionalität.
+
+Das Fächer- und Themenpool-System bildet das strukturelle Grundgerüst der
+Plattform. Jede Mitschrift sowie jede Frage wird eindeutig einem Fach und einem
+Themenpool zugeordnet. Dadurch entsteht eine klare inhaltliche Struktur, welche
+die Navigation innerhalb der Plattform sowie die Verwaltung der Inhalte
+erheblich erleichtert.
+
+\subsubsection{Fachauswahl}
 
 \begin{figure}[h t]
     \centering
-    \includegraphics[width=0.6\textwidth]{pics/ab1.png}
-    \caption{Aufbau der Fächer}
+    \includegraphics[width=0.7\textwidth]{pics/ab1.png}
+    \caption{Fachauswahl in der Maturavorbereitung}
 \end{figure}
 
-Das Fächer- und Themenpool-System ist die Art und Weise, wie die Datensätze in der Matura Vorbereitungsplattform organisiert sind.
-Dieses System ermöglicht eine eindeutige Kategorisierung von Fragen und Materialien nach Bereichen und vereinfacht so die Navigation und Verwaltung.
+Ein Fach stellt die oberste Ebene der inhaltlichen Organisation dar und kann
+mehrere Themenpools enthalten. Die Fachauswahl ist für alle Nutzer:innen
+zugänglich, unterscheidet sich jedoch je nach Rolle im dargestellten Umfang
+sowie in den verfügbaren Aktionen.
 
-\subsubsection{Fächer} 
-\begin{figure}[h t]
-    \centering
-    \includegraphics[width=0.6\textwidth]{pics/ab2.png}
-    \caption{Upload der Fächer- und Themenstruktur}
-\end{figure}
+\paragraph{Ansicht als Schüler:in}
 
-\begin{itemize}
-    \item Jedes Fach (z.\,B. \textit{Mathematik}, \textit{Englisch}, \textit{Deutsch}) kann von Usern erstellt, bearbeitet und gelöscht werden.
-    \item Ein Fach ist die oberste Ebene dieser Struktur und enthält eine oder mehrere Themenpools.
-    \item Bei der Erstellung eines Faches werden Fachname, Beschreibung, Bild-URL und die zugehörigen Themenpools angegeben.
-\end{itemize}
-
-\subsubsection{Themenpools}
-\begin{figure}[h t]
-    \centering
-    \includegraphics[width=0.6\textwidth]{pics/ab3.png}
-    \caption{Themenpools innerhalb eines Faches}
-\end{figure}
-
-\begin{itemize}
-    \item Themenpools sind inhaltliche Unterkategorien innerhalb eines Faches, z.\,B. \textit{Qualitätssicherung} oder \textit{Kontrolle und Steuerung}.
-    \item Jeder Themenpool ist einem Fach zugeordnet und beinhaltet die zugehörigen Unterlagen. 
-    \item Ebenso wie Fächer können Themenpools erstellt, bearbeitet und gelöscht werden. 
-    \item Wenn in der Fachauswahl das Fach gewechselt wird, aktualisieren sich die zugehörigen Themenpools automatisch.
-\end{itemize}
-
-\subsubsection{Verknüpfung mit dem Fragenkonfigurator}
-\begin{itemize}
-    \item Jede Frage wird damit eindeutig einem Fach und Themenpool zugeordnet, sodass im Lernmodus danach filtert werden kann. 
-    \item Dadurch wird eine sehr konsistente Organisation der Inhalte sowie eine sehr gute Navigation aller Inhalte ermöglicht.
-\end{itemize}
-
-\vspace{1em}
-\subsection{Upload und Verwaltung von Unterlagen}
-\begin{figure}[h t]
-    \centering
-    \includegraphics[width=0.6\textwidth]{pics/ab4.png}
-    \caption{Upload und Verwaltung von Unterlagen}
-\end{figure}
-
-Die Plattform ermöglicht das Hochladen und Verwalten weiterer Lernmaterialien, wie beispielsweise Skripte, Zusammenfassungen oder Beispielaufgaben.
-Der Lernprozess wird somit durch begleitende Materialien verlängert.
-
-\subsubsection{Upload}
+Schüler:innen sehen ausschließlich jene Fächer, die bereits von Lehrkräften oder
+Administrator:innen erstellt wurden. Die Fachauswahl dient in dieser Rolle
+ausschließlich der Navigation und dem Zugriff auf Lernmaterialien. Funktionen
+zur Erstellung, Bearbeitung oder Löschung von Fächern stehen Schüler:innen nicht
+zur Verfügung.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{pics/ab5.png}
-    \caption{Upload-Ansicht für Unterlagen}
-    \label{fig:upload-ansicht}
+    \includegraphics[width=0.7\textwidth]{pics/ab2.png}
+    \caption{Fachübersicht mit erweiterten Verwaltungsfunktionen}
 \end{figure}
 
-\begin{itemize}
-    \item n der Upload-Ansicht können Dateien im pdf – Format hochgeladen werden.
-    \item Des Weiteren kann der User das Fach und Themenpool auswählen, zu dem das Dokument gehört.
-    \item Bevor der User die Datei hochlädt, müssen sie Titel, Beschreibung und die zuständige Lehrkraft eintragen.
-\end{itemize}
+\paragraph{Ansicht als Lehrkraft und Administrator:in}
 
-\subsubsection{Verwaltung}
-\begin{figure}[h t]
+Lehrkräfte und Administrator:innen sehen alle vorhandenen Fächer. Beide Rollen
+verfügen über identische Berechtigungen in dieser Ansicht. Sie können neue Fächer
+erstellen sowie bestehende Fächer bearbeiten oder löschen. Zusätzlich können
+Mitschriften gezielt einem Fach zugeordnet und strukturiert verwaltet werden.
+
+\subsubsection{Themenpool-Auswahl}
+
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{pics/ab6.png}
-    \caption{Mitschriften-Übersicht}
+    \includegraphics[width=0.7\textwidth]{pics/ab3.png}
+    \caption{Themenpools innerhalb eines Faches}
 \end{figure}
 
-\begin{itemize}
-    \item Admins können alle hochgeladenen Unterlagen ansehen, bearbeiten oder löschen.
-    \item Schüler:innen haben ausschließlich Leserechte und können die Unterlagen herunterladen oder direkt im Browser anzeigen.
-\end{itemize}
+Themenpools bilden die zweite Ebene der inhaltlichen Struktur und dienen als
+Unterkategorien eines Faches, beispielsweise \textit{Qualitätssicherung} oder
+\textit{Kontrolle und Steuerung}. Jeder Themenpool ist eindeutig einem Fach
+zugeordnet und enthält die zugehörigen Mitschriften.
+
+Beim Wechsel des ausgewählten Faches werden die zugehörigen Themenpools
+automatisch aktualisiert, wodurch eine konsistente und intuitive Navigation
+gewährleistet wird.
+
+\paragraph{Ansicht als Schüler:in}
+
+Schüler:innen können Themenpools ausschließlich einsehen und zur Auswahl von
+Lernmaterialien verwenden. Die Themenpool-Auswahl dient in dieser Rolle nur der
+Navigation. Funktionen zur Erstellung, Bearbeitung oder Löschung von
+Themenpools stehen Schüler:innen nicht zur Verfügung.
+
+\paragraph{Ansicht als Lehrkraft und Administrator:in}
+
+Lehrkräfte und Administrator:innen verfügen auch bei Themenpools über identische
+Berechtigungen. Sie können neue Themenpools erstellen sowie bestehende
+Themenpools bearbeiten oder löschen. Dadurch ist es möglich, neue inhaltliche
+Bereiche anzulegen oder bestehende Strukturen flexibel anzupassen.
+
+\subsubsection{Upload von Mitschriften}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{pics/ab4.png}
+    \caption{Mitschriftenübersicht}
+    \label{fig:mitschriften}
+\end{figure}
+
+Die Plattform ermöglicht es Nutzer:innen, Mitschriften hochzuladen und diese
+einem bestimmten Fach sowie einem zugehörigen Themenpool zuzuordnen. Beim Upload
+müssen ein Titel sowie eine Beschreibung angegeben werden, um den Inhalt der
+Mitschrift eindeutig zu kennzeichnen.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{pics/ab5.png}
+    \caption{Mitschriften-Upload-Formular}
+    \label{fig:mitschriften-upload}
+\end{figure}
+
+\paragraph{Upload als Schüler:in}
+
+Schüler:innen können eigene Mitschriften hochladen. Solange die Mitschrift noch
+nicht freigegeben ist, wird sie ausgegraut dargestellt und ist nur für den/die
+Ersteller:in sichtbar. In diesem Zustand können Schüler:innen ihre Mitschrift
+bearbeiten oder ändern. Nach der Freigabe ist die Mitschrift öffentlich sichtbar;
+ab diesem Zeitpunkt können Schüler:innen ausschließlich ihre eigenen
+Mitschriften löschen.
+
+\paragraph{Upload als Lehrkraft und Administrator:in}
+
+Lehrkräfte und Administrator:innen können Mitschriften hochladen, die sofort
+öffentlich sichtbar sind. Für diese Rolle ist kein Freigabeprozess erforderlich.
+Zusätzlich können sie sämtliche Mitschriften – unabhängig vom Ersteller –
+bearbeiten oder löschen. Dadurch verfügen sie über die volle Kontrolle über alle
+Inhalte innerhalb der Plattform.

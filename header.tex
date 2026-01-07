@@ -100,6 +100,14 @@ morekeywords={base,var,in,out,dynamic,from,where,select,orderby,function,\$,grou
 	morestring=[b]',
 	morestring=[b]"
 }
+\lstdefinelanguage{Dockerfile}{
+	keywords={FROM, RUN, CMD, LABEL, EXPOSE, ENV, ADD, COPY, ENTRYPOINT, VOLUME, USER, WORKDIR, ARG, ONBUILD, STOPSIGNAL, HEALTHCHECK, SHELL},
+	keywordstyle=\color{blue}\bfseries,
+	comment=[l]{\#},
+	commentstyle=\color{greencomments}\ttfamily,
+	stringstyle=\color{redstrings},
+	sensitive=false
+}
 \usepackage{caption}
 \DeclareCaptionFont{white}{\color{white}}
 \DeclareCaptionFormat{listing}{\colorbox[cmyk]{0.43, 0.35, 0.35,0.01}{\parbox{\textwidth}{\hspace{10pt}#1#2#3}}}
