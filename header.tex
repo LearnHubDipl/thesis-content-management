@@ -152,3 +152,73 @@ morekeywords={base,var,in,out,dynamic,from,where,select,orderby,function,\$,grou
 	\urlstyle{sf}
 }
 \newcounter{RPages}
+
+
+\usepackage{listings}
+\usepackage{xcolor}
+
+% JSON Language Definition für Listings
+\lstdefinelanguage{json}{
+    basicstyle=\ttfamily\small,
+    numbers=left,
+    numberstyle=\scriptsize,
+    stepnumber=1,
+    numbersep=8pt,
+    showstringspaces=false,
+    breaklines=true,
+    frame=lines,
+    backgroundcolor=\color{gray!10},
+    literate=
+     *{0}{{{\color{blue}0}}}{1}
+      {1}{{{\color{blue}1}}}{1}
+      {2}{{{\color{blue}2}}}{1}
+      {3}{{{\color{blue}3}}}{1}
+      {4}{{{\color{blue}4}}}{1}
+      {5}{{{\color{blue}5}}}{1}
+      {6}{{{\color{blue}6}}}{1}
+      {7}{{{\color{blue}7}}}{1}
+      {8}{{{\color{blue}8}}}{1}
+      {9}{{{\color{blue}9}}}{1}
+      {:}{{{\color{red}{:}}}}{1}
+      {,}{{{\color{red}{,}}}}{1}
+      {\{}{{{\color{blue}{\{}}}}{1}
+      {\}}{{{\color{blue}{\}}}}}{1}
+      {[}{{{\color{blue}{[}}}}{1}
+      {]}{{{\color{blue}{]}}}}{1},
+}
+\lstdefinelanguage{JavaScript}{
+    keywords={typeof, new, true, false, catch, function, return, null, switch, var, let, const, if, in, while, do, else, case, break, void, this, import, export, from, class, extends, async, await, default},
+    keywordstyle=\color{bluekeywords}\bfseries,
+    ndkeywords={boolean, throw, implements, window, document, console, setInterval, then, catch, inject},
+    ndkeywordstyle=\color{darkgray}\bfseries,
+    identifierstyle=\color{black},
+    sensitive=true,
+    comment=[l]{//},
+    morecomment=[s]{/*}{*/},
+    commentstyle=\color{greencomments},
+    stringstyle=\color{redstrings},
+    morestring=[b]',
+    morestring=[b]",
+    basicstyle=\ttfamily\footnotesize,
+    numbers=left,
+    numberstyle=\tiny,
+    breaklines=true,
+    frame=single,
+    xleftmargin=17pt,
+    framexleftmargin=17pt,
+}
+
+\lstdefinelanguage{xml}{
+    basicstyle=\ttfamily\footnotesize,
+    numbers=left,
+    numberstyle=\tiny,
+    showstringspaces=false,
+    breaklines=true,
+    frame=single,
+    xleftmargin=17pt,
+    framexleftmargin=17pt,
+    morestring=[b]",
+    stringstyle=\color{redstrings},
+    commentstyle=\color{greencomments},
+    morecomment=[s]{<!--}{-->},
+}

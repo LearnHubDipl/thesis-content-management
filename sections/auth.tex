@@ -1,0 +1,836 @@
+Die Sicherheit und der Schutz von Benutzerdaten sind zentrale Anforderungen an moderne Webanwendungen. 
+Dabei stellen sich zwei grundlegende Fragen: \textit{Wer ist der Nutzer?} (Authentifizierung) und 
+\textit{Was darf der Nutzer?} (Autorisierung). \cite{oauth2-rfc} Für LearnHub wurde eine robuste Lösung benötigt, die 
+beide Aspekte abdeckt und gleichzeitig mit dem bestehenden LDAP-System der HTL Leonding kompatibel ist.
+
+Bevor die finale Entscheidung auf Keycloak fiel, wurden verschiedene Authentifizierungslösungen 
+hinsichtlich ihrer Eignung für die Lernplattform analysiert. Kriterien waren unter anderem 
+Sicherheit und Standardkonformität, Integration mit HTL-LDAP, Kosten und Lizenzmodell, Entwicklungsaufwand, 
+Kontrolle über Daten und Infrastruktur sowie Community- und Unternehmenssupport. \cite{keycloak-docs}
+
+\subsubsection{Grundlegende Konzepte}
+
+Single Sign-On (SSO) ermöglicht es Nutzer:innen, sich einmal anzumelden und dann auf mehrere Anwendungen 
+zuzugreifen, ohne sich erneut authentifizieren zu müssen. \cite{sso-definition} Dies verbessert sowohl 
+die Benutzererfahrung als auch die Sicherheit, da Nutzer:innen weniger Passwörter verwalten müssen und 
+somit das Risiko schwacher oder wiederverwendeter Passwörter reduziert wird.
+
+OAuth 2.0 ist ein Autorisierungs-Framework, das es Anwendungen ermöglicht, auf geschützte Ressourcen 
+zuzugreifen, ohne dass Nutzer:innen ihre Passwörter preisgeben müssen. \cite{oauth2-rfc} Es wird häufig 
+für Social Logins verwendet, beispielsweise wenn Nutzer:innen sich mit ihrem Google- oder Facebook-Account 
+bei einer dritten Anwendung anmelden. Das Framework definiert verschiedene Grant Types, die je nach 
+Anwendungsfall unterschiedliche Authentifizierungsabläufe ermöglichen. \cite{oauth2-rfc}
+
+OpenID Connect ist eine Authentifizierungsschicht, die auf OAuth 2.0 aufbaut. \cite{openid-connect} 
+Während OAuth 2.0 primär für Autorisierung konzipiert ist, ermöglicht OpenID Connect die sichere Authentifizierung 
+von Nutzer:innen. Es stellt Informationen über die Identität des Nutzers in Form von ID-Tokens zur Verfügung 
+und wird von modernen Identity-Providern wie Keycloak, Auth0 und Google unterstützt. \cite{openid-connect}
+
+LDAP (Lightweight Directory Access Protocol) ist ein Protokoll zum Zugriff auf Verzeichnisdienste. 
+\cite{ldap-rfc} Es wird häufig in Organisationen eingesetzt, um Benutzerinformationen zentral zu 
+verwalten. Ein LDAP-Verzeichnis speichert strukturierte Informationen über Benutzer, Gruppen und 
+andere Ressourcen in einer hierarchischen Baumstruktur. \cite{ldap-rfc} Die HTL Leonding nutzt LDAP, um alle 
+Schüler:innen- und Lehrer:innen-Accounts zu verwalten. Identity-Provider wie Keycloak können direkt mit LDAP 
+kommunizieren und somit bestehende Benutzerkonten verwenden, ohne diese duplizieren zu müssen.
+
+Ein JSON Web Token (JWT) ist ein kompaktes, URL-sicheres Format zur Übertragung von Informationen zwischen 
+zwei Parteien. \cite{jwt-rfc} Ein JWT besteht aus drei Teilen, die durch Punkte getrennt sind: Der Header 
+enthält Metadaten über den Token-Typ und den verwendeten Signaturalgorithmus. Der Payload enthält die 
+eigentlichen Benutzerinformationen und Claims, wie beispielsweise Benutzername, Rollen und Ablaufzeit. 
+Die Signatur dient zur Verifikation der Authentizität des Tokens und stellt sicher, dass der Token nicht 
+manipuliert wurde. \cite{jwt-rfc} Identity-Provider erstellen nach erfolgreicher Anmeldung einen JWT, der alle relevanten 
+Benutzerinformationen enthält. Das Backend kann diesen Token validieren, ohne bei jeder Anfrage erneut 
+mit dem Identity-Provider kommunizieren zu müssen, was die Performance verbessert. \cite{jwt-best-practices}
+
+\subsection{Keycloak}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\textwidth]{pics/keycloak_logo.png}
+    \caption{Logo von Keycloak}
+    \label{fig:keycloak-logo}
+\end{figure}
+
+Keycloak ist eine Open-Source-Lösung für Identity and Access Management (IAM), entwickelt von Red Hat. 
+\cite{keycloak-docs} Es ermöglicht Single Sign-On, unterstützt die Protokolle OAuth 2.0, OpenID Connect und SAML 2.0 
+und bietet umfangreiche Funktionen wie User Federation, Social Login und Multi-Faktor-Authentifizierung. 
+\cite{keycloak-docs}
+
+Die Basis von Keycloak bildet eine Kombination aus modernen Authentifizierungsstandards und flexibler 
+Benutzerverwaltung. \cite{keycloak-docs} Ein zentrales Ziel von Keycloak besteht darin, die Authentifizierung von der 
+Anwendungslogik zu trennen, sodass sensible Daten wie Passwörter nicht in der Anwendung selbst 
+gespeichert werden müssen. \cite{keycloak-security}
+
+\subsubsection{Architekturprinzip: Zentrale Authentifizierung}
+
+Keycloak fungiert als zentraler Authentifizierungsserver, der zwischen Frontend und Backend vermittelt. 
+\cite{keycloak-docs} Anstatt dass jede Anwendung ihre eigene Benutzerverwaltung implementiert, übernimmt Keycloak die 
+gesamte Authentifizierung und stellt der Anwendung validierte Tokens zur Verfügung. \cite{keycloak-security}
+
+Der Authentifizierungsprozess funktioniert wie folgt: Die Nutzer:in greift auf die Anwendung zu, die Anwendung 
+leitet zur Keycloak-Login-Seite weiter, die Nutzer:in meldet sich mit Benutzername und Passwort an, Keycloak 
+validiert die Credentials gegen eine Datenquelle wie LDAP, Datenbank oder externe Provider, bei Erfolg erstellt 
+Keycloak einen JSON Web Token mit Benutzerinformationen, der Token wird an die Anwendung zurückgegeben und die 
+Anwendung nutzt den Token für alle weiteren Anfragen. \cite{keycloak-security}
+
+Dieser Ansatz bietet mehrere Vorteile. \cite{keycloak-security} Die Sicherheit wird erhöht, da Passwörter nur an Keycloak 
+übertragen werden und nie an die Anwendung gelangen. Durch Single Sign-On können sich Nutzer:innen einmal anmelden 
+und anschließend mehrere Anwendungen nutzen, ohne sich erneut authentifizieren zu müssen. Die zentrale Verwaltung 
+ermöglicht es, Benutzer, Rollen und Rechte an einem Ort zu verwalten, was die Administration vereinfacht. Zudem 
+werden etablierte Protokolle wie OAuth 2.0 und OpenID Connect genutzt, was die Interoperabilität mit anderen Systemen 
+gewährleistet. \cite{keycloak-docs}
+
+\subsubsection{Unterstützte Technologien}
+
+Keycloak unterstützt verschiedene Authentifizierungsmechanismen und Integrationsmöglichkeiten. 
+\cite{keycloak-docs} Für typische Webanwendungen besonders relevant sind die Unterstützung von 
+OAuth 2.0 und OpenID Connect für moderne Webanwendungen und APIs, die Integration mit LDAP und 
+Active Directory für Unternehmens- und Schulumgebungen, Social Login mit Google, Facebook und 
+GitHub für externe Authentifizierung, die Verwendung von JSON Web Tokens für sichere Token-basierte 
+Kommunikation sowie Multi-Faktor-Authentifizierung für erhöhte Sicherheit. \cite{keycloak-security}
+
+Für die Entwicklung bietet Keycloak mehrere Features, die den Entwicklungsprozess unterstützen. 
+\cite{keycloak-docs} Die Admin Console ist eine web-basierte Oberfläche zur Verwaltung von Realms, 
+Clients, Usern und Rollen. Die REST Admin API ermöglicht programmatischen Zugriff auf alle 
+Verwaltungsfunktionen. Client Adapters sind vorgefertigte Bibliotheken für Java, JavaScript, Node.js, 
+Angular und andere Sprachen und Frameworks. \cite{keycloak-docs} Zudem können lokale Keycloak-Instanzen als Testumgebung für 
+Entwicklung und Testing genutzt werden.
+
+\subsubsection{Eignung für LearnHub}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{p{6cm}p{6cm}}
+\toprule
+\textbf{Vorteile} & \textbf{Einschränkungen} \\
+\midrule
+LDAP-Integration für HTL-Accounts & Kein Zugriff auf Realm-Konfiguration \\
+Open-Source und kostenfrei & Komplexere initiale Einrichtung \\
+OAuth 2.0 und OpenID Connect & Erfordert Backend-JWT-Validierung \\
+Zentrale Benutzerverwaltung & Keine automatische Rollen-Zuweisung \\
+Keine Passwort-Speicherung & Testing erfordert gültige HTL-Accounts \\
+\bottomrule
+\end{tabular}
+\caption{Bewertung von Keycloak für LearnHub}
+\label{tab:keycloak-bewertung}
+\end{table}
+
+\subsection{Auth0}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\textwidth]{pics/auth0_logo.png}
+    \caption{Logo von Auth0}
+    \label{fig:auth0-logo}
+\end{figure}
+
+Auth0 ist eine cloud-basierte Identity-as-a-Service (IDaaS)-Lösung, die von Okta betrieben wird. 
+\cite{auth0-docs} Sie bietet ähnliche Funktionen wie Keycloak, ist jedoch als vollständig verwalteter Service konzipiert. 
+Auth0 kümmert sich um Skalierung, Verfügbarkeit und Updates, während Entwickler:innen nur die Integration 
+implementieren müssen. \cite{auth0-docs}
+
+Die Basis von Auth0 bildet eine Cloud-Infrastruktur, die weltweit verteilt ist. \cite{auth0-docs} Dadurch werden geringe 
+Latenzen und hohe Verfügbarkeit gewährleistet. Auth0 unterstützt dieselben Standards wie Keycloak, 
+nämlich OAuth 2.0, OpenID Connect und SAML, bietet aber zusätzlich vorgefertigte UI-Komponenten und eine 
+sehr einfache Integration über SDKs. \cite{auth0-architecture}
+
+Auth0 verfolgt das Prinzip "Identity-as-a-Service", bei dem die gesamte Authentifizierungsinfrastruktur 
+in der Cloud gehostet wird. \cite{auth0-architecture} Entwickler:innen müssen keine Server verwalten, keine Updates einspielen 
+und sich nicht um Skalierung kümmern. Die Integration erfolgt schnell durch vorgefertigte SDKs und UI-Komponenten. 
+Die Skalierung erfolgt automatisch bei steigender Nutzerzahl. Zudem wird globale Verfügbarkeit durch 
+weltweit verteilte Rechenzentren gewährleistet. \cite{auth0-architecture}
+
+Auth0 unterstützt eine Vielzahl von Technologien und Plattformen. \cite{auth0-docs} Für Webanwendungen 
+besonders relevant sind Universal Login, eine vorgefertigte und anpassbare Login-Seite, SDKs für 
+JavaScript, Angular, React, Vue.js, Node.js, Java und viele mehr, Social Connections mit Google, 
+Facebook, GitHub und Microsoft, Enterprise Connections wie LDAP und Active Directory in höheren Tarifen 
+sowie Rules und Actions für Custom Logic während des Authentifizierungsprozesses. \cite{auth0-docs}
+
+\subsubsection{Eignung für LearnHub}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{p{6cm}p{6cm}}
+\toprule
+\textbf{Vorteile} & \textbf{Einschränkungen} \\
+\midrule
+Sehr einfache Integration & Kostenpflichtig ab bestimmter Nutzerzahl \\
+Managed Service & Daten bei Drittanbieter \\
+Vorgefertigte UI-Komponenten & LDAP nur in Enterprise-Tarifen \\
+Umfangreiche Dokumentation & Weniger Kontrolle über Infrastruktur \\
+Automatische Skalierung & Abhängigkeit von externem Anbieter \\
+\bottomrule
+\end{tabular}
+\caption{Bewertung von Auth0 für LearnHub}
+\label{tab:auth0-bewertung}
+\end{table}
+
+\subsection{Google OAuth 2.0}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\textwidth]{pics/google_oauth_logo.png}
+    \caption{Logo von Google OAuth}
+    \label{fig:google-oauth-logo}
+\end{figure}
+
+Google OAuth 2.0 ermöglicht Anmeldung über Google-Konten. \cite{google-oauth} Es ist eine weit verbreitete Lösung 
+für Webanwendungen, die sich an Endnutzer:innen richten. Nutzer:innen können sich mit ihrem bestehenden 
+Google-Account anmelden, ohne ein neues Konto erstellen zu müssen. \cite{google-oauth}
+
+Die Basis bildet das OAuth 2.0-Protokoll, bei dem Google als Identity Provider fungiert. \cite{google-oauth} Die 
+Anwendung erhält nach erfolgreicher Anmeldung ein Access Token und kann damit auf Google-APIs 
+zugreifen oder Benutzerinformationen abrufen. Google OAuth basiert auf dem Prinzip "Social Login", bei dem ein 
+externer Anbieter die Authentifizierung übernimmt. \cite{google-oauth} Die Anwendung muss keine Passwörter speichern oder verwalten.
+
+Google OAuth unterstützt verschiedene Plattformen und Programmiersprachen. \cite{google-oauth} 
+Für Webanwendungen relevant sind die Google Sign-In JavaScript Library für clientseitige Integration, 
+der OAuth 2.0 Server-Side Flow für backend-basierte Authentifizierung sowie OpenID Connect für 
+standardisierte Benutzerinformationen. \cite{google-oauth} Die Google Cloud Console ermöglicht die Verwaltung von 
+OAuth-Clients und Client Libraries stehen für JavaScript, Java, Python und Node.js zur Verfügung. \cite{google-oauth}
+
+\subsubsection{Eignung für LearnHub}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{p{6cm}p{6cm}}
+\toprule
+\textbf{Vorteile} & \textbf{Einschränkungen} \\
+\midrule
+Einfache Implementierung & Nur für Google-Accounts \\
+Keine User-Verwaltung nötig & Keine HTL-LDAP-Integration \\
+Bekannter Login-Flow & Datenschutzbedenken \\
+Kostenlos & Keine Kontrolle über Authentifizierung \\
+\bottomrule
+\end{tabular}
+\caption{Bewertung von Google OAuth für LearnHub}
+\label{tab:google-oauth-bewertung}
+\end{table}
+
+\subsection{Auswahl der Authentifizierungslösung}
+
+Nach der Analyse der drei betrachteten Authentifizierungslösungen fiel die Wahl auf Keycloak. 
+\cite{keycloak-docs} Im Folgenden wird diese Entscheidung durch technische und praktische Erwägungen begründet.
+
+Keycloak überzeugt vor allem durch die native Unterstützung für LDAP-Integration. \cite{keycloak-docs} 
+Da die HTL Leonding ein zentrales LDAP-Verzeichnis für alle Schüler:innen und Lehrer:innen betreibt, 
+war dies ein entscheidendes Kriterium. Die Integration ermöglicht es, bestehende HTL-Accounts ohne 
+zusätzliche Registrierung zu nutzen. \cite{keycloak-security}
+
+Im Vergleich dazu bietet Auth0 zwar eine einfachere Integration, allerdings ist LDAP-Anbindung nur 
+in Enterprise-Tarifen verfügbar. \cite{auth0-pricing} Zudem wären alle Authentifizierungsdaten bei einem 
+externen Anbieter gespeichert, was datenschutzrechtliche Bedenken aufwirft. Google OAuth scheidet aus, 
+da keine Integration mit dem HTL-LDAP möglich ist. \cite{google-oauth}
+
+Ein weiterer entscheidender Faktor war, dass die HTL Leonding bereits einen vorkonfigurierten Keycloak-Realm 
+zur Verfügung stellte, der mit dem LDAP-System verbunden ist. Dadurch konnte das Entwicklerteam direkt mit 
+der Integration beginnen, ohne Keycloak selbst aufsetzen zu müssen. Dies reduzierte den initialen Aufwand 
+erheblich und ermöglichte eine schnelle Implementierung der Authentifizierung.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lccc}
+\toprule
+\textbf{Kriterium} & \textbf{Keycloak} & \textbf{Auth0} & \textbf{Google OAuth} \\
+\midrule
+HTL-LDAP-Integration & ja & nur Enterprise & nein \\
+Kosten & kostenfrei & ab Nutzerzahl & kostenfrei \\
+Konfigurationsaufwand & mittel & gering & gering \\
+Datenhoheit & vollständig & extern & extern \\
+\bottomrule
+\end{tabular}
+\caption{Vergleich der Authentifizierungslösungen}
+\label{tab:auth-vergleich}
+\end{table}
+
+Auf Basis dieser Analyse wurde Keycloak als Authentifizierungslösung für LearnHub ausgewählt. 
+\cite{keycloak-docs} Durch diese Entscheidung ist sichergestellt, dass alle HTL-Accounts ohne zusätzliche 
+Registrierung genutzt werden können, volle Kontrolle über Authentifizierung und Benutzerdaten besteht, 
+keine laufenden Lizenzkosten anfallen und OAuth 2.0 sowie OpenID Connect nativ unterstützt werden. 
+\cite{keycloak-security}
+
+\subsection{JSON Web Tokens}
+
+JSON Web Tokens sind ein offener Standard zur sicheren Übertragung von Informationen zwischen 
+zwei Parteien als JSON-Objekt. \cite{jwt-rfc} Sie werden verwendet, um Authentifizierungsinformationen 
+vom Keycloak-Server an das Backend und Frontend zu übertragen.
+
+Ein JWT besteht aus drei Teilen, die durch Punkte getrennt sind. \cite{jwt-rfc} Der Header enthält Metadaten 
+über den Token-Typ und den verwendeten Signaturalgorithmus. Der Payload enthält die eigentlichen Claims, 
+also Benutzerinformationen wie Benutzername, E-Mail, Rollen und Ablaufzeit. Die Signatur dient zur 
+Verifikation der Authentizität des Tokens. \cite{jwt-rfc}
+
+\subsubsection{Struktur eines JWT}
+
+Ein typischer JWT aus dem Keycloak-System der HTL Leonding hat folgende Struktur:
+
+\begin{lstlisting}[language=json, caption={JWT Header}, label={lst:jwt-header}]
+{
+  "alg": "RS256",
+  "typ": "JWT",
+  "kid": "brdHR1646TJG1z2iSlElrRXwZMG8khgICgQKRFQd0sY"
+}
+\end{lstlisting}
+
+Der Header gibt an, dass RSA-Verschlüsselung mit SHA-256 verwendet wird und identifiziert den 
+verwendeten Schlüssel. \cite{jwt-rfc}
+
+\begin{lstlisting}[language=json, caption={JWT Payload}, label={lst:jwt-payload}]
+{
+  "sub": "cbd71d68-661c-4fd7-bced-3444f968d59d",
+  "name": "Max Mustermann",
+  "given_name": "Max",
+  "family_name": "Mustermann",
+  "preferred_username": "it210999",
+  "email": "m.mustermann@students.htl-leonding.ac.at",
+  "distinguishedName": "CN=it210999,OU=Students,OU=5BHITM,DC=htl-leonding,DC=local",
+  "realm_access": {
+    "roles": ["default-roles-2526_5bhitm", "offline_access"]
+  },
+  "exp": 1767552049,
+  "iat": 1767551749
+}
+\end{lstlisting}
+
+Der Payload enthält wichtige Informationen. \cite{jwt-rfc} Das Feld \texttt{sub} ist die eindeutige Keycloak-UUID 
+des Benutzers. Die Felder \texttt{name}, \texttt{given\_name}, \texttt{family\_name}, \texttt{preferred\_username} 
+und \texttt{email} enthalten Benutzerinformationen aus dem LDAP. Das Feld \texttt{distinguishedName} enthält 
+den vollständigen LDAP Distinguished Name, der zur Unterscheidung zwischen Schüler:innen und Lehrer:innen 
+verwendet wird. \cite{ldap-rfc} Das Feld \texttt{realm\_access} definiert die Rollen des Benutzers im Keycloak-Realm. 
+Die Felder \texttt{exp} und \texttt{iat} geben die Gültigkeitsdauer des Tokens an. \cite{jwt-rfc}
+
+Der Token wird bei jeder Anfrage vom Frontend an das Backend gesendet und dort validiert. \cite{jwt-best-practices} 
+Das Backend prüft die Signatur, um sicherzustellen, dass der Token nicht manipuliert wurde, und prüft 
+die Gültigkeitsdauer, um abgelaufene Tokens abzulehnen. \cite{jwt-rfc}
+
+\subsection{Integration mit HTL-LDAP}
+
+Die HTL Leonding betreibt ein zentrales LDAP-Verzeichnis für die Authentifizierung aller Schüler:innen 
+und Lehrer:innen. \cite{ldap-rfc} LDAP speichert strukturierte Informationen über Benutzer in einer 
+hierarchischen Baumstruktur und ermöglicht schnelle Abfragen und Authentifizierung. \cite{ldap-rfc}
+
+Für LearnHub wurde ein vorkonfigurierter Keycloak Realm mit dem Namen \texttt{2526\_5bhitm} bereitgestellt, 
+der mit dem HTL-LDAP verbunden ist. \cite{keycloak-docs} Das Entwicklerteam hatte keinen Zugriff auf die Realm-Konfiguration 
+selbst, sondern nur auf den Client \texttt{frontend}, über den die Anwendung mit Keycloak kommuniziert.
+
+Die Integration mit dem HTL-LDAP bietet mehrere Vorteile. \cite{keycloak-docs} Alle HTL-Accounts werden zentral 
+verwaltet, wodurch keine separate Benutzerdatenbank notwendig ist. Neue Schüler:innen und Lehrer:innen 
+sind automatisch verfügbar, sobald sie im LDAP angelegt werden. Nutzer:innen können ihre gewohnten 
+HTL-Zugangsdaten verwenden. \cite{keycloak-security} Passwörter werden nie in der Anwendung gespeichert, sondern nur von 
+Keycloak validiert, was die Sicherheit erhöht. \cite{keycloak-security}
+
+Die LDAP-Integration bringt auch einige Einschränkungen mit sich. Es besteht kein direkter Zugriff auf 
+die Keycloak-Konfiguration. Das Rollenmanagement erfordert eine eigene Implementierung, da keine automatische 
+Zuweisung von Admin-Rechten möglich ist. Das Testen erfordert gültige HTL-Accounts, da keine Test-User im 
+Keycloak-System angelegt werden können.
+
+\subsection{Backend-Integration}
+
+Die Backend-Integration erfolgte mit Quarkus und umfasst JWT-Validierung, rollen-basierte Zugriffskontrolle 
+und User-Management. \cite{quarkus-security-jwt}
+
+\subsubsection{Dependencies}
+
+Für die JWT-Validierung wurden folgende Dependencies in die \texttt{pom.xml} eingebunden:
+
+\begin{lstlisting}[language=xml, caption={Quarkus Dependencies für JWT}, label={lst:jwt-dependencies}]
+<dependency>
+    <groupId>io.quarkus</groupId>
+    <artifactId>quarkus-smallrye-jwt</artifactId>
+</dependency>
+<dependency>
+    <groupId>com.auth0</groupId>
+    <artifactId>java-jwt</artifactId>
+    <version>4.4.0</version>
+</dependency>
+\end{lstlisting}
+
+Die Dependency \texttt{quarkus-smallrye-jwt} stellt die Basisfunktionalität für JWT-Validierung bereit, 
+während \texttt{java-jwt} zusätzliche Funktionen für das Parsen und Validieren von Tokens bietet. 
+\cite{quarkus-security-jwt}
+
+\subsubsection{JWT Request Filter}
+
+Der \texttt{JwtRequestFilter} validiert eingehende Tokens und extrahiert Benutzerinformationen:
+
+\begin{lstlisting}[language=Java, caption={JwtRequestFilter.java}, label={lst:jwt-request-filter}]
+@Provider
+@Priority(Priorities.AUTHENTICATION)
+public class JwtRequestFilter implements ContainerRequestFilter {
+    
+    @Inject
+    JwtParser jwtParser;
+    
+    @Override
+    public void filter(ContainerRequestContext requestContext) 
+            throws IOException {
+        String authHeader = requestContext
+            .getHeaderString(HttpHeaders.AUTHORIZATION);
+        
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            try {
+                DecodedJWT jwt = jwtParser.parse(token);
+                CustomSecurityContext securityContext = 
+                    new CustomSecurityContext(jwt);
+                requestContext.setSecurityContext(securityContext);
+            } catch (JWTVerificationException e) {
+                requestContext.abortWith(
+                    Response.status(Response.Status.UNAUTHORIZED)
+                        .entity("Invalid JWT token")
+                        .build()
+                );
+            }
+        }
+    }
+}
+\end{lstlisting}
+
+Der Filter wird als JAX-RS Provider registriert und hat Priorität \texttt{AUTHENTICATION}. \cite{quarkus-security-jwt} 
+Er extrahiert den JWT aus dem \texttt{Authorization}-Header, validiert den Token mit dem \texttt{JwtParser} 
+und erstellt einen \texttt{CustomSecurityContext}, der die Benutzerinformationen enthält. Bei ungültigen Tokens 
+wird die Anfrage mit HTTP 401 Unauthorized abgebrochen. \cite{jwt-best-practices}
+
+\subsubsection{Custom Security Context}
+
+Die Klasse \texttt{CustomSecurityContext} speichert Benutzerinformationen aus dem JWT:
+
+\begin{lstlisting}[language=Java, caption={CustomSecurityContext.java}, label={lst:custom-security-context}]
+public class CustomSecurityContext implements SecurityContext {
+    
+    private final DecodedJWT jwt;
+    
+    public CustomSecurityContext(DecodedJWT jwt) {
+        this.jwt = jwt;
+    }
+    
+    @Override
+    public Principal getUserPrincipal() {
+        return () -> jwt.getClaim("preferred_username").asString();
+    }
+    
+    @Override
+    public boolean isUserInRole(String role) {
+        List<String> roles = jwt.getClaim("realm_access")
+            .asMap()
+            .get("roles");
+        return roles != null && roles.contains(role);
+    }
+    
+    public String getKeycloakSub() {
+        return jwt.getSubject();
+    }
+    
+    public String getEmail() {
+        return jwt.getClaim("email").asString();
+    }
+    
+    public String getDistinguishedName() {
+        return jwt.getClaim("distinguishedName").asString();
+    }
+}
+\end{lstlisting}
+
+Diese Klasse implementiert das \texttt{SecurityContext}-Interface und extrahiert relevante Informationen aus 
+dem JWT. \cite{quarkus-security-jwt} Die Methode \texttt{getUserPrincipal()} gibt den Benutzernamen zurück, 
+\texttt{isUserInRole()} prüft Rollenberechtigungen und zusätzliche Methoden extrahieren Keycloak-UUID, 
+E-Mail und Distinguished Name aus dem Token. \cite{jwt-rfc}
+
+\subsubsection{Rollen-basierte Zugriffskontrolle}
+
+Quarkus bietet Annotations für rollen-basierte Zugriffskontrolle:
+
+\begin{lstlisting}[language=Java, caption={Rollen-basierte Zugriffskontrolle}, label={lst:roles-allowed}]
+@Path("/api/questions")
+public class QuestionResource {
+    
+    @GET
+    @PermitAll
+    public List<Question> getPublicQuestions() {
+        return questionService.findPublicQuestions();
+    }
+    
+    @POST
+    @RolesAllowed("admin")
+    public Response createPublicQuestion(Question question) {
+        questionService.createPublicQuestion(question);
+        return Response.ok().build();
+    }
+    
+    @DELETE
+    @Path("/{id}")
+    @RolesAllowed({"admin", "teacher"})
+    public Response deleteQuestion(@PathParam("id") Long id) {
+        questionService.delete(id);
+        return Response.noContent().build();
+    }
+}
+\end{lstlisting}
+
+Die Annotation \texttt{@PermitAll} erlaubt allen authentifizierten Nutzer:innen den Zugriff. \cite{quarkus-security-jwt} 
+\texttt{@RolesAllowed} beschränkt den Zugriff auf bestimmte Rollen. Wenn ein:e Nutzer:in ohne entsprechende 
+Rolle versucht, auf einen geschützten Endpoint zuzugreifen, wird HTTP 403 Forbidden zurückgegeben. \cite{quarkus-security-jwt}
+
+\subsubsection{User Management}
+
+Da Keycloak nur Authentifizierung bereitstellt, musste eine eigene User-Tabelle im Backend erstellt werden. 
+\cite{keycloak-docs} Der Grund dafür ist, dass die Keycloak UUID allein nicht ausreicht für Beziehungen in der Datenbank. 
+Zusätzliche Attribute wie \texttt{isAdmin} und \texttt{isTeacher} müssen in der eigenen Datenbank gespeichert werden. 
+Aus Performance-Gründen werden lokale User-IDs verwendet, um wiederholte Keycloak-Anfragen zu vermeiden.
+
+Der Prozess läuft wie folgt ab: Ein User meldet sich an und erhält einen JWT von Keycloak. Das Backend 
+prüft, ob bereits ein User mit dieser \texttt{keycloakSub} existiert. Falls nein, wird der User automatisch 
+in der Datenbank angelegt. Das User-Objekt wird zurückgegeben und kann für weitere Anfragen verwendet werden.
+
+\begin{lstlisting}[language=Java, caption={UserResource.java -- Register Endpoint}, label={lst:user-register}]
+@Path("/api/users")
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
+public class UserResource {
+    
+    @Inject
+    UserService userService;
+    
+    @POST
+    @Path("/register")
+    @Transactional
+    public Response registerUser(@Context SecurityContext securityContext) {
+        CustomSecurityContext ctx = (CustomSecurityContext) securityContext;
+        
+        String keycloakSub = ctx.getKeycloakSub();
+        String username = ctx.getUserPrincipal().getName();
+        String email = ctx.getEmail();
+        String dn = ctx.getDistinguishedName();
+        
+        User user = userService.findByKeycloakSub(keycloakSub);
+        
+        if (user == null) {
+            user = new User();
+            user.keycloakSub = keycloakSub;
+            user.username = username;
+            user.email = email;
+            user.isAdmin = false;
+            user.isTeacher = !dn.contains("OU=Students");
+            userService.persist(user);
+        }
+        
+        return Response.ok(user).build();
+    }
+}
+\end{lstlisting}
+
+Dieser Endpoint erstellt automatisch einen neuen User, falls dieser noch nicht existiert. \cite{quarkus-security-jwt} 
+Die Unterscheidung zwischen Schüler:innen und Lehrer:innen erfolgt über den Distinguished Name: Wenn der DN 
+\texttt{OU=Students} enthält, handelt es sich um eine:n Schüler:in, andernfalls um eine:n Lehrer:in. \cite{ldap-rfc}
+
+\subsection{Frontend-Integration}
+
+Die Frontend-Integration erfolgte mit Angular und der Bibliothek \texttt{keycloak-angular}. \cite{keycloak-angular} 
+Diese Bibliothek stellt vorgefertigte Services und Guards bereit, um die Keycloak-Authentifizierung 
+nahtlos in Angular zu integrieren. \cite{keycloak-angular}
+
+\subsubsection{Keycloak Initialization}
+
+Die Keycloak-Initialisierung erfolgt beim Start der Anwendung:
+
+\begin{lstlisting}[language=JavaScript, caption={keycloak-init.ts}, label={lst:keycloak-init}]
+import { KeycloakService } from 'keycloak-angular';
+
+export function initializeKeycloak(keycloak: KeycloakService) {
+  return () =>
+    keycloak.init({
+      config: {
+        url: 'https://auth.htl-leonding.ac.at',
+        realm: '2526_5bhitm',
+        clientId: 'frontend'
+      },
+      initOptions: {
+        onLoad: 'check-sso',
+        silentCheckSsoRedirectUri:
+          window.location.origin + '/assets/silent-check-sso.html',
+        checkLoginIframe: false
+      },
+      enableBearerInterceptor: true,
+      bearerPrefix: 'Bearer'
+    }).then(() => {
+      setupTokenRefreshWithTimeout(keycloak);
+    });
+}
+
+function setupTokenRefreshWithTimeout(keycloak: KeycloakService) {
+  setInterval(() => {
+    keycloak.updateToken(30).then((refreshed) => {
+      if (refreshed) {
+        console.log('Token refreshed');
+      }
+    }).catch(() => {
+      console.error('Token refresh failed');
+    });
+  }, 30000);
+}
+\end{lstlisting}
+
+Die Initialisierung konfiguriert die Keycloak-URL, den Realm und die Client-ID. \cite{keycloak-angular} Die Option 
+\texttt{onLoad: 'check-sso'} prüft, ob der User bereits angemeldet ist, ohne ihn zur Login-Seite 
+umzuleiten. Der Bearer Interceptor fügt automatisch den JWT-Token zu allen HTTP-Requests hinzu. \cite{keycloak-angular}
+
+Um Session-Abläufe zu verhindern, wird der Token alle 30 Sekunden aktualisiert. \cite{keycloak-angular} 
+Die Funktion \texttt{setupTokenRefreshWithTimeout} prüft regelmäßig, ob der Token noch gültig ist, 
+und aktualisiert ihn bei Bedarf. Das Intervall von 30 Sekunden ist konfigurierbar und kann je nach 
+Anforderung angepasst werden. \cite{jwt-best-practices}
+
+\subsubsection{Auth Interceptor}
+
+Der HTTP-Interceptor fügt automatisch den JWT-Token zu allen Requests hinzu:
+
+\begin{lstlisting}[language=JavaScript, caption={auth.interceptor.ts}, label={lst:auth-interceptor}]
+import { HttpInterceptorFn } from '@angular/common/http';
+import { inject } from '@angular/core';
+import { KeycloakService } from 'keycloak-angular';
+
+export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  const keycloakService = inject(KeycloakService);
+  
+  if (keycloakService.getKeycloakInstance().authenticated) {
+    const token = keycloakService.getKeycloakInstance().token;
+    
+    const authReq = req.clone({
+      setHeaders: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    
+    return next(authReq);
+  }
+  
+  return next(req);
+};
+\end{lstlisting}
+
+Der Interceptor verwendet die moderne Angular \texttt{inject()}-Funktion, um den \texttt{KeycloakService} 
+zu erhalten. \cite{keycloak-angular} Er prüft, ob der User authentifiziert ist, und fügt den Token zum 
+\texttt{Authorization}-Header hinzu. Dadurch müssen Entwickler:innen den Token nicht manuell zu jedem 
+Request hinzufügen. \cite{keycloak-angular}
+
+\subsubsection{Keycloak Operation Service}
+
+Für die Arbeit mit JWT-Claims wurde ein Service erstellt:
+
+\begin{lstlisting}[language=JavaScript, caption={keycloak-operation.service.ts}, label={lst:keycloak-operation-service}]
+import { Injectable } from '@angular/core';
+import { KeycloakService } from 'keycloak-angular';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class KeycloakOperationService {
+
+  constructor(private readonly keycloak: KeycloakService) {}
+
+  getDecodedToken(): KeycloakTokenParsed | undefined {
+    return this.keycloak.getKeycloakInstance()?.tokenParsed;
+  }
+
+  getGivenName(): string {
+    const claims = this.getDecodedToken();
+    return (claims?.['given_name'] || '') as string;
+  }
+
+  getFamilyName(): string {
+    const claims = this.getDecodedToken();
+    return (claims?.['family_name'] || '') as string;
+  }
+
+  getDisplayName(): string {
+    const claims = this.getDecodedToken();
+    return (
+      claims?.['name'] ||
+      `${this.getGivenName()} ${this.getFamilyName()}`
+    ).trim();
+  }
+  
+  getIsStudent(): boolean {
+    const claims = this.getDecodedToken();
+    const dn: string = claims?.['distinguishedName'] || '';
+    if (!dn) return false;
+    return /OU=Students/i.test(dn);
+  }
+
+  getClassFromDN(): string {
+    const claims = this.getDecodedToken();
+    const dn: string = claims?.['distinguishedName'] || '';
+    if (!dn) return '';
+    const matches = dn.match(/OU=([^,]+)/gi);
+    if (!matches) return '';
+    for (const m of matches) {
+      const val = m.replace(/^OU=/i, '');
+      if (/[0-9]/.test(val) || /HIF|HITM|HEL/i.test(val)) {
+        return val;
+      }
+    }
+    return '';
+  }
+}
+\end{lstlisting}
+
+Dieser Service kapselt die Logik zum Extrahieren von Informationen aus dem JWT. \cite{jwt-rfc} Die Methode 
+\texttt{getDecodedToken()} gibt den geparsten Token zurück. \texttt{getGivenName()} und \texttt{getFamilyName()} 
+extrahieren Vor- und Nachnamen. \texttt{getIsStudent()} prüft, ob der Distinguished Name \texttt{OU=Students} 
+enthält, um Schüler:innen von Lehrer:innen zu unterscheiden. \cite{ldap-rfc} \texttt{getClassFromDN()} extrahiert die 
+Klassenbezeichnung aus dem DN durch Regex-Matching. Diese Implementierung war eine der größten Herausforderungen, 
+da die JWT-Claims je nach LDAP-Konfiguration unterschiedliche Feldnamen haben können. \cite{jwt-rfc}
+
+\subsubsection{User Initialization Service}
+
+Nach erfolgreicher Anmeldung wird der User im Backend registriert:
+
+\begin{lstlisting}[language=JavaScript, caption={user-initialization.service.ts}, label={lst:user-init-service}]
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { KeycloakService } from 'keycloak-angular';
+import { Observable } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class UserInitializationService {
+  
+  private http = inject(HttpClient);
+  private keycloak = inject(KeycloakService);
+  
+  registerUser(): Observable<any> {
+    return this.http.post('/api/users/register', {});
+  }
+  
+  initializeUser(): Promise<any> {
+    if (this.keycloak.getKeycloakInstance().authenticated) {
+      return this.registerUser().toPromise();
+    }
+    return Promise.resolve();
+  }
+}
+\end{lstlisting}
+
+Dieser Service verwendet die moderne Angular \texttt{inject()}-Funktion für Dependency Injection. \cite{keycloak-angular} 
+Er wird beim App-Start aufgerufen und stellt sicher, dass der User im Backend registriert ist. Die Methode 
+\texttt{initializeUser()} prüft, ob der User authentifiziert ist, und ruft dann den Backend-Endpoint 
+\texttt{/api/users/register} auf. \cite{keycloak-angular}
+
+Die Reihenfolge der Initialisierung ist wichtig: Zuerst wird Keycloak initialisiert (siehe Listing \ref{lst:keycloak-init}), 
+dann wird der Auth Interceptor aktiviert (siehe Listing \ref{lst:auth-interceptor}), anschließend wird der User im Backend 
+registriert (siehe Listing \ref{lst:user-init-service}) und erst dann ist die Anwendung vollständig einsatzbereit.
+
+\subsection{Rechteverwaltung}
+
+LearnHub unterscheidet drei Nutzerrollen, die unterschiedliche Berechtigungen im System haben. Die Rollenverwaltung 
+erfolgt durch Felder in der Backend-Datenbank, da Keycloak keine automatische Rollen-Zuweisung über LDAP bietet. 
+\cite{keycloak-docs}
+
+\subsubsection{Schüler:in}
+
+Schüler:innen haben eingeschränkte Rechte innerhalb des Systems. Sie können eigene private Fragen erstellen, 
+bearbeiten und löschen. Diese Fragen sind nur für die jeweilige Schüler:in sichtbar. Sie können eigene Mitschriften 
+hochladen und verwalten. Beim Lernen können Schüler:innen zwischen öffentlichen Fragen und ihren eigenen privaten 
+Fragen wählen. Schüler:innen können ihre eigenen Fragen zur Freigabe vorschlagen, wobei die finale Entscheidung 
+bei Lehrer:innen liegt.
+
+\subsubsection{Lehrer:in}
+
+Lehrer:innen besitzen alle Rechte von Schüler:innen sowie zusätzliche Berechtigungen. Sie können öffentliche 
+Fragen erstellen, die für alle Nutzer:innen sichtbar sind. Sie können Schüler:innenfragen prüfen und öffentlich 
+freigeben oder ablehnen. Sie können Mitschriften anderer Nutzer:innen einsehen und freigeben. In LearnHub werden 
+alle Lehrer:innen automatisch als Admins behandelt, da die Unterscheidung zwischen Lehrer:in und Admin für die 
+Anforderungen der Plattform nicht notwendig war.
+
+\subsubsection{Admin}
+
+Admins haben volle Kontrolle über das System. Sie können Fächer und Themenpools anlegen und verwalten. 
+Sie können alle Fragen bearbeiten und löschen, unabhängig davon, wer sie erstellt hat. Sie können User-Rollen 
+verwalten und bei Bedarf weitere Admins ernennen. In der aktuellen Implementierung sind alle Lehrer:innen 
+automatisch Admins.
+
+\subsubsection{Implementierung}
+
+Die Rollenverwaltung erfolgt über Datenbankfelder und Distinguished Name-Prüfung. \cite{ldap-rfc} Alle Lehrer:innen 
+werden automatisch als Admin markiert, indem bei der User-Registrierung geprüft wird, ob der Distinguished Name 
+\texttt{OU=Students} enthält (siehe Listing \ref{lst:user-register}). Für Entwicklungszwecke können zusätzliche 
+Test-User manuell als Admin definiert werden.
+
+\subsection{Testing und Entwicklung}
+
+\subsubsection{HTTP-Files für Testing}
+
+Für lokale Tests ohne Frontend wurde eine HTTP-Datei erstellt:
+
+\begin{lstlisting}[caption={auth.http}, label={lst:auth-http}]
+### Login und Token abrufen
+POST https://auth.htl-leonding.ac.at/realms/2526_5bhitm/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=password&client_id=frontend&username={{username}}&password={{password}}
+
+> {%
+    client.global.set("access_token", response.body.access_token);
+%}
+
+### User registrieren
+POST http://localhost:8080/api/users/register
+Authorization: Bearer {{access_token}}
+
+### User abrufen
+GET http://localhost:8080/api/users/me
+Authorization: Bearer {{access_token}}
+\end{lstlisting}
+
+Die Datei \texttt{http-client.private.env.json} enthält die Zugangsdaten:
+
+\begin{lstlisting}[language=json, caption={http-client.private.env.json}, label={lst:http-client-env}]
+{
+  "dev": {
+    "username": "your-username",
+    "password": "your-password"
+  }
+}
+\end{lstlisting}
+
+Diese Datei muss in \texttt{.gitignore} eingetragen werden, um ein versehentliches Commit zu verhindern. \cite{jwt-best-practices}
+
+\subsection{Herausforderungen und Learnings}
+
+\subsubsection{Herausforderungen}
+
+Während der Implementierung traten mehrere Herausforderungen auf. Der fehlende Zugriff auf die 
+Realm-Konfiguration erforderte, dass die gesamte Logik backend-seitig implementiert werden musste. 
+Die Admin-Verwaltung musste manuell implementiert werden, da LDAP keine automatische Rollen-Zuweisung bietet. 
+Das Testing erforderte gültige HTL-Accounts, was lokales Testen erschwerte.
+
+Eine besondere Herausforderung war das Parsen der JWT-Claims im Frontend. \cite{jwt-rfc} Die JWT-Claims haben 
+je nach LDAP-Konfiguration unterschiedliche Feldnamen, beispielsweise \texttt{given\_name} versus \texttt{givenName} 
+oder \texttt{distinguishedName} versus \texttt{distinguished\_name}. Der \texttt{KeycloakOperationService} 
+(siehe Listing \ref{lst:keycloak-operation-service}) musste daher robuste Fallback-Mechanismen implementieren, 
+um alle Varianten zu unterstützen. \cite{jwt-rfc}
+
+Im Backend musste eine eigene User-Verwaltung implementiert werden, da Keycloak nur Authentifizierung bereitstellt. 
+\cite{keycloak-docs} Die Komplexität lag darin, die Keycloak-UUID mit lokalen User-IDs zu verknüpfen und zusätzliche 
+Attribute wie Admin-Status zu speichern, die nicht im LDAP vorhanden sind.
+
+\subsubsection{Alternative Ansätze}
+
+Ursprünglich war geplant, die Plattform ausschließlich für Schüler:innen zu entwickeln, ohne Lehrer:innen 
+als Admins. Probleme dabei waren jedoch, dass ohne Qualitätskontrolle fehlerhafte Inhalte veröffentlicht 
+werden könnten und eine jährliche manuelle Zuweisung von Klassensprecher-Rechten aufwändig gewesen wäre. 
+Daher fiel die Entscheidung, alle Lehrer:innen als Admins zu behandeln, was eine einfachere und 
+sicherere Lösung darstellt.
+
+\subsubsection{Verbesserungspotenzial}
+
+Für zukünftige Projekte oder bei Weiterentwicklung von LearnHub wären folgende Verbesserungen sinnvoll. 
+Ein eigener Keycloak Realm mit vollständiger Kontrolle würde mehr Flexibilität bieten, allerdings ist dies 
+in schulischen Umgebungen oft nicht möglich, da die IT-Abteilung die zentrale Verwaltung bevorzugt. 
+Eine automatische Rollen-Zuweisung durch LDAP-Gruppen direkt in Keycloak-Rollen würde die manuelle Verwaltung 
+überflüssig machen, erfordert aber Zugriff auf die Realm-Konfiguration. Ein separater Test-Realm für Entwicklung 
+ohne Produktiv-Daten würde sichereres Testen ermöglichen.
+
+Für ein kommerzielles Produkt außerhalb der Schulumgebung wäre vollständige Kontrolle über Keycloak empfehlenswert. 
+In der schulischen Umgebung war jedoch die Nutzung der vorhandenen Infrastruktur der praktikabelste Ansatz, 
+auch wenn dies einige Einschränkungen mit sich brachte. \cite{keycloak-docs}
