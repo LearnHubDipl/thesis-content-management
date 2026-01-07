@@ -1,0 +1,117 @@
+\label{sec:vm-deployment}
+
+Für den Produktivbetrieb der Anwendung kommt eine virtuelle Maschine (VM) zum
+Einsatz. Die VM bietet eine kontrollierte und abgeschottete Ausführungsumgebung,
+in der Docker und Docker Compose genutzt werden können, ohne an lokale
+Entwicklungsumgebungen gebunden zu sein. Diese Vorgehensweise findet in der Praxis
+breite Anwendung, da sie eine eindeutige Separation zwischen Entwicklungs- und
+Produktionsumgebung realisiert und zugleich eine hohe Reproduzierbarkeit
+gewährleistet \cite{pahl2015containerization}.
+
+\subsubsection{Motivation für den Einsatz einer virtuellen Maschine}
+
+Die Nutzung einer virtuellen Maschine bietet mehrere Vorteile gegenüber einem
+konventionellen Deployment direkt auf physischer Hardware oder Entwicklerrechnern.
+Einerseits ermöglicht die Virtualisierung eine verbesserte Isolation der Anwendung
+vom darunterliegenden Host-System, andererseits kann die VM unabhängig von den
+lokalen Systemen der Entwickler betrieben, gesichert und administriert werden.
+
+Ein zusätzlicher Nutzen liegt darin, dass die virtuelle Maschine exakt die
+Produktionsumgebung repliziert. Betriebssystem, Docker-Version und Netzwerk-
+konfiguration sind präzise festgelegt, wodurch Fehler verhindert werden, die
+durch heterogene Umgebungen entstehen könnten. In Verbindung mit Docker resultiert
+daraus eine stabile und reproduzierbare Infrastruktur.
+
+\subsubsection{Architektur des Deployments}
+
+Die virtuelle Maschine operiert als Host für sämtliche Container der Anwendung.
+Installiert sind Docker Engine sowie Docker Compose. Die einzelnen Anwendungs-
+komponenten operieren jeweils in separaten Containern und sind über ein gemeinsames
+Docker-Netzwerk miteinander verknüpft.
+
+Die Architektur setzt sich aus folgenden Kernkomponenten zusammen:
+\begin{itemize}
+    \item einer virtuellen Maschine als Host-System,
+    \item mehreren Docker-Containern (Frontend, Backend, Datenbank, Nginx),
+    \item einem externen Docker-Netzwerk zur Integration des Reverse-Proxys,
+    \item persistenten Volumes zur dauerhaften Datenspeicherung.
+\end{itemize}
+
+Diese Architektur stellt sicher, dass einzelne Komponenten unabhängig voneinander
+aktualisiert oder neugestartet werden können, ohne den gesamten Anwendungsbetrieb
+zu beeinträchtigen.
+
+\subsubsection{Installation und Grundkonfiguration}
+
+Auf der virtuellen Maschine kommt zunächst ein Linux-Betriebssystem zum Einsatz
+(beispielsweise Ubuntu Server). Darauf aufbauend erfolgt die Installation von
+Docker Engine und Docker Compose. Docker übernimmt die Verwaltung der Container,
+während Docker Compose das orchestrierte Starten mehrerer Services realisiert.
+
+Nach der Installation wird ein externes Docker-Netzwerk angelegt, das für die
+Kommunikation zwischen den Containern sowie mit dem Reverse-Proxy genutzt wird.
+Dieses Netzwerk wird im Docker-Compose-File referenziert und ermöglicht eine
+klare Separation der internen Service-Kommunikation von externen Zugriffen.
+
+\subsubsection{Deployment-Prozess}
+
+Der tatsächliche Deployment-Prozess auf der virtuellen Maschine ist bewusst
+schlank konzipiert und umfasst wenige, klar definierte Schritte:
+
+\begin{enumerate}
+    \item Bereitstellung der Docker-Images (beispielsweise über eine Container Registry),
+    \item Transfer der \icode{docker-compose.yml} auf die virtuelle Maschine,
+    \item Initialisierung aller Services mittels \icode{docker compose up -d},
+    \item automatische Initialisierung der Datenbank und abhängiger Services.
+\end{enumerate}
+
+Durch die im Docker-Compose-File spezifizierten Abhängigkeiten wird garantiert,
+dass das Backend erst dann initialisiert wird, wenn die Datenbank betriebsbereit
+ist. Dadurch werden charakteristische Startprobleme vermieden, die bei klassischen
+Deployment-Ansätzen häufig auftreten.
+
+\subsubsection{Persistenz und Datenhaltung}
+
+Für produktive Anwendungen ist die dauerhafte Speicherung von Daten fundamental.
+Im vorliegenden Deployment werden hierfür Docker-Volumes verwendet. Diese Volumes
+operieren unabhängig vom Lebenszyklus einzelner Container und bleiben auch nach
+einem Neustart oder Austausch der Container bestehen.
+
+Die Datenbank persistiert ihre Daten in einem dedizierten Volume, während
+hochgeladene Dateien der Anwendung in einem separaten Volume abgelegt werden.
+Ein zusätzlicher Nginx-Container stellt diese Dateien über einen definierten
+Pfad zur Verfügung. Dadurch wird die Verantwortlichkeit klar separiert: Das
+Backend verwaltet die Metadaten, während der Webserver für die Auslieferung
+statischer Inhalte zuständig ist.
+
+\subsubsection{Vorteile des containerbasierten VM-Deployments}
+
+Die Kombination aus virtueller Maschine und Containerisierung bietet mehrere
+wesentliche Vorteile:
+\begin{itemize}
+    \item reproduzierbare Deployments durch deklarative Konfiguration,
+    \item vereinfachte Wartung und Aktualisierung einzelner Services,
+    \item präzise Trennung von Anwendungskomponenten,
+    \item hohe Portabilität auf alternative Server oder Cloud-Umgebungen.
+\end{itemize}
+
+Im Vergleich zu konventionellen VM-Deployments ohne Container reduziert sich der
+administrative Aufwand, da Abhängigkeiten und Laufzeitumgebungen vollständig in
+den Containern gekapselt sind.
+
+\subsubsection{Abgrenzung zu alternativen Ansätzen}
+
+Im Gegensatz zu einem klassischen Deployment, bei dem sämtliche Komponenten direkt
+auf der virtuellen Maschine installiert werden, ermöglicht der containerbasierte
+Ansatz eine signifikant flexiblere Struktur. Auch gegenüber Orchestrierungs-
+lösungen wie Kubernetes bleibt der gewählte Ansatz bewusst schlanker, da der
+Projektumfang keine hochskalierbare Cluster-Architektur erfordert. Kubernetes
+wird daher im nachfolgenden Abschnitt lediglich konzeptionell eingeordnet.
+
+\subsubsection{Zwischenfazit}
+
+Das Deployment auf einer virtuellen Maschine in Kombination mit Docker und Docker
+Compose repräsentiert eine stabile, wartungsfreundliche und praxisnahe Lösung
+für den Produktivbetrieb der Anwendung. Es vereint die Vorteile klassischer
+Virtualisierung mit der Flexibilität moderner Container-Technologien und bildet
+damit eine solide Grundlage für den Betrieb und die Weiterentwicklung des Systems.

@@ -1,0 +1,65 @@
+\label{sec:docker-summary}
+
+Im Rahmen dieses Kapitels wurde die Containerisierung und das Deployment der
+Anwendung umfassend dargelegt. Ziel war es, einen praxisorientierten und
+transparenten Einblick in die Nutzung zeitgemäßer Container-Technologien zu
+vermitteln und deren Nutzen im Kontext eines realen Schulprojekts zu
+demonstrieren. Der Schwerpunkt lag dabei gezielt auf Docker, Docker Compose sowie
+dem Deployment auf einer virtuellen Maschine.
+
+Zunächst wurden die Fundamentals der Containerisierung erläutert. Dabei wurde
+ersichtlich, dass Container eine leichtgewichtige, portable Alternative zu
+klassischen Virtualisierungskonzepten repräsentieren. Durch die Kapselung von
+Anwendung und Abhängigkeiten ermöglichen sie reproduzierbare Builds und
+konsistente Ausführungsumgebungen, unabhängig vom eingesetzten Host-System.
+
+Im Anschluss wurde der konkrete Docker-Einsatz im Projekt dargestellt. Sowohl
+für das Backend als auch für das Frontend wurden dedizierte Dockerfiles erstellt,
+die auf dem Prinzip des Multi-Stage Builds basieren. Diese Methodik ermöglicht
+eine klare Separation von Build- und Laufzeitumgebung, wodurch die finalen Images
+kompakt gehalten und Sicherheitsrisiken minimiert werden. Die Integration der
+Dockerfiles als Code-Listings steigert zudem die Nachvollziehbarkeit der
+Implementierung.
+
+Darauf aufbauend wurde Docker Compose als zentrales Instrument für das Deployment
+mehrerer Services präsentiert. Durch die deklarative Beschreibung der
+Anwendungsarchitektur lassen sich Frontend, Backend, Datenbank und weitere
+Hilfsdienste gemeinsam initialisieren und administrieren. Insbesondere die
+Spezifikation von Abhängigkeiten, Netzwerken und Volumes trägt zu einem stabilen
+und wartungsfreundlichen Betrieb bei. Das Compose-Setup konstituiert damit die
+technische Basis für den Produktivbetrieb auf der virtuellen Maschine.
+
+Das Deployment auf der virtuellen Maschine stellt einen wesentlichen Schritt dar,
+um die Anwendung realitätsnah zu betreiben. Die Kombination aus Virtualisierung
+und Containerisierung vereint die Vorteile beider Ansätze: einerseits eine
+klar abgegrenzte Serverumgebung, andererseits flexible und leicht wartbare
+Anwendungskomponenten. Persistente Volumes gewährleisten, dass essenzielle Daten
+auch bei Neustarts oder Aktualisierungen erhalten bleiben.
+
+Abschließend wurde Kubernetes als alternative Orchestrierungslösung eingeordnet
+und bewusst vom Projekt abgegrenzt. Obwohl Kubernetes für umfangreiche, skalierbare
+und hochverfügbare Systeme zahlreiche Vorteile bietet, würde dessen Einsatz den
+Rahmen und die Anforderungen des vorliegenden Projekts signifikant überschreiten.
+Die Entscheidung für Docker Compose repräsentiert daher eine bewusste Abwägung
+zwischen Komplexität und Nutzen.
+
+\subsubsection{Ausblick}
+
+Für eine potenzielle Weiterentwicklung des Projekts ergeben sich mehrere
+Ansatzpunkte. Eine naheliegende Erweiterung wäre die Integration eines
+automatisierten CI/CD-Prozesses, bei dem Docker-Images nach jeder Modifikation
+automatisch generiert, getestet und in eine Container Registry transferiert werden.
+Dadurch ließe sich der Deployment-Prozess weiter optimieren und Fehlerquellen
+minimieren.
+
+Darüber hinaus könnte bei steigender Nutzerzahl oder expandierender
+Anwendungsarchitektur eine Migration zu Kubernetes erwogen werden. Die bereits
+implementierte Containerisierung und eindeutige Separation der Services bilden
+dafür eine solide Basis. Kubernetes würde in diesem Szenario zusätzliche
+Möglichkeiten zur Skalierung, Ausfallsicherheit und Lastverteilung eröffnen.
+
+Zusammenfassend demonstriert das Projekt, dass mit Docker und Docker Compose
+bereits ohne komplexe Orchestrierungslösungen ein stabiler, wartungsfreundlicher
+und zeitgemäßer Produktivbetrieb realisiert werden kann. Die gewählte Architektur
+eignet sich sowohl für den aktuellen Projektumfang als auch für künftige
+Erweiterungen und stellt damit eine nachhaltige Lösung dar.
