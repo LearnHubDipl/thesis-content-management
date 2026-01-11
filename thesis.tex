@@ -99,14 +99,14 @@
 	\printglossary[title=Glossary,toctitle=Glossary] %,style=long]
 }
 \spacing{1}{
-\IfStrEq{\thesislang}{de}
-{
-	\bibliographystyle{ieeetrande}
-}
-{
-	\bibliographystyle{IEEEtran}
-}
-\bibliography{bib}
+	\IfStrEq{\thesislang}{de}
+	{
+		\bibliographystyle{ieeetrande}
+	}
+	{
+		\bibliographystyle{IEEEtran}
+	}
+	\bibliography{bib}
 }
 \listoffigures
 \listoftables
