@@ -1,117 +1,97 @@
 \label{sec:vm-deployment}
 
-Für den Produktivbetrieb der Anwendung kommt eine virtuelle Maschine (VM) zum
-Einsatz. Die VM bietet eine kontrollierte und abgeschottete Ausführungsumgebung,
-in der Docker und Docker Compose genutzt werden können, ohne an lokale
-Entwicklungsumgebungen gebunden zu sein. Diese Vorgehensweise findet in der Praxis
-breite Anwendung, da sie eine eindeutige Separation zwischen Entwicklungs- und
-Produktionsumgebung realisiert und zugleich eine hohe Reproduzierbarkeit
-gewährleistet \cite{pahl2015containerization}.
+Für den Produktivbetrieb läuft LearnHub auf einer virtuellen Maschine 
+der HTL Leonding unter der Adresse \texttt{vm91.htl-leonding.ac.at}. 
+Die VM läuft mit Ubuntu Server und hat Docker Engine sowie Docker 
+Compose installiert. Der Vorteil gegenüber einem direkten Deployment 
+auf physischer Hardware ist, dass die VM unabhängig von lokalen 
+Entwicklerrechnern betrieben, gesichert und administriert werden 
+kann \cite{pahl2015containerization}. Da alle Services in Containern 
+laufen, muss auf der VM selbst keine zusätzliche Software installiert 
+werden, also kein Java, kein Node.js und keine Datenbank. Alles was 
+die Anwendung braucht ist in den Images enthalten.
 
-\subsubsection{Motivation für den Einsatz einer virtuellen Maschine}
+\subsubsection{Einrichtung der VM}
 
-Die Nutzung einer virtuellen Maschine bietet mehrere Vorteile gegenüber einem
-konventionellen Deployment direkt auf physischer Hardware oder Entwicklerrechnern.
-Einerseits ermöglicht die Virtualisierung eine verbesserte Isolation der Anwendung
-vom darunterliegenden Host-System, andererseits kann die VM unabhängig von den
-lokalen Systemen der Entwickler betrieben, gesichert und administriert werden.
+Nach der Installation von Docker auf der VM wird als erstes das 
+externe Docker-Netzwerk \texttt{learnhubnet} vom Traefik Stack 
+angelegt. Dieses Netzwerk muss existieren bevor der LearnHub Stack 
+gestartet werden kann, da beide Stacks darüber kommunizieren. 
+Danach werden die beiden Compose Files auf die VM übertragen. 
+Zuerst wird der Traefik Stack gestartet, der das Netzwerk erstellt 
+und den Reverse-Proxy hochfährt. Erst danach wird der LearnHub 
+Stack gestartet, dessen Services sich automatisch in das bestehende 
+Netzwerk einklinken und ihre Routing-Regeln an Traefik melden.
 
-Ein zusätzlicher Nutzen liegt darin, dass die virtuelle Maschine exakt die
-Produktionsumgebung repliziert. Betriebssystem, Docker-Version und Netzwerk-
-konfiguration sind präzise festgelegt, wodurch Fehler verhindert werden, die
-durch heterogene Umgebungen entstehen könnten. In Verbindung mit Docker resultiert
-daraus eine stabile und reproduzierbare Infrastruktur.
-
-\subsubsection{Architektur des Deployments}
-
-Die virtuelle Maschine operiert als Host für sämtliche Container der Anwendung.
-Installiert sind Docker Engine sowie Docker Compose. Die einzelnen Anwendungs-
-komponenten operieren jeweils in separaten Containern und sind über ein gemeinsames
-Docker-Netzwerk miteinander verknüpft.
-
-Die Architektur setzt sich aus folgenden Kernkomponenten zusammen:
-\begin{itemize}
-    \item einer virtuellen Maschine als Host-System,
-    \item mehreren Docker-Containern (Frontend, Backend, Datenbank, Nginx),
-    \item einem externen Docker-Netzwerk zur Integration des Reverse-Proxys,
-    \item persistenten Volumes zur dauerhaften Datenspeicherung.
-\end{itemize}
-
-Diese Architektur stellt sicher, dass einzelne Komponenten unabhängig voneinander
-aktualisiert oder neugestartet werden können, ohne den gesamten Anwendungsbetrieb
-zu beeinträchtigen.
-
-\subsubsection{Installation und Grundkonfiguration}
-
-Auf der virtuellen Maschine kommt zunächst ein Linux-Betriebssystem zum Einsatz
-(beispielsweise Ubuntu Server). Darauf aufbauend erfolgt die Installation von
-Docker Engine und Docker Compose. Docker übernimmt die Verwaltung der Container,
-während Docker Compose das orchestrierte Starten mehrerer Services realisiert.
-
-Nach der Installation wird ein externes Docker-Netzwerk angelegt, das für die
-Kommunikation zwischen den Containern sowie mit dem Reverse-Proxy genutzt wird.
-Dieses Netzwerk wird im Docker-Compose-File referenziert und ermöglicht eine
-klare Separation der internen Service-Kommunikation von externen Zugriffen.
+Für HTTPS wird ein SSL-Zertifikat benötigt. Traefik übernimmt 
+dabei die automatische Ausstellung und Erneuerung des Zertifikats 
+über Let's Encrypt. Die Zertifikatsdaten werden im \texttt{certs} 
+Ordner auf der VM gespeichert, der als Volume in den Traefik 
+Container gemountet ist. Dadurch bleibt das Zertifikat auch nach 
+einem Neustart des Containers erhalten.
 
 \subsubsection{Deployment-Prozess}
 
-Der tatsächliche Deployment-Prozess auf der virtuellen Maschine ist bewusst
-schlank konzipiert und umfasst wenige, klar definierte Schritte:
+Der Deployment-Prozess läuft in wenigen klar definierten Schritten ab:
 
 \begin{enumerate}
-    \item Bereitstellung der Docker-Images (beispielsweise über eine Container Registry),
-    \item Transfer der \icode{docker-compose.yml} auf die virtuelle Maschine,
-    \item Initialisierung aller Services mittels \icode{docker compose up -d},
-    \item automatische Initialisierung der Datenbank und abhängiger Services.
+    \item Die Docker-Images für Frontend und Backend werden lokal 
+    gebaut und auf Docker Hub hochgeladen, wo sie öffentlich 
+    verfügbar sind.
+    \item Die Compose Files werden auf die VM übertragen.
+    \item Der Traefik Stack wird gestartet: 
+    \begin{verbatim}
+docker compose up -d
+    \end{verbatim}
+    \item Der LearnHub Stack wird gestartet:
+    \begin{verbatim}
+docker compose up -d
+    \end{verbatim}
+    \item MySQL führt seinen Healthcheck durch. Sobald die Datenbank 
+    bereit ist, startet das Backend automatisch und baut die 
+    Datenbankverbindung auf.
 \end{enumerate}
 
-Durch die im Docker-Compose-File spezifizierten Abhängigkeiten wird garantiert,
-dass das Backend erst dann initialisiert wird, wenn die Datenbank betriebsbereit
-ist. Dadurch werden charakteristische Startprobleme vermieden, die bei klassischen
-Deployment-Ansätzen häufig auftreten.
+Nach dem Start ist die Anwendung unter 
+\texttt{https://vm91.htl-leonding.ac.at} erreichbar. Alle Container 
+sind mit \texttt{restart: always} konfiguriert, was bedeutet dass 
+sie bei einem Absturz oder Neustart der VM automatisch wieder 
+hochfahren, ohne dass manuell eingegriffen werden muss.
 
-\subsubsection{Persistenz und Datenhaltung}
+\subsubsection{Updates}
 
-Für produktive Anwendungen ist die dauerhafte Speicherung von Daten fundamental.
-Im vorliegenden Deployment werden hierfür Docker-Volumes verwendet. Diese Volumes
-operieren unabhängig vom Lebenszyklus einzelner Container und bleiben auch nach
-einem Neustart oder Austausch der Container bestehen.
+Um eine neue Version der Anwendung zu deployen, wird das neue 
+Docker-Image gebaut und auf Docker Hub hochgeladen. Auf der VM 
+reichen dann zwei Befehle:
 
-Die Datenbank persistiert ihre Daten in einem dedizierten Volume, während
-hochgeladene Dateien der Anwendung in einem separaten Volume abgelegt werden.
-Ein zusätzlicher Nginx-Container stellt diese Dateien über einen definierten
-Pfad zur Verfügung. Dadurch wird die Verantwortlichkeit klar separiert: Das
-Backend verwaltet die Metadaten, während der Webserver für die Auslieferung
-statischer Inhalte zuständig ist.
+\begin{verbatim}
+docker compose pull
+docker compose up -d
+\end{verbatim}
 
-\subsubsection{Vorteile des containerbasierten VM-Deployments}
+\texttt{docker compose pull} lädt die neuesten Images von Docker 
+Hub herunter. \texttt{docker compose up -d} startet danach nur 
+jene Container neu, deren Image sich geändert hat. Services die 
+nicht aktualisiert wurden laufen ohne Unterbrechung weiter. Da 
+die Daten in Volumes gespeichert sind, gehen bei einem Update 
+weder Datenbankeinträge noch hochgeladene Dateien verloren. Das 
+macht Updates unkompliziert und sicher, da im schlimmsten Fall 
+einfach auf das vorherige Image zurückgewechselt werden kann.
 
-Die Kombination aus virtueller Maschine und Containerisierung bietet mehrere
-wesentliche Vorteile:
-\begin{itemize}
-    \item reproduzierbare Deployments durch deklarative Konfiguration,
-    \item vereinfachte Wartung und Aktualisierung einzelner Services,
-    \item präzise Trennung von Anwendungskomponenten,
-    \item hohe Portabilität auf alternative Server oder Cloud-Umgebungen.
-\end{itemize}
+\subsubsection{Monitoring}
 
-Im Vergleich zu konventionellen VM-Deployments ohne Container reduziert sich der
-administrative Aufwand, da Abhängigkeiten und Laufzeitumgebungen vollständig in
-den Containern gekapselt sind.
+Traefik bietet ein eingebautes Dashboard das unter Port 8080 
+erreichbar ist. Dort ist auf einen Blick sichtbar welche Services 
+gerade laufen, welche Routen aktiv sind und ob alle Container 
+erreichbar sind. Für eine detailliertere Übersicht können auf 
+der VM direkt Docker-Befehle verwendet werden:
 
-\subsubsection{Abgrenzung zu alternativen Ansätzen}
+\begin{verbatim}
+docker compose ps
+docker compose logs -f
+\end{verbatim}
 
-Im Gegensatz zu einem klassischen Deployment, bei dem sämtliche Komponenten direkt
-auf der virtuellen Maschine installiert werden, ermöglicht der containerbasierte
-Ansatz eine signifikant flexiblere Struktur. Auch gegenüber Orchestrierungs-
-lösungen wie Kubernetes bleibt der gewählte Ansatz bewusst schlanker, da der
-Projektumfang keine hochskalierbare Cluster-Architektur erfordert. Kubernetes
-wird daher im nachfolgenden Abschnitt lediglich konzeptionell eingeordnet.
-
-\subsubsection{Zwischenfazit}
-
-Das Deployment auf einer virtuellen Maschine in Kombination mit Docker und Docker
-Compose repräsentiert eine stabile, wartungsfreundliche und praxisnahe Lösung
-für den Produktivbetrieb der Anwendung. Es vereint die Vorteile klassischer
-Virtualisierung mit der Flexibilität moderner Container-Technologien und bildet
-damit eine solide Grundlage für den Betrieb und die Weiterentwicklung des Systems.
+\texttt{docker compose ps} zeigt den Status aller Container, 
+\texttt{docker compose logs -f} streamt die Logs aller Services 
+in Echtzeit. Das ist besonders hilfreich um Fehler beim Start 
+der Anwendung oder im laufenden Betrieb schnell zu finden.

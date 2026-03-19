@@ -1,7 +1,7 @@
 \begin{figure}[h t]
     \centering
-    \includegraphics[width=0.95\textwidth]{pics/usecase.png}
-    \caption{Usecases Fragenkonfigurator}
+    \includegraphics[width=0.95\textwidth]{pics/usecaseNew.png}
+    \caption{Usecases der Content-Management-Plattform}
 \end{figure}
 
 % usecase Fragenkonfigurator
@@ -12,51 +12,25 @@
 % Lien
 \setauthor{\secondauthor}
 \subsection{Maturaupload}
-Der Maturaupload ermöglicht es den Nutzer:innen, das Hochladen, Verändern und Löschen von Mitschriften innerhalb der Plattform. Ziel ist es, das Lernmaterial zentral zu sammeln und durch Lehrer:innen geprüfte Inhalte, für andere Nutzer:innen bereitzustellen. Dabei wird in unterschiedliche Rechte für Schüler:innen und Lehrer:innen unterschieden:
 
-\subsubsection{Schüler:innen-/User-Rechte}
-\begin{itemize}
-    \item Schüler:innen können eigene Mitschriften hochladen, bearbeiten und löschen.
-    \item Die hochgeladenen Mitschriften werden dann an die ausgewählte Lehrer:in zur Prüfung in den Persönlichen Bereich weitergeleitet.
-    \item Lehrer:innen (Admins) können diese Mitschriften prüfen und sollte alles passen können sie diese öffentlich freigeben, sodass sie für alle Nutzer:innen sichtbar werden.
-\end{itemize}
+Der Maturaupload ermöglicht es Nutzer:innen, Mitschriften hochzuladen, 
+zu verwalten und für andere bereitzustellen. Ziel ist es, Lernmaterial 
+zentral zu sammeln und durch Lehrer:innen geprüfte Inhalte für alle 
+Nutzer:innen zugänglich zu machen. Das System unterscheidet zwischen 
+zwei Rollen: Schüler:innen und Lehrer:innen.
 
-\subsubsection{Lehrer:innen-/Admin-Rechte}
-\begin{itemize}
-    \item Lehrer:innen besitzen Adminrechte und haben somit vollen Zugriff.
-    \item Sie können:
-    \begin{itemize}
-        \item neue Mitschriften hochladen,
-        \item bestehende Mitschriften bearbeiten oder löschen,
-        \item Schüler:innen Mitschriften prüfen und öffentlich freigeben oder privat belassen.
-        \item neue Fächer und Themenpools erstellen und verwalten.
-    \end{itemize}
-    \item Sie verwalten die Qualität und Sichtbarkeit der Inhalte im System.
-\end{itemize}
+\subsubsection{Schüler:innen}
 
-\subsubsection{Funktionale Übersicht}
-\begin{itemize}
-    \item Mitschriften hochladen:
-    \begin{itemize}
-        \item Lehrer:innen und Admins: können Mitschriften hochladen und direkt veröffentlichen.
-        \item Schüler:innen: können Mitschriften hochladen, diese sind jedoch zunächst nicht öffentlich sichtbar.
-    \end{itemize}
-    \item Mitschriften freigeben:
-    \begin{itemize}
-        \item Nur Lehrer:innen dürfen Mitschriften von Schüler:innen freigeben.
-    \end{itemize}
-    \item Mitschriften bearbeiten/löschen:
-    \begin{itemize}
-        \item Lehrer:innen und Admins: dürfen alle Mitschriften bearbeiten oder löschen.
-        \item Schüler:innen: dürfen ausschließlich ihre eigenen Mitschriften bearbeiten oder löschen.
-    \end{itemize}
-    \item Mitschriften anzeigen:
-    \begin{itemize}
-        \item Freigegebene Mitschriften sind für alle Nutzer:innen sichtbar.
-        \item Nicht freigegebene Mitschriften sind nur für den/die Lehrer:in sichtbar im Persönlichen Bereich.
-    \end{itemize}
-       \begin{itemize}
-        \item Fächer sowie Themenpools dürfen nur von Lehrer:innen und Admins erstellt und verwaltet werden.
-        \item Schüler:innen haben keine Rechte, Fächer oder Themenpools zu erstellen oder zu verwalten.
-    \end{itemize}
-\end{itemize}
+Schüler:innen können eigene Mitschriften hochladen und solange 
+bearbeiten, bis diese von einer Lehrer:in freigegeben wurden. Nach 
+der Freigabe ist die Mitschrift öffentlich sichtbar und kann nicht 
+mehr verändert werden. Nicht freigegebene Mitschriften sind nur für 
+die jeweilige Schüler:in selbst sichtbar.
+
+\subsubsection{Lehrer:innen}
+
+Lehrer:innen haben vollen Zugriff auf alle Mitschriften der Plattform. 
+Sie können eigene Mitschriften hochladen, die sofort öffentlich sichtbar 
+sind, sowie Mitschriften von Schüler:innen prüfen und freigeben oder 
+ablehnen. Zusätzlich können nur Lehrer:innen neue Fächer und Themenpools 
+erstellen und verwalten.

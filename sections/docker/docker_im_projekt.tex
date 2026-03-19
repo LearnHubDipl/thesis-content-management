@@ -1,54 +1,64 @@
-Im Rahmen dieses Projekts fungiert Docker als primäre Technologie für die
-Containerisierung der entwickelten Anwendung. Das Hauptziel besteht darin,
-eine homogene und wiederholbare Ausführungsumgebung für sämtliche
-Systemkomponenten zu etablieren. Der Docker-Einsatz ermöglicht die
-konsistente Gestaltung von Entwicklungs- und Produktivumgebungen, wodurch
-potenzielle Fehlerquellen durch divergierende Systemkonfigurationen
-deutlich reduziert werden.
+Im Rahmen von LearnHub werden alle Komponenten der Anwendung in 
+Docker-Containern betrieben. Ziel war es, eine einheitliche 
+Ausführungsumgebung zu schaffen, die sowohl lokal in der Entwicklung 
+als auch auf der virtuellen Maschine in der Produktion identisch 
+funktioniert. Dadurch werden Fehler vermieden, die durch 
+unterschiedliche Systemkonfigurationen oder Abhängigkeiten entstehen 
+können.
 
-Das System setzt sich aus mehreren funktional abgegrenzten Komponenten
-zusammen, die jeweils dedizierte Funktionen erfüllen. Hierzu gehören eine
-Benutzeroberfläche für die Interaktion mit Anwendern, ein Backend für die
-Abwicklung der Geschäftslogik sowie ergänzende Services wie ein
-Datenbanksystem. Diese Komponenten werden in eigenständigen Containern
-betrieben, was eine präzise Aufgabentrennung realisiert.
+Das System besteht aus vier Services, die jeweils in einem eigenen 
+Container laufen:
+
+\begin{itemize}
+    \item \textbf{Frontend}: Die Angular-Anwendung wird im 
+    Produktionsmodus gebaut und über einen Nginx-Webserver 
+    bereitgestellt.
+    
+    \item \textbf{Backend}: Die Quarkus-Anwendung verarbeitet alle 
+    Anfragen aus dem Frontend, enthält die gesamte Geschäftslogik 
+    und kommuniziert mit der Datenbank.
+    
+    \item \textbf{Datenbank}: MySQL speichert alle persistenten Daten 
+    der Anwendung, also Benutzer, Fächer, Themenpools, Fragen und 
+    Mitschriften.
+    
+    \item \textbf{Nginx}: Ein dedizierter Nginx-Container stellt 
+    hochgeladene Dateien, also die Mitschriften als PDFs, über einen 
+    separaten Pfad bereit.
+\end{itemize}
+
+Als Reverse-Proxy wird \textbf{Traefik} eingesetzt, der eingehende 
+Anfragen basierend auf Pfadregeln an die entsprechenden Container 
+weiterleitet. Das bedeutet konkret: Anfragen an \texttt{/backend} 
+werden an den Quarkus-Container weitergeleitet, Anfragen an 
+\texttt{/uploads} an den Nginx-Container, und alle anderen Anfragen 
+landen beim Frontend. Dadurch ist nach außen nur ein einziger 
+Einstiegspunkt sichtbar, während die einzelnen Services intern klar 
+voneinander getrennt bleiben. Nur Traefik muss wissen, welcher 
+Service hinter welchem Pfad steckt, die Services selbst kommunizieren 
+intern über ihren Servicenamen im Docker-Netzwerk.
+
+Ein weiterer Vorteil dieser Architektur ist die Modularität: Einzelne 
+Services können unabhängig voneinander aktualisiert oder neugestartet 
+werden, ohne den Rest der Anwendung zu beeinträchtigen. Wird zum 
+Beispiel das Frontend aktualisiert, muss nur der Frontend-Container 
+neu gebaut und gestartet werden, während Backend und Datenbank 
+weiterlaufen.
+
+Für neue Teammitglieder ergibt sich durch Docker ein praktischer 
+Vorteil: Die gesamte Entwicklungsumgebung kann mit wenigen Befehlen 
+gestartet werden, ohne dass Software manuell installiert oder 
+konfiguriert werden muss.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{pics/docker_compose.jpg}
-    \caption{Architektur der containerisierten Anwendung im Projekt}
+    \includegraphics[width=0.9\textwidth]{pics/docker_architektur.png}
+    \caption{Architektur der containerisierten Anwendung}
     \label{fig:docker-projekt-architektur}
 \end{figure}
 
-Abbildung~\ref{fig:docker-projekt-architektur} veranschaulicht die
-grundsätzliche Struktur der containerisierten Projektarchitektur. Die
-einzelnen Container operieren innerhalb der Docker Engine und tauschen
-Informationen über ein internes virtuelles Netzwerk aus. Der Zugang von
-außen erfolgt ausschließlich über festgelegte Schnittstellen, wodurch eine
-geregelte und abgesicherte Kommunikation sichergestellt wird.
-
-Ein bedeutender Nutzen dieser Architektur manifestiert sich in ihrer
-Modularität. Modifikationen an einzelnen Komponenten, etwa der
-Benutzeroberfläche, lassen sich realisieren, ohne dass andere Systemteile
-davon betroffen sind. Zusätzlich können individuelle Container autonom
-neugestartet oder aktualisiert werden, was Wartungsoperationen erleichtert.
-
-Docker bietet darüber hinaus die Möglichkeit, Abhängigkeiten explizit
-innerhalb der jeweiligen Container zu spezifizieren. Dies macht die
-Installation bestimmter Softwareversionen oder Laufzeitumgebungen direkt
-auf dem Host-System überflüssig. Die Anwendung wird stattdessen vollständig
-durch die Container-Images charakterisiert, was die Transparenz und
-Reproduzierbarkeit des Deployment-Prozesses steigert \cite{dockerdocs}.
-
-Für den Entwicklungsablauf ergibt sich durch Docker ein zusätzlicher Vorzug:
-Neue Projektmitglieder können mit minimalem Konfigurationsaufwand mit der
-Arbeit beginnen. Durch das Bauen der Container-Images und den Start der
-Container entsteht unmittelbar eine funktionsfähige Umgebung, ohne dass
-händische Einrichtungsschritte notwendig werden.
-
-Zusammenfassend bildet Docker im Projekt ein fundamentales Element zur
-Realisierung einer strukturierten, wartungsfreundlichen und zukunftsfähigen
-Systemarchitektur. Die eindeutige Separation der einzelnen Services sowie
-die einheitliche Laufzeitumgebung schaffen das Fundament für die
-nachfolgenden Schritte der Container-Konfiguration, die in den
-anschließenden Abschnitten detailliert beschrieben werden.
+Wie in Abbildung~\ref{fig:docker-projekt-architektur} zu sehen, 
+ist Traefik der einzige Service der nach außen erreichbar ist. 
+Die Details zur Konfiguration der einzelnen Services, der 
+Startreihenfolge und der Volumes werden in den folgenden 
+Abschnitten beschrieben.

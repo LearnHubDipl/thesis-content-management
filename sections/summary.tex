@@ -1,3 +1,5 @@
+\section{Zusammenfassung}
+
 Aufzählungen:
 
 \begin{compactitem}
@@ -29,3 +31,64 @@ Aufzählungen:
         \end{compactdesc}
     \end{compactdesc}
 \end{compactdesc}
+
+\section{Ausblick}
+
+LearnHub bietet als Lernplattform eine gute Grundlage um künstliche 
+Intelligenz sinnvoll einzusetzen. Die bestehende Struktur mit Fächern, 
+Themenpools, Fragen und Mitschriften liefert bereits strukturierte 
+Daten, auf denen KI-Funktionen aufbauen können.
+
+\subsubsection{Automatische Fragengenierung aus Mitschriften}
+
+Eine naheliegende Erweiterung wäre die automatische Generierung von 
+Fragen aus hochgeladenen Mitschriften. Beim Upload einer Mitschrift 
+könnte ein KI-Modell den PDF-Inhalt analysieren und automatisch 
+Fragen mit passenden Antworten vorschlagen. Diese würden dann nicht 
+direkt veröffentlicht, sondern zuerst von einer Lehrkraft geprüft 
+und freigegeben. Damit würde der Fragenkonfigurator deutlich 
+effizienter, da Lehrkräfte nicht jede Frage manuell erstellen 
+müssten.
+
+Technisch wäre das über die API eines Large Language Models wie 
+GPT-4 oder einem selbst gehosteten Modell umsetzbar. Das Backend 
+würde nach dem Upload die PDF-Datei an das Modell schicken und 
+die generierten Fragen als Vorschläge in der Datenbank speichern.
+
+\subsubsection{Intelligente Lernempfehlungen}
+
+Eine weitere Möglichkeit wäre ein personalisiertes Lernsystem. 
+Aktuell werden dem Schüler alle Fragen eines Themenpools 
+gleichmäßig angezeigt. Mit KI könnte das System analysieren 
+welche Fragen ein Schüler häufig falsch beantwortet und diese 
+öfter einblenden. Fragen die bereits gut beherrscht werden 
+würden seltener erscheinen. Dieses Prinzip nennt sich Spaced 
+Repetition und ist aus Apps wie Anki bekannt.
+
+Dafür müsste das Backend Lernfortschritte pro Nutzer und Frage 
+speichern. Auf Basis dieser Daten könnte ein einfaches Modell 
+berechnen welche Fragen als nächstes gezeigt werden sollen.
+
+\subsubsection{KI-gestützter Chat-Tutor}
+
+Ähnlich wie bei Knowunity könnte LearnHub einen KI-gestützten 
+Chat-Tutor integrieren. Schüler:innen könnten Fragen zu einem 
+Themenpool stellen und der Tutor würde auf Basis der vorhandenen 
+Mitschriften und Fragen antworten. Der Vorteil gegenüber einem 
+allgemeinen KI-Assistenten wäre, dass die Antworten auf die 
+HTL-spezifischen Inhalte der Plattform beschränkt wären.
+
+Technisch wäre das über Retrieval-Augmented Generation (RAG) 
+umsetzbar. Dabei werden die relevanten Mitschriften aus der 
+Datenbank geladen und zusammen mit der Frage des Schülers an 
+das Sprachmodell geschickt. Das Modell antwortet dann auf Basis 
+dieser konkreten Inhalte.
+
+\subsubsection{Automatische Bewertung von Freitextantworten}
+
+Aktuell gibt der Lernmodus keine Rückmeldung ob eine Freitextantwort 
+richtig oder falsch ist, der Schüler muss das selbst einschätzen. 
+Mit KI könnte das System die eingegebene Antwort mit der 
+Musterlösung vergleichen und eine automatische Bewertung geben, 
+also ob die Antwort inhaltlich korrekt ist, auch wenn sie nicht 
+wortwörtlich mit der Musterlösung übereinstimmt.

@@ -1,124 +1,72 @@
-\label{sec:docker-compose}
+Docker Compose ist ein Werkzeug zur Definition und Ausführung von 
+Multi-Container-Anwendungen. Anstatt jeden Container einzeln manuell 
+zu starten und zu konfigurieren, werden alle benötigten Services, 
+Netzwerke und Volumes in einer einzigen \textbf{YAML-Datei} beschrieben 
+\cite{docker_compose}.
 
-Docker Compose findet im Projekt Anwendung, um mehrere Container als kohärente
-Anwendungseinheit zu orchestrieren. Anstelle der manuellen Initialisierung und
-gegenseitigen Konfiguration einzelner Container ermöglicht Compose die deklarative
-Beschreibung erforderlicher Services, Netzwerke und Volumes in einer YAML-Datei.
-Dies gewährleistet reproduzierbare Deployments, die sowohl in lokalen Umgebungen
-als auch auf der virtuellen Maschine konsistent ausgeführt werden können
-\cite{docker-compose-docs}.
+\subsubsection{Aufbau einer Docker Compose Datei}
 
-Im Produktiveinsatz auf der virtuellen Maschine umfasst die Compose-Konfiguration
-mehrere Services: die Benutzeroberfläche, das Quarkus-Backend, eine MySQL-Datenbank
-sowie einen Nginx-Container für die Bereitstellung hochgeladener Dateien. Ergänzend
-fungiert Traefik als Reverse-Proxy, der eingehende Anfragen basierend auf Host-
-und Pfadregeln an die entsprechenden Container weiterleitet. Die hierfür benötigten
-Routing-Regeln werden mittels Labels direkt an den jeweiligen Services spezifiziert.
-Das vollständige Compose-File zeigt Listing~\ref{lst:compose-vm}.
+Eine Docker Compose Datei besteht aus drei zentralen Bereichen 
+\cite{docker_compose}:
 
-\begin{lstlisting}[caption={Docker Compose Setup für den Betrieb auf der virtuellen Maschine}, label={lst:compose-vm}]
-services:
-  frontend:
-    image: lienhochbichler/learnhub-frontend:latest
-    container_name: learnhub-ui
-    restart: always
-    networks:
-      - learnhubnet
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`vm91.htl-leonding.ac.at`) && PathPrefix(`/`)"
-      - "traefik.http.services.frontend.loadbalancer.server.port=80"
+\begin{itemize}
+    \item \textbf{Services}: definieren die einzelnen Container, 
+    ihr Basis-Image, Umgebungsvariablen, Ports und Abhängigkeiten.
+    
+    \item \textbf{Networks}: definieren wie die Container miteinander 
+    kommunizieren.
+    
+    \item \textbf{Volumes}: definieren wie Daten persistent gespeichert 
+    werden, also unabhängig vom Lebenszyklus eines Containers.
+\end{itemize}
 
-  mysql:
-    image: mysql:8
-    container_name: learnhub-mysql
-    environment:
-      MYSQL_DATABASE: learnhub-db
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_USER: quarkus
-      MYSQL_PASSWORD: quarkus
-    ports:
-      - "3306:3306"
-    healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -proot || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: always
-    volumes:
-      - learnhub-data:/var/lib/mysql
-    networks:
-      - learnhubnet
+Abbildung~\ref{fig:compose-example} zeigt ein einfaches Beispiel 
+einer Docker Compose Datei mit zwei Services.
 
-  quarkus:
-    image: lienhochbichler/learnhub-backend:latest
-    container_name: learnhub-backend
-    depends_on:
-      mysql:
-        condition: service_healthy
-    environment:
-      QUARKUS_PROFILE: prod
-      QUARKUS_DATASOURCE_USERNAME: quarkus
-      QUARKUS_DATASOURCE_PASSWORD: quarkus
-      QUARKUS_DATASOURCE_JDBC_URL: jdbc:mysql://mysql:3306/learnhub-db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-      QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION: update
-      MOCKDATA_PATH: /app/mock-data
-    volumes:
-      - ./mock-data:/app/mock-data:Z
-      - learnhub-uploads:/app/uploads
-    networks:
-      - learnhubnet
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=Host(`vm91.htl-leonding.ac.at`) && PathPrefix(`/backend`)"
-      - "traefik.http.services.backend.loadbalancer.server.port=8080"
-      - "traefik.http.middlewares.backend-strip-prefix.stripprefix.prefixes=/backend"
-      - "traefik.http.routers.backend.middlewares=backend-strip-prefix"
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{pics/compose_example.png}
+    \caption{Beispiel einer einfachen Docker Compose Datei}
+    \label{fig:compose-example}
+\end{figure}
 
-  nginx:
-    image: nginx:alpine
-    container_name: learnhub-nginx
-    volumes:
-      - learnhub-uploads:/usr/share/nginx/html/uploads:ro
-    networks:
-      - learnhubnet
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.uploads.rule=Host(`vm91.htl-leonding.ac.at`) && PathPrefix(`/uploads`)"
-      - "traefik.http.services.uploads.loadbalancer.server.port=80"
+\subsubsection{Abhängigkeiten zwischen Services}
 
-networks:
-  learnhubnet:
-    external: true
+In vielen Anwendungen müssen Services in einer bestimmten Reihenfolge 
+gestartet werden. Ein Backend kann beispielsweise erst starten, wenn 
+die Datenbank bereit ist. Docker Compose löst das mit der 
+\texttt{depends\_on} Anweisung \cite{docker_compose}. Dabei kann nicht 
+nur die Startreihenfolge, sondern auch eine Bedingung definiert werden, 
+etwa \texttt{service\_healthy}, was bedeutet dass ein Service erst 
+startet wenn der abhängige Service einen Healthcheck erfolgreich 
+bestanden hat.
 
-volumes:
-  learnhub-data:
-    name: learnhub-data
-  learnhub-uploads:
-    name: learnhub-uploads
-\end{lstlisting}
+\subsubsection{Netzwerke}
 
-Die im Compose-File spezifizierten Services erfüllen jeweils distinkte Funktionen.
-Die MySQL-Datenbank persistiert die Anwendungsdaten und nutzt hierzu ein Volume
-(\icode{learnhub-data}). Durch dieses Volume bleibt die Datenpersistenz auch bei
-Neustarts oder Aktualisierungen des Containers gewährleistet. Ein Healthcheck
-mittels \icode{mysqladmin ping} verifiziert die Betriebsbereitschaft der Datenbank.
-Das Backend wird erst initialisiert, wenn die Datenbank den Status \textit{healthy}
-erreicht hat (\icode{depends\_on} mit \icode{condition: service\_healthy}). Dies
-verhindert Startprobleme durch verfrühte Verbindungsversuche.
+Standardmäßig erstellt Docker Compose für jeden Stack ein eigenes 
+virtuelles Netzwerk. Alle Services innerhalb dieses Netzwerks können 
+sich gegenseitig über ihren Servicenamen erreichen, ohne dass Ports 
+nach außen geöffnet werden müssen \cite{docker_compose}. Das bedeutet 
+zum Beispiel, dass ein Backend den Datenbankserver einfach über den 
+Hostnamen \texttt{db} ansprechen kann, anstatt über eine IP-Adresse.
 
-Das Backend integriert zusätzlich ein Volume (\icode{learnhub-uploads}) zur
-persistenten Speicherung hochgeladener Dateien. Ein dedizierter Nginx-Container
-stellt diese Dateien über einen separaten Pfad (\icode{/uploads}) zur Verfügung.
-Das Frontend operiert als eigenständiger Service und wird über Traefik unter der
-Root-URL bereitgestellt. Die Weiterleitung zum Backend erfolgt über einen Prefix
-(\icode{/backend}), der durch eine Traefik-Middleware entfernt wird, bevor die
-Anfrage den Backend-Container erreicht. Diese Separation ermöglicht eine übersichtliche
-URL-Struktur sowie eine präzise Aufgabentrennung.
+Zusätzlich können externe Netzwerke eingebunden werden, was besonders 
+dann nützlich ist wenn mehrere Compose-Stacks miteinander kommunizieren 
+sollen, etwa wenn ein Reverse-Proxy in einem eigenen Stack läuft 
+\cite{docker_compose}.
 
-Durch die Nutzung eines externen Docker-Netzwerks (\icode{learnhubnet}) kann
-Traefik als zentraler Reverse-Proxy unabhängig vom Compose-Stack betrieben werden,
-während gleichzeitig der Zugriff auf die Services gewährleistet bleibt. Das
-Compose-Setup konstituiert somit die Basis für einen reproduzierbaren Produktivbetrieb
-auf der virtuellen Maschine und bietet zugleich eine solide Grundlage für Wartungs-
-und Erweiterungsmaßnahmen \cite{docker-compose-docs,traefik-docs}.
+\subsubsection{Vorteile von Docker Compose}
+
+Der größte Vorteil von Docker Compose ist die \textbf{Reproduzierbarkeit}: 
+Die gesamte Anwendungsinfrastruktur ist in einer einzigen Datei 
+beschrieben und kann mit einem einzigen Befehl gestartet werden 
+\cite{docker_compose}:
+
+Gerade in der Teamarbeit ist das ein großer Vorteil, da alle Entwickler 
+dieselbe Umgebung verwenden und Konfigurationsunterschiede zwischen 
+einzelnen Rechnern ausgeschlossen werden \cite{docker_compose}.
+Der gesamte Stack wird mit folgendem Befehl gestartet:
+
+\begin{verbatim}
+docker compose up -d
+\end{verbatim}

@@ -1,25 +1,12 @@
-Die Systemarchitektur von \textit{LearnHub} schafft die technische Grundlage für eine gut 
-wartbare und zukunftssichere Webplattform. Sie verfolgt das Ziel, die verschiedenen 
-Funktionsbereiche – das Content-Management-System
-sowie den Maturatrainer des Partnerprojekts – logisch voneinander abzugrenzen, 
-ohne dabei deren effiziente Zusammenarbeit zu beeinträchtigen.
-
-Zur Realisierung dieser Anforderungen wurde eine mehrschichtige Client-Server-Architektur implementiert.
-Diese gewährleistet eine präzise Separation von Präsentation,
-Logik und Datenverwaltung und bildet damit die Grundlage für wartungsfreundlichen
-Betrieb und problemlose Systemerweiterungen.
-
-\subsubsection{Architekturüberblick}
-Die LearnHub-Plattform folgt einem klassischen Client-Server-Ansatz.
-Das Frontend wird als benutzerinteraktive Schicht im Browser ausgeführt
-und ist für die Präsentation der Oberfläche zuständig. 
-Alle Anfrageverarbeitung, Geschäftslogik und Datenbankzugriffe erfolgen zentral im Backend.
-Die Kommunikation zwischen Frontend und Backend läuft über REST-APIs auf Basis des HTTP-Protokolls ab.
-Der Datenaustausch erfolgt im JSON-Format, was eine unkomplizierte Verarbeitung 
-und optimale Interoperabilität sicherstellt.
-
-Ein externes Authentifizierungs- und Autorisierungssystem bildet zusätzlich das Rückgrat 
-für Benutzerverwaltung und rollenbasierte Zugriffskontrolle.
+LearnHub folgt einem klassischen \textbf{Client-Server-Ansatz}. Das 
+Frontend läuft im Browser und ist für die Darstellung der Oberfläche 
+zuständig. Das Backend verarbeitet alle Anfragen, enthält die 
+Geschäftslogik und kommuniziert mit der Datenbank. Die Kommunikation 
+zwischen Frontend und Backend läuft über REST-APIs, der Datenaustausch 
+erfolgt im JSON-Format. Durch diese klare Aufteilung wird das Prinzip 
+der \textbf{Separation of Concerns} konsequent umgesetzt, also dass 
+jede Schicht nur für ihren eigenen Bereich zuständig ist und nicht 
+in die Aufgaben anderer eingreift.
 
 \begin{figure}[H]
     \centering
@@ -28,73 +15,142 @@ für Benutzerverwaltung und rollenbasierte Zugriffskontrolle.
     \label{fig:systemarchitektur}
 \end{figure}
 
-Abbildung~\ref{fig:systemarchitektur} zeigt eine Übersicht der Systemarchitektur
-der LearnHub-Plattform und das Zusammenspiel der einzelnen Komponenten.
+Abbildung~\ref{fig:systemarchitektur} zeigt das Zusammenspiel der 
+einzelnen Komponenten der LearnHub-Plattform.
 
-\subsubsection{Frontend-Architektur}
+\subsubsection{Frontend}
 
-Das Frontend wurde mit Angular als Single-Page-Application (SPA) umgesetzt. 
-Das ermöglicht ein flüssiges Nutzererlebnis, da Seitenwechsel ohne Neuladen der Seite erfolgen.
-Das Frontend besteht aus mehreren Angular-Components, die jeweils für einen 
-bestimmten Funktionsbereich zuständig sind, etwa den Fragenkonfigurator, den Maturaupload oder 
-den persönlichen Bereich.
-Die Logik und die Kommunikation mit dem Backend sind in sogenannten Services gekapselt. 
-Diese Services kümmern sich um die HTTP-Anfragen zum Backend und liefern den Components die benötigten Daten.
-Durch diese Aufteilung wird der Code wartbarer und lässt sich besser wiederverwenden.
-Das Schema Separation of Concerns wird dadurch konsequent umgesetzt.
-Für die Navigation verwendet das Frontend das Angular-Routing. 
-Abhängig von der Rolle des angemeldeten Nutzers werden unterschiedliche Routen und 
-Funktionalitäten freigeschaltet.
+Das Frontend wurde mit Angular als Single-Page-Application umgesetzt. 
+Das bedeutet dass Seitenwechsel ohne Neuladen der Seite stattfinden, 
+was ein flüssiges Nutzererlebnis ermöglicht. Das Frontend besteht 
+aus mehreren Angular-Components, die jeweils für einen bestimmten 
+Bereich zuständig sind, etwa den Fragenkonfigurator, den Maturaupload 
+oder den persönlichen Bereich.
 
-\subsubsection{Backend-Architektur}
+Die Kommunikation mit dem Backend ist in Services gekapselt. Diese 
+Services kümmern sich um die HTTP-Anfragen und liefern den Components 
+die benötigten Daten. Durch diese Aufteilung zwischen Components und 
+Services wird die Separation of Concerns auch innerhalb des Frontends 
+umgesetzt: Components sind nur für die Darstellung zuständig, 
+Services für die Logik und Datenbeschaffung. Das macht den Code 
+leichter wartbar und einzelne Teile können unabhängig voneinander 
+geändert oder wiederverwendet werden.
 
-Das Backend ist das Herzstück der Architektur und wurde mit Java und dem Framework Quarkus entwickelt. 
-Es verarbeitet alle Anwendungslogik, prüft die Daten und verwaltet den Datenbankzugriff.
+Für die Navigation verwendet das Frontend Angular-Routing. Abhängig 
+von der Rolle des angemeldeten Nutzers werden unterschiedliche Routen 
+freigeschaltet. Ein Schüler sieht andere Navigationspunkte und hat 
+Zugriff auf andere Bereiche als eine Lehrkraft. Diese rollenbasierte 
+Navigation wird direkt im Frontend über Route Guards gesteuert, wobei 
+die eigentliche Berechtigungsprüfung immer im Backend stattfindet.
 
-Das Backend ist in mehreren Schichten aufgeteilt:
+\subsubsection{Backend}
+
+Das Backend wurde mit Java und Quarkus entwickelt und verarbeitet 
+alle Anfragen aus dem Frontend. Auch hier wird die Separation of 
+Concerns durch eine klare Schichtenarchitektur umgesetzt:
 
 \begin{itemize}
-\item Boundary: REST-Endpunkte für die HTTP-Kommunikation mit dem Frontend
-\item Model: Datenentitäten, die in der Datenbank gespeichert werden
-\item Repository: Datenbankzugriff und Verwaltung der persistenten Daten
-\item DTO (Data Transfer Object): Datenstrukturen für den Datentransfer zwischen Frontend und Backend
-\item Mapper: Umwandlung zwischen Models und DTOs
-\item Security: Integration mit Keycloak für Authentifizierung und Autorisierung sowie Berechtigungschecks
+    \item \textbf{Boundary}: REST-Endpunkte für die Kommunikation 
+    mit dem Frontend. Diese Schicht nimmt Anfragen entgegen und 
+    gibt Antworten zurück, enthält aber keine Geschäftslogik.
+    
+    \item \textbf{Model}: Datenentitäten die direkt auf die 
+    Datenbanktabellen gemappt werden. Jede Entität repräsentiert 
+    ein Objekt aus der Anwendungsdomäne, also zum Beispiel einen 
+    User, ein Fach oder eine Frage.
+    
+    \item \textbf{Repository}: Zuständig für den Datenbankzugriff. 
+    Die Boundary kommuniziert nicht direkt mit der Datenbank, 
+    sondern immer über das Repository.
+    
+    \item \textbf{DTO (Data Transfer Object)}: Datenstrukturen 
+    die speziell für den Transfer zwischen Frontend und Backend 
+    designed sind. DTOs enthalten nur die Felder die das Frontend 
+    tatsächlich braucht, nicht das gesamte Datenmodell.
+    
+    \item \textbf{Mapper}: Übersetzt zwischen Models und DTOs. 
+    Dadurch ist das interne Datenmodell vom Frontend entkoppelt 
+    und kann sich unabhängig davon weiterentwickeln.
+    
+    \item \textbf{Security}: Integration mit Keycloak für 
+    Authentifizierung und Berechtigungschecks. Alle 
+    Sicherheitsprüfungen laufen ausschließlich in dieser Schicht 
+    ab, damit keine sicherheitsrelevante Logik im Frontend 
+    umgesetzt wird.
 \end{itemize}
-
-Alle Sicherheitsprüfungen laufen ausschließlich im Backend ab. 
-Das stellt sicher, dass wichtige Sicherheitslogik nicht im Frontend umgesetzt wird.
 
 \subsubsection{Authentifizierung und Autorisierung}
 
-Die Anmeldung wird über Keycloak verwaltet, einen Identity-Provider, der von der 
-Schule zur Verfügung gestellt wird. Keycloak nutzt moderne 
-Sicherheitsstandards wie OAuth2.0.
+Die Anmeldung läuft über Keycloak, der von der HTL Leonding 
+bereitgestellt wird und mit dem schulischen LDAP-Verzeichnis 
+verbunden ist. Nach erfolgreicher Anmeldung erhält das Frontend 
+ein JWT, das bei jeder Anfrage ans Backend mitgeschickt wird. 
+Das Backend liest die Rolle aus dem Token und entscheidet damit 
+welche Ressourcen der Nutzer erreichen darf. Schüler:innen haben 
+andere Berechtigungen als Lehrer:innen, etwa beim Freigeben von 
+Fragen oder dem Verwalten von Fächern und Themenpools. Da alle 
+Sicherheitsprüfungen im Backend stattfinden, kann die 
+Zugriffskontrolle nicht durch Manipulation des Frontends umgangen 
+werden.
 
-Nach erfolgreicher Anmeldung erhält das Frontend ein JSON Web Token (JWT). 
-Dieses Token enthält Informationen über die Rolle des Nutzers, also ob es sich um 
-eine/n Schüler:in oder eine/n Lehrer:in handelt.
-Das Token wird bei jeder Anfrage an das Backend mitgesendet, wo es überprüft wird.
+\subsubsection{Datenbank}
 
-Das Backend entscheidet basierend auf der Rolle aus dem Token, welche Ressourcen 
-der/die Nutzer:in erreichen darf. Schüler:innen haben andere Berechtigungen als Lehrer:innen,
-etwa beim Freigeben von Fragen, dem Verwalten von Fächern und Themenpools oder dem 
-Bearbeiten öffentlicher Inhalte.
+Alle relevanten Daten, also Benutzer, Fächer, Themenpools, Fragen 
+und Mitschriften, werden in einer relationalen Datenbank gespeichert. 
+Relationale Datenbanken eignen sich hier besonders gut, weil die 
+Daten stark miteinander verknüpft sind. Eine Frage gehört zu einem 
+Themenpool, ein Themenpool zu einem Fach, eine Mitschrift zu einem 
+Themenpool und einem Benutzer. Diese Beziehungen lassen sich in 
+einer relationalen Datenbank sauber über Fremdschlüssel abbilden.
 
-\subsubsection{Datenhaltung}
+Für die lokale Entwicklung wird H2 als In-Memory-Datenbank 
+verwendet, da diese ohne Installation direkt in der Anwendung 
+läuft und beim Start automatisch das Schema erstellt. Im 
+Produktivbetrieb auf der VM kommt MySQL zum Einsatz, das in 
+einem eigenen Docker-Container läuft und seine Daten in einem 
+persistenten Volume speichert. Der Wechsel zwischen H2 und MySQL 
+wird über das Quarkus-Profil gesteuert, also \texttt{dev} für 
+die Entwicklung und \texttt{prod} für den Produktivbetrieb, 
+ohne dass der Code selbst geändert werden muss.
 
-In dem Projekt wird eine relationale Datenbank verwendet, um alle relevanten Informationen zu speichern.
-In der DB sind Benutzer, Fächer, Themenpools, Fragen, Mitschriften abgelegt.
-Für die Entwicklung wird die In-Memory-Datenbank H2 verwendet, während für den Produktivbetrieb 
-auf der VM MySQL zum Einsatz kommt.
-Durch die strukturierte Datenverwaltung können Fragen und Unterlagen eindeutig 
-einem Fach oder Themenpool zugeordnet werden. 
-Das bildet die Grundlage für die Navigation in der Plattform und
-ermöglicht den filterbasierten Lernmodus.
+\subsubsection{Datenmodell}
 
-\subsubsection{Containerisierung und Deployment}
+Abbildung~\ref{fig:datenmodell} zeigt das Datenmodell von LearnHub 
+mit allen Entitäten und ihren Beziehungen.
 
-Frontend und Backend laufen in Docker-Containern auf einer VM der Schule.
-Dort wird immer die aktuelle Version deployed.
-Das bringt Vorteile: Die Umgebung ist überall gleich, die Anwendung lässt sich leicht 
-reproduzieren und skalieren. Die Komponenten sind klar voneinander getrennt.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{pics/datenmodell.jpeg}
+    \caption{Datenmodell von LearnHub}
+    \label{fig:datenmodell}
+\end{figure}
+
+Das Datenmodell spiegelt direkt die Datenbankstruktur von LearnHub 
+wider. Jede Entität entspricht einer Tabelle in der MySQL-Datenbank.
+
+Der erste Bereich umfasst die Struktur der Plattform. 
+\textbf{Subject} entspricht der Tabelle für Fächer, 
+\textbf{TopicPool} der Tabelle für Themenpools, wobei jeder 
+Themenpool über einen Fremdschlüssel einem Fach zugeordnet ist. 
+\textbf{TopicContent} repräsentiert eine Mitschrift und speichert 
+den Pfad zur PDF-Datei auf dem Server sowie den Freigabestatus 
+(\texttt{isApproved}). Solange \texttt{isApproved} false ist, 
+ist die Mitschrift nur für die Ersteller:in sichtbar. Erst wenn 
+eine Lehrkraft die Mitschrift freigibt, wird der Wert auf true 
+gesetzt und die Mitschrift ist öffentlich sichtbar.
+
+Der zweite Bereich umfasst das Fragensystem. \textbf{Question} 
+speichert den Fragetext sowie den Typ (\texttt{QuestionType}), 
+also ob es sich um eine Freitext- oder Multiple-Choice-Frage 
+handelt. Bei Multiple-Choice-Fragen werden die Antwortmöglichkeiten 
+in der \textbf{Answer} Tabelle gespeichert, wobei das Feld 
+\texttt{isCorrect} angibt welche Antworten korrekt sind. Jede 
+Frage ist über einen Fremdschlüssel einem Themenpool zugeordnet.
+
+Sowohl \textbf{TopicContent} als auch \textbf{Question} können 
+über die \textbf{MediaFile} Tabelle Bilder oder Grafiken verknüpft 
+haben. Die \textbf{User} Tabelle ist mit beiden Hauptbereichen 
+verknüpft, über Fremdschlüssel wird gespeichert welcher User 
+welche Mitschrift hochgeladen und welche Frage erstellt hat. 
+Das ermöglicht zum Beispiel dass Schüler:innen nur ihre eigenen 
+Mitschriften bearbeiten können.
