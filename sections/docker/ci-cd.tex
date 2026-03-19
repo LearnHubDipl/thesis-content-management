@@ -23,8 +23,8 @@ Ein Workflow wird in einer YAML-Datei unter
 ausgeführt wenn ein bestimmtes Ereignis eintritt, zum Beispiel ein 
 Push auf den Main-Branch \cite{github-actions}.
 
-Abbildung~\ref{fig:github-actions-workflow} zeigt einen exemplarischen 
-Workflow für LearnHub.
+Abbildung~\ref{fig:github-actions-workflow} zeigt den aktuellen 
+Workflow für das Backend von LearnHub.
 
 \begin{figure}[H]
     \centering
@@ -61,6 +61,29 @@ nicht bei Pull Requests. Der Job baut eine SSH-Verbindung zur VM
 auf und führt dort zwei Befehle aus: \texttt{docker compose pull} 
 lädt die neuen Images, \texttt{docker compose up -d} startet die 
 betroffenen Container neu.
+
+Abbildung~\ref{fig:cicd-pipeline} zeigt den vollständigen 
+Ablauf der CI/CD Pipeline von LearnHub.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{pics/ci_cd.png}
+    \caption{Ablauf der CI/CD Pipeline}
+    \label{fig:cicd-pipeline}
+\end{figure}
+
+Wie in Abbildung~\ref{fig:cicd-pipeline} zu sehen, startet 
+der Prozess mit einem Push auf den Main-Branch. GitHub Actions 
+erkennt das Ereignis automatisch und startet die ersten zwei 
+Jobs parallel, einen für das Backend und einen für das Frontend. 
+Schlägt ein Test in einem der beiden Jobs fehl, bricht die 
+gesamte Pipeline sofort ab und die Entwickler:in wird 
+benachrichtigt, sodass kein fehlerhafter Code weiterverarbeitet 
+wird. Erst wenn beide Jobs erfolgreich abgeschlossen sind, 
+startet der Deploy Job, der die neuen Images auf die VM lädt 
+und die Container neu startet. Abschließend prüft ein 
+Health Check ob die Anwendung korrekt läuft, bei einem 
+Fehler wird automatisch auf die vorherige Version zurückgerollt.
 
 \subsubsection{Automatisierte Tests}
 

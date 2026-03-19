@@ -27,8 +27,8 @@ bearbeiten oder löschen ist nicht möglich.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.7\textwidth]{pics/ab1_1.png}
-    \caption{Fächerübersicht als Lehrkraft}
-    \label{fig:faecher-lehrer}
+    \caption{Fächerübersicht als Schueler}
+    \label{fig:faecher-schueler}
 \end{figure}
 
 \paragraph{Ansicht als Lehrkraft}
@@ -119,3 +119,40 @@ Lehrkräfte können Mitschriften hochladen, die sofort öffentlich sichtbar
 sind. Zusätzlich können sie alle Mitschriften, unabhängig vom Ersteller, 
 bearbeiten oder löschen und haben damit volle Kontrolle über alle Inhalte 
 der Plattform.
+
+\subsubsection{Freigabeprozess}
+
+Der Freigabeprozess stellt sicher, dass nur geprüfte Inhalte 
+öffentlich sichtbar sind. Abbildung~\ref{fig:freigabe-prozess} 
+zeigt den genauen Ablauf.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{pics/usecase_mitschirftenUpload.png}
+    \caption{Freigabeprozess für Mitschriften}
+    \label{fig:freigabe-prozess}
+\end{figure}
+
+Sobald eine Schüler:in eine Mitschrift hochlädt, bekommt diese 
+automatisch den Status \textit{PENDING}. Die Mitschrift ist in 
+diesem Zustand nur für die Ersteller:in selbst sichtbar, also 
+nicht für andere Schüler:innen oder Lehrkräfte im öffentlichen 
+Bereich. Die zuständige Lehrkraft sieht alle ausstehenden 
+Mitschriften in ihrem persönlichen Bereich und kann diese 
+einzeln prüfen.
+
+Hat die Lehrkraft die Mitschrift geprüft, gibt es zwei 
+Möglichkeiten. Entweder wird die Mitschrift freigegeben, 
+womit \texttt{isApproved} in der Datenbank auf \texttt{true} 
+gesetzt wird und die Mitschrift ab sofort für alle Nutzer:innen 
+sichtbar ist. Oder die Lehrkraft lehnt die Mitschrift ab, 
+zum Beispiel weil der Inhalt fehlerhaft oder unvollständig ist. 
+In beiden Fällen erhält die Schüler:in eine Benachrichtigung 
+im persönlichen Bereich, sodass sie immer über den aktuellen 
+Status ihrer Mitschriften informiert ist.
+
+Dieser Prozess hat zwei wesentliche Vorteile. Erstens wird 
+die Qualität der Inhalte auf der Plattform sichergestellt, 
+da keine unkontrollierten Inhalte veröffentlicht werden können. 
+Zweitens bekommen Schüler:innen direktes Feedback von der 
+Lehrkraft, was den Lernprozess unterstützt.

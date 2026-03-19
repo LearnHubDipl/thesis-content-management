@@ -112,3 +112,45 @@ persistenten Volume speichert. Der Wechsel zwischen H2 und MySQL
 wird über das Quarkus-Profil gesteuert, also \texttt{dev} für 
 die Entwicklung und \texttt{prod} für den Produktivbetrieb, 
 ohne dass der Code selbst geändert werden muss.
+
+\subsubsection{Datenmodell}
+
+Abbildung~\ref{fig:datenmodell} zeigt das Datenmodell von LearnHub 
+mit allen Entitäten und ihren Beziehungen.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{pics/datenmodell.jpeg}
+    \caption{Datenmodell von LearnHub}
+    \label{fig:datenmodell}
+\end{figure}
+
+Das Datenmodell spiegelt direkt die Datenbankstruktur von LearnHub 
+wider. Jede Entität entspricht einer Tabelle in der MySQL-Datenbank.
+
+Der erste Bereich umfasst die Struktur der Plattform. 
+\textbf{Subject} entspricht der Tabelle für Fächer, 
+\textbf{TopicPool} der Tabelle für Themenpools, wobei jeder 
+Themenpool über einen Fremdschlüssel einem Fach zugeordnet ist. 
+\textbf{TopicContent} repräsentiert eine Mitschrift und speichert 
+den Pfad zur PDF-Datei auf dem Server sowie den Freigabestatus 
+(\texttt{isApproved}). Solange \texttt{isApproved} false ist, 
+ist die Mitschrift nur für die Ersteller:in sichtbar. Erst wenn 
+eine Lehrkraft die Mitschrift freigibt, wird der Wert auf true 
+gesetzt und die Mitschrift ist öffentlich sichtbar.
+
+Der zweite Bereich umfasst das Fragensystem. \textbf{Question} 
+speichert den Fragetext sowie den Typ (\texttt{QuestionType}), 
+also ob es sich um eine Freitext- oder Multiple-Choice-Frage 
+handelt. Bei Multiple-Choice-Fragen werden die Antwortmöglichkeiten 
+in der \textbf{Answer} Tabelle gespeichert, wobei das Feld 
+\texttt{isCorrect} angibt welche Antworten korrekt sind. Jede 
+Frage ist über einen Fremdschlüssel einem Themenpool zugeordnet.
+
+Sowohl \textbf{TopicContent} als auch \textbf{Question} können 
+über die \textbf{MediaFile} Tabelle Bilder oder Grafiken verknüpft 
+haben. Die \textbf{User} Tabelle ist mit beiden Hauptbereichen 
+verknüpft, über Fremdschlüssel wird gespeichert welcher User 
+welche Mitschrift hochgeladen und welche Frage erstellt hat. 
+Das ermöglicht zum Beispiel dass Schüler:innen nur ihre eigenen 
+Mitschriften bearbeiten können.
