@@ -1,0 +1,142 @@
+\subsubsection{Die Ausgangslage – dotCloud und das „Works on my Machine"-Problem}
+
+Bevor Docker existierte, stand die Softwareentwicklung vor einem alltäglichen 
+Problem: Eine Anwendung funktionierte auf dem Rechner des Entwicklers 
+einwandfrei, versagte jedoch in der Test- oder Produktionsumgebung. 
+Unterschiedliche Betriebssystemversionen, abweichende Bibliotheken oder 
+fehlende Abhängigkeiten führten zu schwer nachvollziehbaren Fehlern. 
+Dieses Phänomen war so verbreitet, dass es in der Entwickler-Community 
+seinen eigenen Begriff bekam: \textit{„Works on my machine"} 
+\cite{ionos_docker}.
+
+Solomon Hykes, ein französisch-amerikanischer Softwareentwickler, 
+gründete 2008 gemeinsam mit Sebastien Pahl das Unternehmen 
+\textbf{dotCloud} in San Francisco \cite{datacenter_docker}. dotCloud 
+war ein Platform-as-a-Service (PaaS)-Anbieter, der Entwicklern ermöglichte, 
+ihre Anwendungen auf der dotCloud-Infrastruktur zu deployen, ohne sich 
+selbst um Server kümmern zu müssen. Das klingt einfach, war es aber 
+nicht: dotCloud musste Anwendungen von hunderten verschiedenen Kunden 
+gleichzeitig betreiben, jede mit eigenen Abhängigkeiten, Laufzeitumgebungen 
+und Konfigurationen, und das alles isoliert voneinander auf denselben 
+physischen Servern \cite{datacenter_docker}.
+
+Um dieses Problem intern zu lösen, begann das dotCloud-Team mit der 
+Entwicklung einer Technologie, die Anwendungen zusammen mit ihren 
+gesamten Abhängigkeiten in portable, isolierte Einheiten verpackte. 
+Diese Einheiten, später als \textbf{Container} bekannt, konnten auf 
+jeder Umgebung gleich ausgeführt werden, unabhängig vom darunterliegenden 
+System \cite{ionos_docker}.
+
+\subsubsection{Die technische Basis – Linux Namespaces und cgroups}
+
+Docker war keine vollständig neue Erfindung, sondern baute auf bereits 
+bestehenden Linux-Kernelfunktionen auf, die bis dahin jedoch kaum 
+zugänglich oder bekannt waren \cite{ionos_docker}.
+
+Die zwei wichtigsten Bausteine waren:
+
+\begin{itemize}
+    \item \textbf{Linux Namespaces}: Namespaces isolieren Prozesse 
+    voneinander. Jeder Container bekommt seine eigene Sicht auf das 
+    System, also eigene Prozess-IDs, eigenes Netzwerk und eigenes 
+    Dateisystem. Aus Sicht des Containers läuft er auf einem vollständig 
+    isolierten System, obwohl er sich den Kernel mit dem Host teilt 
+    \cite{ionos_docker}.
+
+    \item \textbf{Control Groups (cgroups)}: cgroups wurden von Google 
+    entwickelt und 2008 in den Linux-Kernel integriert. Sie ermöglichen 
+    es, den Ressourcenverbrauch von Prozessen zu begrenzen und zu 
+    überwachen, also wie viel CPU, Arbeitsspeicher oder Netzwerkbandbreite 
+    ein Container maximal nutzen darf \cite{ionos_docker}.
+\end{itemize}
+
+Diese Kombination aus Namespaces und cgroups bildete das Fundament, 
+auf dem Docker aufbaute. Der entscheidende Beitrag von Docker war 
+nicht die Erfindung dieser Technologien, sondern ihre \textbf{Zugänglichkeit}: 
+Docker verpackte die Komplexität dieser Linux-Mechanismen in eine 
+einfache, entwicklerfreundliche Oberfläche \cite{datacenter_docker}.
+
+\subsubsection{Die PyCon-Demo 2013 – ein Wendepunkt}
+
+Am 21. März 2013 präsentierte Solomon Hykes Docker zum ersten Mal 
+öffentlich auf der \textbf{PyCon-Konferenz} in Santa Clara, Kalifornien 
+\cite{datacenter_docker}. Die Demo dauerte nur wenige Minuten, Hykes 
+zeigte live, wie sich eine Anwendung in einem Container starten, stoppen 
+und auf einem anderen System ausführen ließ. Die Reaktion des Publikums 
+war unmittelbar begeistert.
+
+Noch am selben Tag wurde Docker als \textbf{Open-Source-Projekt} auf 
+GitHub veröffentlicht. Innerhalb weniger Stunden verbreitete sich die 
+Demo viral in der Entwickler-Community. Was als internes Werkzeug von 
+dotCloud begonnen hatte, wurde über Nacht zu einem der meistdiskutierten 
+Projekte in der Softwareentwicklung \cite{datacenter_docker}.
+
+\subsubsection{Von dotCloud zu Docker Inc. – 2013 bis 2015}
+
+Der Erfolg der PyCon-Demo hatte unmittelbare Konsequenzen für dotCloud. 
+Das Interesse an Docker überwältigte das ursprüngliche PaaS-Geschäft 
+bei weitem. Innerhalb weniger Monate zählte das GitHub-Repository 
+tausende Sterne und hunderte externe Mitwirkende \cite{datacenter_docker}.
+
+Im Oktober 2013 traf Hykes eine strategische Entscheidung: dotCloud 
+wurde in \textbf{Docker Inc.} umbenannt, und das Unternehmen richtete 
+seinen gesamten Fokus auf die Weiterentwicklung von Docker. Das 
+ursprüngliche PaaS-Geschäft von dotCloud wurde später verkauft 
+\cite{datacenter_docker}.
+
+2014 und 2015 folgten weitere wichtige Meilensteine:
+
+\begin{itemize}
+    \item \textbf{Docker Hub} wurde eingeführt, eine öffentliche 
+    Registry, in der Entwickler fertige Container-Images teilen und 
+    wiederverwenden konnten \cite{ionos_docker}.
+    
+    \item Große Technologieunternehmen wie \textbf{Google, Microsoft 
+    und Amazon} kündigten offizielle Docker-Unterstützung in ihren 
+    Cloud-Plattformen an \cite{ionos_docker}.
+    
+    \item Docker erhielt massive Investitionen, unter anderem eine 
+    Finanzierungsrunde von 40 Millionen US-Dollar im Jahr 2014 
+    \cite{datacenter_docker}.
+\end{itemize}
+
+\subsubsection{Die Open Container Initiative – ein offener Standard}
+
+Mit dem rasanten Wachstum von Docker entstand auch die Frage nach 
+Standardisierung. 2015 gründeten Docker Inc. gemeinsam mit Unternehmen 
+wie Google, Microsoft, Red Hat und anderen die 
+\textbf{Open Container Initiative (OCI)} unter dem Dach der Linux 
+Foundation \cite{datacenter_docker}.
+
+Das Ziel der OCI war es, offene, herstellerunabhängige Standards für 
+Container-Formate und Laufzeitumgebungen zu definieren. Damit sollte 
+sichergestellt werden, dass Container nicht an eine bestimmte Plattform 
+oder einen bestimmten Anbieter gebunden sind \cite{ionos_docker}. 
+Die OCI veröffentlichte zwei zentrale Spezifikationen:
+
+\begin{itemize}
+    \item \textbf{image-spec}: definiert das Format eines 
+    Container-Images
+    \item \textbf{runtime-spec}: definiert wie ein Container aus 
+    einem Image gestartet wird
+\end{itemize}
+
+\subsubsection{Docker heute}
+
+Heute ist Docker aus der modernen Softwareentwicklung nicht mehr 
+wegzudenken. Laut einer Umfrage von Stack Overflow aus dem Jahr 2023 
+gehört Docker zu den meistgenutzten Werkzeugen unter Entwicklern 
+weltweit \cite{ionos_docker}.
+
+Docker Inc. selbst durchlief in den letzten Jahren mehrere 
+Veränderungen, darunter finanzielle Schwierigkeiten und eine 
+Neuausrichtung des Unternehmens. Dennoch blieb die Docker-Technologie 
+selbst stabil und wird aktiv weiterentwickelt. Die Container-Runtime 
+\textbf{containerd}, die ursprünglich Teil von Docker war, wurde 2017 
+als eigenständiges Open-Source-Projekt ausgegliedert und ist heute 
+die Basis vieler moderner Container-Plattformen, darunter auch 
+Kubernetes \cite{ionos_docker}.
+
+Die Grundidee von 2013 ist dabei dieselbe geblieben: Anwendungen 
+portabel, reproduzierbar und isoliert bereitzustellen, unabhängig 
+davon, wo sie laufen.

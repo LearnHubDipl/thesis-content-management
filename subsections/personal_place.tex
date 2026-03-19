@@ -1,26 +1,45 @@
-\setauthor{\firstauthor}
-Über die Navigationsleiste im oberen Bereich der Anwendung gelangt der/die Nutzer:in durch einen Klick auf das Personen-Symbol zum persönlichen Bereich.\par
-Im persönlichen Bereich werden eine Willkommensnachricht sowie die Nutzerdaten angezeigt. Über den Logout-Button kann die aktive Sitzung beendet werden. 
-Anschließend wird der/die Nutzer:in zum Anmeldebildschirm zurückgeleitet.
+\setauthor{\secondauthor}
+
+Über die Navigationsleiste im oberen Bereich der Anwendung gelangt 
+der/die Nutzer:in durch einen Klick auf das Personen-Symbol zum 
+persönlichen Bereich. Dort werden die eigenen Nutzerdaten sowie 
+der Status der hochgeladenen Mitschriften angezeigt. Über den 
+Logout-Button kann die aktive Sitzung beendet werden.
 
 \subsection{Ansicht als Schüler:in}
-Schüler:innen sehen im persönlichen Bereich ausschließlich ihre Nutzerdaten und den Logout-Button.
+
+Schüler:innen sehen im persönlichen Bereich ihre Nutzerdaten, eine 
+Übersicht ihrer hochgeladenen Mitschriften mit dem jeweiligen 
+Freigabestatus sowie einen Benachrichtigungsbereich. 
+Abbildung~\ref{fig:persoenlicher-bereich-schueler} zeigt diese Ansicht.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{pics/persoenlicher_bereich_schueler.png}
+    \includegraphics[width=0.9\textwidth]{pics/ab7.png}
     \caption{Persönlicher Bereich: Schüler:in}
     \label{fig:persoenlicher-bereich-schueler}
 \end{figure}
 
-\subsection{Ansicht als Administrator:in}
-Administrator:innen haben zusätzlich Zugriff auf den Button \textit{„Fragen genehmigen"}, 
-der oberhalb des Logout-Buttons angezeigt wird. Dieser Button führt zur Freigabeverwaltung \ref{sec:fragen-genehmigen}, 
-in der alle zur Freigabe angefragten Fragen eingesehen und bearbeitet werden können.
+Im Bereich \textit{Meine Mitschriften} wird für jede hochgeladene 
+Mitschrift der aktuelle Status angezeigt, entweder \textit{Wartet auf 
+Freigabe} oder \textit{Freigegeben}. Freigegebene Mitschriften können 
+direkt als PDF geöffnet werden.
+
+Zusätzlich gibt es einen Benachrichtigungsbereich, in dem Schüler:innen 
+über Freigaben oder Ablehnungen ihrer Mitschriften informiert werden. 
+Abbildung~\ref{fig:benachrichtigungen} zeigt ein Beispiel einer solchen 
+Benachrichtigung.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{pics/persoenlicher_bereich_admin.png}
-    \caption{Persönlicher Bereich: Administrator:in mit Freigabe-Button}
-    \label{fig:persoenlicher-bereich-admin}
+    \includegraphics[width=0.9\textwidth]{pics/ab8.png}
+    \caption{Benachrichtigungen im persönlichen Bereich}
+    \label{fig:benachrichtigungen}
 \end{figure}
+
+\subsection{Ansicht als Lehrkraft}
+
+Lehrkräfte sehen dieselben Informationen wie Schüler:innen, haben 
+jedoch zusätzlich Zugriff auf den Button \textit{„Fragen genehmigen"}, 
+über den sie zur Freigabeverwaltung gelangen und dort eingereichte 
+Fragen von Schüler:innen prüfen können.

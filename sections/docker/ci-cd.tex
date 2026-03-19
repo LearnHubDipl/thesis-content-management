@@ -1,306 +1,88 @@
-\subsubsection{CI/CD – Ein Blick in die Zukunft}
-\label{sec:cicd-konzept}
-
-Für dieses Projekt wurde bewusst keine CI/CD-Pipeline umgesetzt. Der Grund liegt auf
-der Hand: Der Zeitrahmen einer Diplomarbeit ist begrenzt, und für den aktuellen
-Projektumfang wäre der Aufwand unverhältnismäßig hoch. Trotzdem macht es Sinn, sich
-anzuschauen, wie so eine Pipeline für LearnHub aussehen könnte, vor allem, wenn das
-Projekt später weiterentwickelt wird.
-
-CI/CD ist in der Softwareentwicklung mittlerweile Standard. CI steht für Continuous
-Integration: Code-Änderungen werden laufend zusammengeführt, automatische Tests prüfen
-dabei die Qualität. CD bedeutet Continuous Deployment: Getesteter Code wird automatisch
-in die Produktion gebracht. Zusammen bilden beide eine durchgehende Automatisierung,
-vom ersten Commit bis zur laufenden Anwendung.
-
-\paragraph{Warum CI/CD überhaupt?}
-
-Aktuell läuft das Deployment komplett manuell. Bei jeder Code-Änderung muss man
-Docker-Images von Hand bauen, zu Docker Hub hochladen und auf der VM neu starten.
-Das wiederholt sich bei jedem Update. Immer die gleichen Befehle, immer die gleichen
-Schritte. Das kostet nicht nur Zeit, sondern birgt auch Fehlerquellen: Ein vergessener
-Befehl oder ein Tippfehler kann bereits dazu führen, dass etwas schiefläuft.
-
-Mit einer Pipeline würde das automatisch ablaufen. Entwicklerinnen und Entwickler
-könnten sich auf den Code konzentrieren, während die Pipeline den Rest übernimmt:
-Bauen, testen und deployen. Fehler fallen früher auf, weil Tests bei jedem Commit
-laufen. Von der Entwicklung bis zur Produktion vergehen Minuten statt Stunden.
-
-\paragraph{Wie eine Pipeline für LearnHub funktionieren würde}
-
-Eine typische Pipeline durchläuft mehrere Stationen. Jede baut auf der vorherigen auf.
-Schlägt eine Station fehl, bricht der Prozess ab.
-
-\textbf{Phase 1: Der Startschuss}
-
-Alles beginnt mit einem Commit. Eine Entwicklerin oder ein Entwickler pusht Code auf
-den Main-Branch oder merged einen Pull Request. GitHub registriert das Ereignis und
-startet den Workflow. Dieser lädt den aktuellen Code-Stand und beginnt mit der Ausführung.
-
-\textbf{Phase 2: Images bauen}
-
-Nun werden die Docker-Images für Frontend und Backend gebaut. Das läuft wie beim
-manuellen Build, nur automatisch: Dockerfiles werden verarbeitet, Abhängigkeiten
-heruntergeladen und Code kompiliert. Zusätzlich könnten Tools den Code auf Stil
-prüfen oder nach bekannten Sicherheitslücken in den verwendeten Bibliotheken scannen
-\cite{docker-cicd}.
-
-Klappt alles, stehen die Images bereit. Jedes bekommt einen eindeutigen Tag, häufig
-den Commit-Hash. So lässt sich später nachvollziehen, welches Image aus welchem Code
-entstanden ist.
-
-\textbf{Phase 3: Testen, ob alles funktioniert}
-
-Nach dem Build starten die Tests. Sie prüfen, ob der neue Code etwas kaputt macht
-oder ob die Qualität stimmt.
-
-Beim Backend laufen Unit-Tests, die einzelne Teile isoliert prüfen. Integration-Tests
-gehen weiter und überprüfen unter anderem, ob die Datenbankverbindung funktioniert und
-ob REST-Endpunkte die erwarteten Daten liefern. Häufig werden dafür Mock-Objekte
-verwendet, die echte Systeme nachahmen, sodass für Tests keine laufende Datenbank nötig ist
-\cite{beck2003test}.
-
-Beim Frontend ist es ähnlich: Unit-Tests prüfen einzelne Angular-Components.
-End-to-End-Tests öffnen einen Browser und simulieren einen echten Nutzer, etwa indem
-Buttons geklickt, Formulare ausgefüllt und Navigationen durchgeführt werden. Tools wie
-Cypress oder Playwright automatisieren diesen Ablauf \cite{cypress-docs}.
-
-Schlägt ein Test fehl, stoppt die Pipeline sofort. Die Entwicklerinnen und Entwickler
-erhalten eine Nachricht mit Details. Das fehlerhafte Image wird nicht weiterverarbeitet,
-sodass kein defekter Code in die Produktion gelangt.
-
-\textbf{Phase 4: Images ablegen}
-
-Sind alle Tests bestanden, werden die Images in einer Registry abgelegt. Das kann Docker Hub,
-die GitHub Container Registry oder eine selbst gehostete Lösung sein. Üblich sind mehrere Tags:
-
-\begin{itemize}
-  \item \texttt{latest} verweist auf die aktuellste Version,
-  \item \texttt{v1.2.3} folgt der semantischen Versionierung (Major.Minor.Patch),
-  \item \texttt{commit-abc123} verknüpft das Image mit einem konkreten Commit.
-\end{itemize}
-
-Diese Tags sind später sehr hilfreich, weil sofort sichtbar ist, welche Version gerade läuft.
-
-\textbf{Phase 5: Deployment auf die VM}
-
-Die Images sind fertig, jetzt müssen sie auf die VM. Dafür gibt es zwei gängige Vorgehensweisen.
-
-\textbf{Option A: Deployment über SSH}
-
-Die Pipeline baut eine SSH-Verbindung zur VM auf. Danach werden zwei Befehle ausgeführt:
-\texttt{docker compose pull} lädt neue Images, \texttt{docker compose up -d} startet die Container
-im Hintergrund. Für eine einzelne VM ist das meist ausreichend.
-
-\textbf{Option B: Agent auf der VM}
-
-Ein Dienst läuft direkt auf der VM und prüft regelmäßig die Registry. Gibt es eine neue Version,
-zieht der Dienst das Image automatisch und startet Container neu. Watchtower und Portainer
-arbeiten nach diesem Prinzip \cite{watchtower-docs}.
-
-\textbf{Phase 6: Läuft es wirklich?}
-
-Nach dem Start der Container stellt sich die Frage, ob die Anwendung auch wirklich funktioniert.
-Ein Health-Check bringt Klarheit: Das Backend stellt dafür einen Endpunkt bereit, etwa
-\texttt{/health}. Die Pipeline sendet einen HTTP-Request dorthin. Kommt eine positive Antwort,
-gilt das Deployment als erfolgreich. Bleibt sie aus, stimmt etwas nicht \cite{release-it}.
-
-Zusätzlich können Smoke-Tests laufen. Diese prüfen kritische Funktionen in der produktiven
-Umgebung, zum Beispiel ob ein Login möglich ist oder ob Daten korrekt angezeigt werden.
-
-\paragraph{GitHub Actions bietet sich an}
-
-Für LearnHub wäre GitHub Actions naheliegend. Der Code liegt bereits auf GitHub, und GitHub Actions
-ist direkt integriert. Zusätzliche Infrastruktur ist nicht notwendig.
-
-Ein Workflow wird in einer YAML-Datei definiert, zum Beispiel \texttt{.github/workflows/deploy.yml}.
-Diese Datei beschreibt alle Schritte. GitHub Actions führt sie in isolierten Umgebungen aus,
-den sogenannten Runnern. Ein exemplarischer Workflow kann folgendermaßen aussehen:
-
-\begin{lstlisting}[language=yaml, caption={Exemplarischer GitHub Actions Workflow für CI/CD}, label={lst:github-actions-workflow}]
-name: CI/CD Pipeline
-
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-
-jobs:
-  build-and-test-backend:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v3
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-
-      - name: Build Backend with Maven
-        run: mvn clean package -DskipTests
-
-      - name: Run Backend Tests
-        run: mvn test
-
-      - name: Build Backend Docker Image
-        run: >-
-          docker build -t learnhub-backend:${{ github.sha }} ./backend
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Push Backend Image
-        run: |
-          docker tag learnhub-backend:${{ github.sha }} username/learnhub-backend:latest
-          docker push username/learnhub-backend:latest
-
-  build-and-test-frontend:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-
-      - name: Install Frontend Dependencies
-        run: npm ci
-        working-directory: ./frontend
-
-      - name: Run Frontend Tests
-        run: npm test
-        working-directory: ./frontend
-
-      - name: Build Frontend Docker Image
-        run: >-
-          docker build -t learnhub-frontend:${{ github.sha }} ./frontend
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Push Frontend Image
-        run: |
-          docker tag learnhub-frontend:${{ github.sha }} username/learnhub-frontend:latest
-          docker push username/learnhub-frontend:latest
-
-  deploy:
-    needs: [build-and-test-backend, build-and-test-frontend]
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - name: Deploy to VM
-        uses: appleboy/ssh-action@v0.1.10
-        with:
-          host: ${{ secrets.VM_HOST }}
-          username: ${{ secrets.VM_USER }}
-          key: ${{ secrets.VM_SSH_KEY }}
-          script: |
-            cd /path/to/learnhub
-            docker compose pull
-            docker compose up -d
-            docker system prune -f
-\end{lstlisting}
-
-Dieser Workflow definiert drei Jobs: \texttt{build-and-test-backend},
-\texttt{build-and-test-frontend} und \texttt{deploy}. Die ersten beiden Jobs laufen parallel
-und bauen sowie testen Backend und Frontend unabhängig voneinander. Der Deploy-Job wird nur
-ausgeführt, wenn beide vorherigen Jobs erfolgreich waren (über die \texttt{needs}-Direktive)
-und wenn ein Commit auf den Main-Branch erfolgt.
-
-Sensible Informationen wie Passwörter oder SSH-Keys werden als GitHub Secrets gespeichert und
-im Workflow über \texttt{\$\{\{ secrets.NAME \}\}} referenziert. Dadurch werden Credentials nicht
-im Quellcode abgelegt \cite{github-secrets}.
-
-\paragraph{Automatisierte Tests in der Pipeline}
-
-In jeder CI/CD-Pipeline sind automatisierte Tests ein wesentlicher Bestandteil. Sie stellen sicher,
-dass Änderungen am Code keine Regressionsfehler verursachen und die Funktionalität erhalten bleibt.
-
-\textbf{Backend-Tests}
-
-Für das Quarkus-Backend können unterschiedliche Testarten eingesetzt werden. Unit-Tests prüfen einzelne
-Klassen oder Methoden isoliert und liefern schnelles Feedback. JUnit~5 ist das Standard-Testing-Framework
-für Java.
-
-Integration-Tests prüfen das Zusammenspiel mehrerer Komponenten. Quarkus bietet hierfür
-\texttt{@QuarkusTest}, womit die Anwendung in einer Testumgebung gestartet und HTTP-Requests simuliert
-werden können. Dadurch lassen sich Endpunkte realitätsnah testen \cite{quarkus-testing}.
-
-Datenbank-Tests könnten mit einer In-Memory-H2-Datenbank umgesetzt werden, um unabhängig von der produktiven
-MySQL-Datenbank zu bleiben. Testcontainers wäre eine Alternative, die echte MySQL-Container für Tests startet
-und nach Testende automatisch entfernt.
-
-\textbf{Frontend-Tests}
-
-Für das Angular-Frontend bieten sich ebenfalls mehrere Testebenen an. Unit-Tests für Components, Services und
-Pipes können mit Jasmine und Karma ausgeführt werden. Diese Tests prüfen die TypeScript-Logik isoliert
-\cite{angular-testing}.
-
-Integrationstests prüfen das Zusammenspiel mehrerer Components, zum Beispiel zwischen Component und Service bei
-HTTP-Requests. Angulars TestBed ermöglicht das Erstellen isolierter Testmodule.
-
-End-to-End-Tests simulieren reale Benutzerinteraktionen im Browser. Tools wie Cypress oder Playwright starten
-die Anwendung im Browser und führen Klicks, Eingaben und Navigationen automatisiert aus. Diese Tests sind
-langsamer als Unit-Tests, liefern aber die höchste Sicherheit bezüglich der Funktionsfähigkeit aus Nutzersicht
-\cite{cypress-docs}.
-
-\paragraph{Rollback-Strategien}
-
-Ein wesentlicher Vorteil einer CI/CD-Pipeline ist die Möglichkeit, bei Problemen schnell zur vorherigen,
-funktionierenden Version zurückzukehren. Je nach Situation kommen unterschiedliche Rollback-Strategien in Frage
-\cite{humble2010continuous}.
-
-\textbf{Image-Tag-basierter Rollback}
-
-Da Docker-Images in der Registry mit verschiedenen Tags versehen werden, ist ein Rollback grundsätzlich einfach:
-Im \texttt{docker-compose.yml} wird der Image-Tag auf eine frühere Version geändert und die Container werden neu
-gestartet. Beispielsweise kann von \texttt{learnhub-backend:latest} auf \texttt{learnhub-backend:v1.2.2}
-gewechselt werden.
-
-Dieser Ansatz ist schnell und unkompliziert. Ein Nachteil ist, dass Datenbankmigrationen berücksichtigt werden müssen,
-da ein Rollback des Anwendungscodes nicht automatisch ein Rollback des Datenbankschemas bedeutet.
-
-\textbf{Blue-Green-Deployment}
-
-Beim Blue-Green-Deployment laufen zwei identische Produktionsumgebungen parallel: Blue (aktuell aktiv) und Green
-(neue Version). Das Deployment erfolgt auf Green, während Blue weiterläuft. Nach erfolgreichen Tests wird der Traffic
-umgeschaltet \cite{fowler-bluegreen}. Bei Problemen kann sofort wieder zurückgeschaltet werden. Der Ansatz reduziert
-Downtime, erfordert jedoch mehr Ressourcen und ist für ein einzelnes VM-Setup oft überdimensioniert.
-
-\textbf{Canary-Deployment}
-
-Beim Canary-Deployment wird die neue Version zunächst nur für einen kleinen Teil der Nutzer ausgerollt. Verhält sich
-die neue Version stabil, wird der Anteil schrittweise erhöht, bis alle Nutzer die neue Version verwenden
-\cite{release-it}. Dafür ist in der Regel ein Load Balancer erforderlich. Für LearnHub wäre dies mit Traefik prinzipiell
-möglich, würde aber zusätzliche Komplexität erzeugen.
-
-\textbf{Praktischer Rollback-Ansatz für LearnHub}
-
-Für LearnHub bietet sich ein pragmatischer Ansatz an: Die letzten drei bis fünf Image-Versionen werden in der Registry
-aufbewahrt und mit semantischen Versions-Tags versehen. Bei Problemen wird zur vorherigen Version zurückgewechselt.
-
-Ein automatisierter Health-Check nach jedem Deployment kann fehlerhafte Deployments erkennen. Schlägt der Check fehl,
-kann die Pipeline automatisch zur vorherigen Version zurückrollen. Damit werden automatisierte Überwachung und ein
-einfacher Tag-basierter Rollback kombiniert.
-
-\paragraph{Vorteile und Herausforderungen}
-
-Eine CI/CD-Pipeline würde mehrere Vorteile bringen: Deployments wären schneller und reproduzierbarer, Fehler würden durch
-automatische Tests früher erkannt, und die Codequalität könnte durch zusätzliche Checks steigen. Gleichzeitig verursacht die
-Einrichtung einer Pipeline initial Aufwand, Test-Suites müssen entwickelt und gewartet werden, und die Pipeline selbst wird zu
-einem Teil der Infrastruktur, der ebenfalls Pflege benötigt \cite{fowler2006continuous, duvall2007continuous}.
-
-Im Kontext einer Diplomarbeit mit begrenztem Zeitrahmen und überschaubarem Projektumfang ist die Entscheidung gegen CI/CD
-nachvollziehbar. Für eine produktive Weiterentwicklung von LearnHub über die Diplomarbeit hinaus wäre eine CI/CD-Pipeline jedoch
-eine sinnvolle Investition, die langfristig Zeit spart und die Softwarequalität verbessert.
+\label{sec:cicd}
+
+Aktuell läuft das Deployment von LearnHub manuell. Bei jeder 
+Code-Änderung werden die Docker-Images von Hand gebaut, auf Docker 
+Hub hochgeladen und auf der VM neu gestartet. Das funktioniert für 
+den aktuellen Projektumfang, ist aber auf Dauer fehleranfällig und 
+zeitaufwendig. Eine CI/CD-Pipeline würde diesen Prozess vollständig 
+automatisieren.
+
+CI steht für \textbf{Continuous Integration}: Code-Änderungen werden 
+laufend zusammengeführt und automatische Tests prüfen dabei die 
+Qualität. CD bedeutet \textbf{Continuous Deployment}: Getesteter 
+Code wird automatisch in die Produktion gebracht. Zusammen bilden 
+beide eine durchgehende Automatisierung vom ersten Commit bis zur 
+laufenden Anwendung \cite{fowler2006continuous}.
+
+\subsubsection{GitHub Actions}
+
+Für LearnHub bietet sich \textbf{GitHub Actions} an, da der Code 
+bereits auf GitHub liegt und GitHub Actions direkt integriert ist. 
+Ein Workflow wird in einer YAML-Datei unter 
+\texttt{.github/workflows/} definiert und von GitHub automatisch 
+ausgeführt wenn ein bestimmtes Ereignis eintritt, zum Beispiel ein 
+Push auf den Main-Branch \cite{github-actions}.
+
+Abbildung~\ref{fig:github-actions-workflow} zeigt einen exemplarischen 
+Workflow für LearnHub.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{pics/github_actions_workflow.png}
+    \caption{GitHub Actions Workflow für das Backend}
+    \label{fig:github-actions-workflow}
+\end{figure}
+
+\subsubsection{Aufbau des Workflows}
+
+Der Workflow besteht aus drei Jobs die nacheinander ablaufen:
+
+\textbf{Job 1 und 2: Build und Test}
+
+Die ersten zwei Jobs laufen parallel und sind für Backend und 
+Frontend zuständig. Beim Backend wird der Code mit Maven gebaut 
+und die Tests werden ausgeführt. Beim Frontend werden die 
+Abhängigkeiten installiert, die Tests laufen und das Docker-Image 
+wird gebaut. Beide Jobs taggen das fertige Image mit dem 
+Commit-Hash, sodass später nachvollziehbar ist welches Image aus 
+welchem Code entstanden ist. Anschließend werden die Images auf 
+Docker Hub hochgeladen. Sensible Informationen wie Docker Hub 
+Passwort oder SSH-Keys werden als \textbf{GitHub Secrets} 
+gespeichert und im Workflow über 
+\texttt{\$\{\{ secrets.NAME \}\}} referenziert, sodass sie 
+nie im Quellcode stehen \cite{github-secrets}.
+
+\textbf{Job 3: Deploy}
+
+Der Deploy-Job startet erst wenn beide vorherigen Jobs erfolgreich 
+waren. Das wird über die \texttt{needs} Direktive gesteuert. 
+Zusätzlich läuft dieser Job nur bei einem Push auf den Main-Branch, 
+nicht bei Pull Requests. Der Job baut eine SSH-Verbindung zur VM 
+auf und führt dort zwei Befehle aus: \texttt{docker compose pull} 
+lädt die neuen Images, \texttt{docker compose up -d} startet die 
+betroffenen Container neu.
+
+\subsubsection{Automatisierte Tests}
+
+Ein wesentlicher Teil einer CI/CD-Pipeline sind automatisierte 
+Tests. Für das Quarkus-Backend eignen sich Unit-Tests mit JUnit 5 
+sowie Integration-Tests mit \texttt{@QuarkusTest}, womit die 
+Anwendung in einer Testumgebung gestartet und HTTP-Requests 
+simuliert werden können \cite{quarkus-testing}. Für die 
+Datenbank-Tests kann eine In-Memory H2-Datenbank verwendet werden, 
+um unabhängig von der produktiven MySQL-Datenbank zu bleiben.
+
+Für das Angular-Frontend eignen sich Unit-Tests mit Jasmine und 
+Karma für einzelne Components und Services, sowie End-to-End-Tests 
+mit Cypress oder Playwright die reale Benutzerinteraktionen im 
+Browser simulieren \cite{cypress-docs}.
+
+\subsubsection{Rollback}
+
+Da jedes Image mit einem Versions-Tag versehen wird, ist ein 
+Rollback einfach: Im Compose File wird der Image-Tag auf eine 
+frühere Version geändert und die Container werden neu gestartet. 
+Die letzten drei bis fünf Versionen sollten dafür in der Registry 
+aufbewahrt werden. Ein automatisierter Health-Check nach jedem 
+Deployment kann fehlerhafte Deployments erkennen und die Pipeline 
+kann bei Bedarf automatisch zur vorherigen Version zurückrollen.

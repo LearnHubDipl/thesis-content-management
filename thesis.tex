@@ -1,7 +1,7 @@
 %!TEX root = thesis.tex
 \documentclass[12pt,a4paper,titlepage,listof=totoc,bibliography=totoc,chapteratlists=0pt]{scrreprt}
 \input{global-const.tex}
-\input{header}
+\input{header.tex}
 
 \makeatletter
 \def\bstctlcite{\@ifnextchar[{\@bstctlcite}{\@bstctlcite[@auxout]}}
@@ -34,8 +34,9 @@
 \makeglossaries
 \begin{document}
 \bstctlcite{IEEEexample:BSTcontrol}
-\newcommand{\reminder}[1]
-{ \textcolor{red}{<[{\bf\marginpar{\mbox{$<==$}} #1 }]>} }
+\newcommand{\reminder}[1]{%
+  \textcolor{red}{<[{\bf\marginpar{\mbox{$<==$}}~#1}]>}%
+}
 \newcommand{\icode}[1]{\lstinline$#1$}
 %\urlstyle{same}
 %\setstretch{1.5}

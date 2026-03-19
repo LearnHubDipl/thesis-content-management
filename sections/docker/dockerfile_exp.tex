@@ -1,123 +1,44 @@
-Für die Containerisierung der Anwendung werden separate Images für Backend und
-Frontend generiert. Beide Dockerfiles basieren auf dem Konzept, Build-Prozesse
-und Ausführungsumgebung zu separieren, um reproduzierbare Builds sicherzustellen
-und gleichzeitig schlanke Runtime-Images zu produzieren. Diese Methodik wird
-gemeinhin als \textit{Multi-Stage Build} bezeichnet und repräsentiert eine
-bewährte Vorgehensweise in Docker-basierten Deployments \cite{docker-multistage}.
+Ein \textbf{Dockerfile} ist eine Textdatei, die alle Anweisungen enthält, 
+um ein Docker-Image automatisch zu bauen. Jede Anweisung im Dockerfile 
+entspricht einem Schritt im Build-Prozess und erzeugt einen neuen Layer 
+im Image \cite{docker_dockerfile}.
 
-\subsubsection{Dockerfile des Backends}
-\label{sec:dockerfile-backend}
+\subsubsection{Aufbau und wichtige Befehle}
 
-Das Backend setzt auf Java und wird mittels Maven kompiliert. Das Dockerfile
-verwendet zwei Stages: eine Build-Stage, die auf einem Maven-Image basiert,
-sowie eine Runtime-Stage, die auf einer kompakteren JRE-Distribution aufsetzt.
-Dadurch wird sichergestellt, dass Build-Werkzeuge (beispielsweise Maven oder
-lokale Build-Caches) nicht im finalen Produktivimage vorhanden sind.
+Abbildung~\ref{fig:dockerfile-example} zeigt ein einfaches generisches 
+Dockerfile mit den grundlegenden Befehlen.
 
-Die vollständige Struktur des Backend-Dockerfiles wird in
-Listing~\ref{lst:dockerfile-backend} präsentiert.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{pics/dockerfile.png}
+    \caption{Beispiel eines einfachen Dockerfiles}
+    \label{fig:dockerfile-example}
+\end{figure}
 
-\begin{lstlisting}[language=Dockerfile, caption={Dockerfile des Backends (Quarkus/Maven)}, label={lst:dockerfile-backend}]
-FROM maven:3.9-eclipse-temurin-21 AS build
-WORKDIR /project
+Die Anweisung \texttt{FROM} legt das Basis-Image fest, auf dem das neue 
+Image aufbaut. Mit \texttt{WORKDIR} wird das Arbeitsverzeichnis innerhalb 
+des Containers gesetzt. \texttt{COPY} kopiert Dateien vom Host-System in 
+das Image, während \texttt{RUN} Befehle während des Build-Prozesses 
+ausführt, zum Beispiel das Installieren von Abhängigkeiten. \texttt{EXPOSE} 
+dokumentiert den Port, auf dem die Anwendung lauscht, und \texttt{CMD} 
+definiert den Befehl, der beim Starten des Containers ausgeführt wird 
+\cite{docker_dockerfile}.
 
-COPY pom.xml .
-RUN mvn -q -e -B -DskipTests dependency:go-offline
+\subsubsection{Multi-Stage Builds}
 
-COPY src ./src
-RUN mvn -q -e -B -DskipTests package
+Ein wichtiges Konzept sind \textbf{Multi-Stage Builds}. Dabei wird 
+das Dockerfile in mehrere Phasen unterteilt, wobei jede Phase ein 
+eigenes Basis-Image verwenden kann \cite{docker_dockerfile}.
 
-FROM eclipse-temurin:21-jre
-WORKDIR /work
+Der Vorteil ist, dass Build-Werkzeuge wie Compiler oder Paketmanager 
+nur in der Build-Phase benötigt werden und nicht im finalen Image 
+landen. Das Ergebnis ist ein deutlich schlankeres und sichereres 
+Produktiv-Image, da unnötige Tools keine potenzielle Angriffsfläche 
+bieten \cite{docker_dockerfile}.
 
-COPY --from=build /project/target/*-runner.jar /work/app.jar
-
-EXPOSE 8080
-ENTRYPOINT ["java","-jar","/work/app.jar"]
-\end{lstlisting}
-
-\paragraph{Build-Stage: Maven-Container}
-\begin{itemize}
-    \item \textbf{Basis-Image:} \icode{maven:3.9-eclipse-temurin-21} bietet Maven
-    sowie ein JDK (Temurin 21). Dies ermöglicht einen vollständig containerisierten
-    Build-Prozess, unabhängig vom darunterliegenden Host-System.
-    \item \textbf{Arbeitsverzeichnis:} \icode{WORKDIR /project} legt das
-    Verzeichnis fest, in dem die Build-Operationen durchgeführt werden.
-    \item \textbf{Dependency-Caching:} Zunächst erfolgt ausschließlich das Kopieren
-    der \icode{pom.xml}, gefolgt von der Ausführung von \icode{dependency:go-offline}.
-    Dies bewirkt das Zwischenspeichern der Maven-Abhängigkeiten im Image-Layer,
-    was subsequente Builds erheblich beschleunigt \cite{maven-offline}.
-    \item \textbf{Build:} Der eigentliche Kompilierungsprozess wird durch
-    \icode{mvn package} realisiert. Die Option \icode{-DskipTests} verkürzt die
-    Build-Dauer, da Tests während des Image-Builds nicht durchlaufen werden.
-\end{itemize}
-
-\paragraph{Runtime-Stage: JRE-Container}
-Nach Fertigstellung des Builds kommt ein zweites Image zum Einsatz:
-
-\begin{itemize}
-    \item \textbf{Basis-Image:} \icode{eclipse-temurin:21-jre} beinhaltet
-    ausschließlich die Java Runtime Environment und ist dadurch signifikant
-    kompakter als ein vollständiges JDK-Image.
-    \item \textbf{Artefakt-Kopie:} Mittels \icode{COPY --from=build} wird
-    ausschließlich das generierte JAR-File in die Ausführungsumgebung transferiert.
-    \item \textbf{Port:} \icode{EXPOSE 8080} dokumentiert den vom Backend
-    genutzten Port.
-    \item \textbf{Start:} Die Anwendung wird über \icode{ENTRYPOINT} automatisch
-    beim Container-Start initiiert.
-\end{itemize}
-
-Diese Struktur resultiert in einem kompakten und reproduzierbaren Backend-Image,
-das sich sowohl für den Produktivbetrieb als auch für das Deployment auf einer
-virtuellen Maschine qualifiziert.
-
-\subsubsection{Dockerfile des Frontends}
-\label{sec:dockerfile-frontend}
-
-Das Frontend nutzt Angular als Framework. Auch hier kommt ein Multi-Stage Build
-zum Einsatz, wobei die Anwendung zunächst mittels Node.js kompiliert und
-anschließend über einen Webserver bereitgestellt wird. Die vollständige Struktur
-des Frontend-Dockerfiles zeigt Listing~\ref{lst:dockerfile-frontend}.
-
-\begin{lstlisting}[language=Dockerfile, caption={Dockerfile des Frontends (Angular Build + Nginx)}, label={lst:dockerfile-frontend}]
-FROM node:20 AS build
-WORKDIR /app
-
-COPY package*.json ./
-RUN npm ci
-
-COPY . .
-RUN npx ng build learnhub --configuration production
-
-FROM nginx:alpine
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=build /app/dist/learnhub/browser /usr/share/nginx/html
-
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
-\end{lstlisting}
-
-\paragraph{Build-Stage: Node.js}
-\begin{itemize}
-    \item \textbf{Basis-Image:} \icode{node:20} stellt Node.js und npm zur Verfügung.
-    \item \textbf{Dependency-Installation:} Durch \icode{npm ci} werden präzise
-    die in der Lock-Datei spezifizierten Versionen installiert, was reproduzierbare
-    Builds gewährleistet \cite{npm-ci}.
-    \item \textbf{Build:} Das Angular-Projekt wird im Produktionsmodus kompiliert,
-    wodurch optimierte und minifizierte statische Dateien generiert werden.
-\end{itemize}
-
-\paragraph{Runtime-Stage: Nginx}
-\begin{itemize}
-    \item \textbf{Basis-Image:} \icode{nginx:alpine} fungiert als schlanker Webserver
-    für die Bereitstellung statischer Inhalte.
-    \item \textbf{Konfiguration:} Die adaptierte Nginx-Konfiguration ermöglicht
-    unter anderem korrektes Routing für Single-Page-Applications.
-    \item \textbf{Auslieferung:} Es werden ausschließlich die kompilierten Dateien
-    in das Produktivimage integriert, wodurch die potenzielle Angriffsfläche
-    minimiert wird.
-\end{itemize}
-
-Durch diese Vorgehensweise entsteht ein effizientes Frontend-Image, das für den
-Produktivbetrieb lediglich die erforderlichen statischen Dateien sowie den
-Webserver beinhaltet \cite{angular-deploy,nginx-docker}.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{pics/multistage_example.png}
+    \caption{Prinzip eines Multi-Stage Builds}
+    \label{fig:multistage-example}
+\end{figure}

@@ -1,27 +1,13 @@
-Containerisierung bezeichnet ein zeitgemäßes Virtualisierungsverfahren, bei dem
-Anwendungen zusammen mit allen erforderlichen Abhängigkeiten in abgeschotteten
-Laufzeitumgebungen bereitgestellt werden. Diese Umgebungen werden als Container
-bezeichnet. Anders als herkömmliche virtuelle Maschinen emulieren Container nicht
-die vollständige Hardware-Schicht, sondern nutzen gemeinsam den Kernel des
-zugrundeliegenden Betriebssystems. Dies führt zu einem erheblich geringeren
-Ressourcenverbrauch und ermöglicht kürzere Startzeiten.
+Containerisierung ist ein Virtualisierungsverfahren, bei dem Anwendungen 
+zusammen mit allen erforderlichen Abhängigkeiten in isolierten 
+Laufzeitumgebungen bereitgestellt werden. Diese Umgebungen werden als 
+\textbf{Container} bezeichnet \cite{docker_overview}.
 
-Die Wurzeln der Container-Technologie reichen zurück bis zu frühen Isolationsmechanismen
-wie \textit{chroot}-Umgebungen in Unix-Systemen. Mit der Einführung von Linux
-Containers (LXC) entstand erstmals eine strukturierte Methode zur Trennung von
-Prozessen, Dateisystemen und Netzwerkressourcen. Der eigentliche Wendepunkt für
-die breite Akzeptanz der Containerisierung war jedoch die Einführung von Docker
-im Jahr 2013. Docker vereinfachte den Umgang mit Containern erheblich und machte
-die Technologie einem breiten Entwicklerkreis zugänglich \cite{pahl2015containerization}.
-
-Der grundlegende Unterschied zwischen Containern und virtuellen Maschinen manifestiert
-sich in der Isolationsstrategie. Virtuelle Maschinen betreiben jeweils ein vollständiges
-Betriebssystem mit eigenem Kernel, während Container sich den Kernel des Host-Systems
-teilen. Abbildung~\ref{fig:container-vs-vm} visualisiert diesen fundamentalen
-Unterschied. Das Entfallen separater Betriebssysteminstanzen führt zu deutlich
-reduziertem Speicherbedarf und beschleunigten Startzeiten. Diese Eigenschaften
-prädestinieren Container für den Einsatz in skalierbaren und dynamischen
-Anwendungsszenarien.
+Anders als klassische virtuelle Maschinen emulieren Container nicht die 
+vollständige Hardware-Schicht, sondern teilen sich den Kernel des 
+Host-Systems. Das führt zu deutlich geringerem Ressourcenverbrauch und 
+kürzeren Startzeiten \cite{redhat_container}. 
+Abbildung~\ref{fig:container-vs-vm} zeigt diesen Unterschied.
 
 \begin{figure}[H]
     \centering
@@ -30,19 +16,54 @@ Anwendungsszenarien.
     \label{fig:container-vs-vm}
 \end{figure}
 
-Über die Effizienzgewinne hinaus zeichnet sich Containerisierung insbesondere
-durch verbesserte Portabilität und Reproduzierbarkeit aus. Eine in einem Container
-verpackte Anwendung lässt sich auf verschiedenen Plattformen betreiben, ohne dass
-umgebungsspezifische Anpassungen notwendig werden. Dadurch werden häufige
-Fehlerursachen eliminiert, die aus heterogenen Betriebssystemen, divergierenden
-Bibliotheksversionen oder abweichenden Konfigurationen resultieren.
+Die wichtigsten Eigenschaften von Containern sind:
 
-Docker repräsentiert eine umfassende Plattform für die Verwaltung des kompletten
-Container-Lebenszyklus. Dies umfasst die Erstellung von Container-Images, deren
-Verwaltung sowie das Starten und Monitoring aktiver Container. Die Docker-Architektur
-setzt sich aus mehreren Kernkomponenten zusammen, unter anderem dem Docker-Daemon,
-der Docker-CLI und den Container-Images. Abbildung~\ref{fig:docker-architecture}
-illustriert die grundsätzliche Struktur dieser Architektur.
+\begin{itemize}
+    \item \textbf{Isolation}: Jeder Container läuft in einer eigenen 
+    Umgebung und beeinflusst andere Container oder das Host-System 
+    nicht \cite{docker_overview}.
+    
+    \item \textbf{Portabilität}: Ein Container läuft auf jedem System 
+    gleich, egal ob lokaler Entwicklungsrechner, Testserver oder 
+    Cloud-Umgebung \cite{docker_overview}.
+    
+    \item \textbf{Reproduzierbarkeit}: Da alle Abhängigkeiten im 
+    Container enthalten sind, liefert er immer dasselbe Ergebnis, 
+    unabhängig von der Umgebung \cite{redhat_container}.
+\end{itemize}
+
+\subsubsection{Images und Container}
+
+Ein wichtiges Konzept ist die Unterscheidung zwischen \textbf{Image} 
+und \textbf{Container}. Ein Image ist eine unveränderliche Vorlage, 
+die den Anwendungscode sowie alle Abhängigkeiten enthält. Ein Container 
+ist die laufende Instanz eines Images \cite{docker_overview}. Diese 
+Trennung erlaubt die Versionierung, Wiederverwendung und einfache 
+Verteilung von Images.
+
+Images werden in sogenannten \textbf{Registries} gespeichert. Die 
+bekannteste ist \textbf{Docker Hub}, auf der tausende vorgefertigte 
+Images frei verfügbar sind, von Betriebssystem-Images bis hin zu 
+fertigen Anwendungen wie MySQL oder Nginx \cite{docker_overview}.
+
+\subsubsection{Docker Engine}
+
+Die \textbf{Docker Engine} verwaltet den kompletten 
+Container-Lebenszyklus, also die Erstellung von Images, deren 
+Verwaltung sowie das Starten und Stoppen von Containern. Sie besteht 
+aus drei Hauptkomponenten \cite{docker_overview}:
+
+\begin{itemize}
+    \item \textbf{Docker Daemon}: läuft im Hintergrund und verwaltet 
+    Container, Images, Netzwerke und Volumes.
+    
+    \item \textbf{Docker CLI}: die Kommandozeilen-Schnittstelle, über 
+    die Entwickler mit dem Daemon kommunizieren, zum Beispiel mit 
+    \texttt{docker build} oder \texttt{docker run}.
+    
+    \item \textbf{REST API}: ermöglicht die programmatische Steuerung 
+    des Daemons und die Integration in automatisierte Prozesse.
+\end{itemize}
 
 \begin{figure}[H]
     \centering
@@ -50,16 +71,3 @@ illustriert die grundsätzliche Struktur dieser Architektur.
     \caption{Grundlegende Architektur von Docker}
     \label{fig:docker-architecture}
 \end{figure}
-
-Docker-Images bilden unveränderliche Vorlagen, auf deren Basis Container instanziiert
-werden. Sie enthalten sowohl den Anwendungscode als auch sämtliche erforderlichen
-Abhängigkeiten. Container selbst stellen die ausführenden Instanzen dieser Images
-dar. Diese Trennung erlaubt die Versionierung, Wiederverwendung und effiziente
-Distribution von Images.
-
-Abschließend lässt sich konstatieren, dass Containerisierung einen fundamentalen
-Pfeiler moderner Software-Deployment-Strategien bildet. Sie realisiert eine klare
-Separation zwischen Anwendungslogik und Infrastruktur, erhöht die Wartungsfreundlichkeit
-und gewährleistet einen homogenen Betrieb über unterschiedliche Umgebungen hinweg.
-Diese Charakteristika bilden das Fundament für den Docker-Einsatz im vorliegenden
-Projekt und werden in den nachfolgenden Abschnitten detaillierter erörtert.
