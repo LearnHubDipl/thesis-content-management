@@ -233,27 +233,42 @@ diesem Zeitpunkt fügt der \texttt{AuthInterceptor} das JWT automatisch
 an jede ausgehende HTTP-Anfrage an, und das Backend validiert die
 Signatur bei jedem Aufruf.~\cite{jwt-rfc, oauth2-rfc}
 
-Abbildung~\ref{fig:auth-architecture} zeigt ergänzend das
-Architekturdiagramm der beteiligten Komponenten.
+% ----------------------------------------------------------
+\subsection{HTTP-Statuscodes der Authentifizierung}
+% ----------------------------------------------------------
 
-\begin{figure}[H]
+Für die Kommunikation zwischen Frontend und Backend verwendet LearnHub
+standardisierte HTTP-Statuscodes, die klar kommunizieren, warum eine
+Anfrage erfolgreich war oder scheiterte.~\cite{quarkus-security-jwt}
+Tabelle~\ref{tab:http-status} zeigt die relevanten Codes im Kontext
+der Authentifizierung:
+
+\begin{table}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{./pics/auth_architecture.png}
-    \caption{Architekturdiagramm: Authentifizierungskomponenten von LearnHub}
-    \label{fig:auth-architecture}
-\end{figure}
+    \caption{HTTP-Statuscodes bei der Authentifizierung}
+    \label{tab:http-status}
+    \begin{tabular}{cll}
+        \hline
+        \textbf{Code} & \textbf{Bedeutung} & \textbf{Wann in LearnHub} \\
+        \hline
+        200 & OK & Anfrage erfolgreich, Nutzer bereits vorhanden \\
+        201 & Created & Neuer Nutzer wurde beim ersten Login angelegt \\
+        401 & Unauthorized & Kein Token oder Token ungültig/abgelaufen \\
+        403 & Forbidden & Token gültig, aber Rolle reicht nicht aus \\
+        404 & Not Found & Ressource existiert nicht \\
+        \hline
+    \end{tabular}
+\end{table}
 
-Das Architekturdiagramm macht die Verantwortlichkeiten der einzelnen
-Komponenten sichtbar. Im Frontend übernimmt der \texttt{AuthGuard} den
-Schutz aller Routen, der \texttt{AuthInterceptor} das automatische
-Anhängen des Tokens an HTTP-Anfragen, und der
-\texttt{UserInitializationService} die erste Registrierung des Nutzers
-im Backend. Keycloak ist über seinen LDAP-Connector direkt mit dem
-HTL-Verzeichnis verbunden und ist die einzige Stelle, an der Passwörter
-verarbeitet werden. Im Backend empfängt der \texttt{JwtRequestFilter}
-alle eingehenden Anfragen, verifiziert das Token und befüllt den
-\texttt{CustomSecurityContext}, auf den alle Endpoints über
-\texttt{@RolesAllowed} zugreifen können.
+Der Unterschied zwischen \textbf{401} und \textbf{403} ist dabei
+besonders relevant: HTTP~401 bedeutet, dass die Identität der
+Nutzerin bzw. des Nutzers nicht festgestellt werden konnte -- entweder
+fehlt das Token vollständig oder es ist nicht mehr gültig. HTTP~403
+hingegen bedeutet, dass die Person zwar bekannt und angemeldet ist,
+aber nicht die erforderliche Berechtigung für diese Aktion besitzt.
+Im Frontend führt ein 401-Fehler zu einer automatischen Weiterleitung
+zur Keycloak-Loginseite, während ein 403-Fehler eine entsprechende
+Fehlermeldung anzeigt.
 
 % ----------------------------------------------------------
 \subsection{Vergleich der Authentifizierungslösungen}
@@ -468,3 +483,5 @@ Kosten und mit Google OAuth gar nicht umsetzen. Hinzu kommen die
 vollständige Kostenfreiheit, die Datenkontrolle auf schuleigenen
 Servern und der bereits vorkonfigurierte HTL-Realm, der den
 Entwicklungsstart wesentlich beschleunigte.~\cite{keycloak-docs}
+
+

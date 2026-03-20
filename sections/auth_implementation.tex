@@ -231,22 +231,24 @@ Token, falls vorhanden, \textit{optional}: Ist ein gültiges Token im
 Header, wird der \texttt{CustomSecurityContext} befüllt. Ist keines
 vorhanden, läuft die Anfrage trotzdem durch.~\cite{quarkus-security-jwt}
 
-In der Praxis bedeutet das für LearnHub:
+Grundsätzlich gibt es im Backend drei Ebenen der Zugriffskontrolle,
+die sich in den JAX-RS-Annotationen widerspiegeln:
 
 \begin{itemize}
-    \item \texttt{@PermitAll} -- Token ist \textit{optional}. Ist eines
-    vorhanden und gültig, steht der SecurityContext bereit. Wird in
-    LearnHub für den \texttt{/register}-Endpoint verwendet, der das
-    Token zwar verarbeitet, aber nicht erzwingt -- damit der
-    Registrierungsaufruf direkt nach dem Login funktioniert, bevor
-    der erste vollständige Anfragezyklus abgeschlossen ist.
-    \item \texttt{@RolesAllowed("teacher")} -- Token ist
-    \textit{Pflicht}, und der Nutzer muss als Lehrperson erkannt
-    werden (kein \texttt{OU=Students} im DN). Schüler:innen erhalten
-    HTTP~403.
+    \item \texttt{@PermitAll} -- kein Token erforderlich. Wird in
+    LearnHub ausschließlich für den \texttt{/register}-Endpoint
+    verwendet. Ist dennoch ein Token vorhanden, wird der
+    SecurityContext befüllt -- der Endpoint kann damit optional
+    auf Nutzerinformationen zugreifen.
     \item \texttt{@RolesAllowed(\{"student", "teacher"\})} -- Token
-    ist Pflicht. Alle angemeldeten Nutzer:innen dürfen zugreifen,
-    unabhängig von der Rolle.
+    ist Pflicht, Rolle spielt keine Rolle. Alle angemeldeten
+    Nutzer:innen dürfen zugreifen. Fehlt das Token, antwortet
+    das Backend mit HTTP~401. Ist das Token abgelaufen oder
+    ungültig, ebenfalls HTTP~401.
+    \item \texttt{@RolesAllowed("teacher")} -- Token ist Pflicht,
+    und der Nutzer muss als Lehrperson erkannt werden (kein
+    \texttt{OU=Students} im DN). Schüler:innen, die versuchen
+    diesen Endpoint aufzurufen, erhalten HTTP~403.
 \end{itemize}
 
 \begin{lstlisting}[language=Java,
@@ -281,14 +283,14 @@ Da alle Endpoints ein gültiges JWT erfordern, wurde das Testen ohne
 laufendes Frontend über zwei Werkzeuge gelöst.
 
 \textbf{HTTP-Dateien} sind Textdateien mit der Endung \texttt{.http},
-die direkt in IntelliJ IDEA ausgeführt werden können. Listing
-\ref{lst:auth-http} zeigt die Datei für die Authentifizierung: Das
-Token wird von Keycloak geholt und automatisch als Variable
-gespeichert, die alle folgenden Requests verwenden.
+die direkt in IntelliJ IDEA ausgeführt werden können. Zunächst wird
+ein Token von Keycloak geholt und automatisch als globale Variable
+gespeichert. Alle folgenden Requests in derselben Datei greifen auf
+diese Variable zu und senden das Token automatisch mit.
 
 \begin{lstlisting}[caption={auth.http -- Token holen und Endpoints testen},
                    label={lst:auth-http}]
-### Token von Keycloak holen
+### 1) Token von Keycloak holen
 POST https://auth.htl-leonding.ac.at/realms/2526_5bhitm
      /protocol/openid-connect/token
 Content-Type: application/x-www-form-urlencoded
@@ -301,10 +303,31 @@ grant_type=password&client_id=frontend
       response.body.access_token);
   %}
 
-### User registrieren / abrufen
+### 2) User registrieren -- erwartet: 200 OK oder 201 Created
 POST http://localhost:8080/api/users/register
 Authorization: Bearer {{access_token}}
+
+### 3) Geschuetzten Endpoint aufrufen -- erwartet: 200 OK
+GET http://localhost:8080/api/questions
+Authorization: Bearer {{access_token}}
+
+### 4) Ohne Token -- erwartet: 401 Unauthorized
+GET http://localhost:8080/api/questions
+
+### 5) Schueler ruft Lehrer-Endpoint auf -- erwartet: 403 Forbidden
+PATCH http://localhost:8080/api/questions/1/public?isPublic=true
+Authorization: Bearer {{access_token}}
 \end{lstlisting}
+
+Die Kommentare zeigen, welcher HTTP-Statuscode bei korrektem Verhalten
+erwartet wird. So lässt sich auf einen Blick prüfen:
+\textbf{HTTP~200} bei erfolgreichem Zugriff,
+\textbf{HTTP~201} beim erstmaligen Anlegen eines Nutzers,
+\textbf{HTTP~401} wenn kein oder ein ungültiges Token mitgeschickt
+wird, und \textbf{HTTP~403} wenn das Token gültig ist, aber die
+erforderliche Rolle fehlt. Gerade die Unterscheidung zwischen 401
+und 403 ist wichtig: 401 bedeutet \textit{nicht authentifiziert},
+403 bedeutet \textit{authentifiziert, aber nicht autorisiert}.
 
 Die Zugangsdaten werden in \texttt{http-client.private.env.json}
 gespeichert, die zwingend in \texttt{.gitignore} eingetragen sein
@@ -324,7 +347,8 @@ muss:
 \textbf{Swagger UI:} Quarkus generiert unter \texttt{/q/swagger-ui}
 eine interaktive API-Oberfläche.~\cite{quarkus-security-jwt} Das
 Backend definiert dafür ein \texttt{BearerAuth}-Sicherheitsschema in
-der \texttt{application.properties}. Um Endpoints in Swagger zu
+der 
+\texttt{application.properties}. Um Endpoints in Swagger zu
 testen, wird zuerst über die HTTP-Datei ein Token von Keycloak geholt.
 Anschließend öffnet man Swagger, klickt oben rechts auf
 \textit{Authorize} und trägt den Token ein -- \textit{ohne} das Prefix
@@ -335,9 +359,8 @@ können direkt im Browser ausgeführt werden.
 Eine Besonderheit beim Testen war, dass das Team aufgrund des fehlenden
 Zugriffs auf die Keycloak-Konfiguration keine eigenen Testkonten anlegen
 konnte. Das Testing erforderte daher stets gültige HTL-Accounts, was
-vor allem das automatisierte Testen von Authentifizierungsabläufen
-erschwerte. Als Workaround wurden die HTTP-Dateien mit den eigenen
-HTL-Zugangsdaten verwendet, was für manuelle Tests ausreichend war.
+vor allem das Testen aus der Lehrpersonen-Perspektive erschwerte, da
+dem Entwicklungsteam kein Lehrpersonen-Account zur Verfügung stand.
 
 \subsubsection{User-Registrierung beim ersten Login}
 
@@ -380,3 +403,71 @@ Die Rollenzuweisung erfolgt automatisch anhand des
 \texttt{OU=Students}, wird \texttt{isTeacher = false} gesetzt;
 andernfalls \texttt{isTeacher = true}. Eine manuelle Zuweisung
 ist nicht erforderlich.
+
+
+% ----------------------------------------------------------
+\subsection{Ausblick: Authentifizierung bei einer Skalierung auf mehrere Schulen}
+% ----------------------------------------------------------
+
+Die aktuelle Authentifizierungslösung ist eng an die Infrastruktur der
+HTL Leonding gebunden. Sollte LearnHub auf weitere Schulen ausgeweitet
+werden, stellt sich die zentrale Frage: Wie lässt sich zuverlässig
+unterscheiden, ob eine angemeldete Person eine Schülerin bzw. ein
+Schüler oder eine Lehrperson ist?
+
+\paragraph{Das Kernproblem der Rollenunterscheidung}
+
+An der HTL Leonding wird diese Unterscheidung durch den
+\texttt{distinguishedName} im LDAP gelöst: Schüler:innen haben
+\texttt{OU=Students} im DN, bei Lehrpersonen fehlt dieser Eintrag.
+Dieses Merkmal ist schul- und LDAP-spezifisch und kann bei anderen
+Schulen vollständig anders aufgebaut sein -- oder es gibt gar keinen
+zentralen LDAP.
+
+Zusätzlich ist ein Nebeneffekt zu berücksichtigen: Da das
+Entwicklungsteam keinen Zugriff auf die Realm-Konfiguration hatte, war
+während der Entwicklung kein Lehrpersonen-Account verfügbar. Dieses
+Problem würde sich durch einen \textbf{eigenen Keycloak} -- aufgesetzt
+zu Entwicklungszwecken mit frei konfigurierbaren Testkonten -- lösen
+lassen.
+
+\paragraph{Mögliche Ansätze}
+
+Mehrere Strategien sind denkbar, jede mit eigenen Stärken und
+Schwächen:
+
+\textbf{Eigene Keycloak-Instanz pro Schule:} Jede Schule betreibt
+ihren eigenen Keycloak-Realm, der mit dem jeweiligen
+Schulverzeichnis verbunden ist. Die Rollenunterscheidung kann direkt
+im Realm konfiguriert werden. Dieser Ansatz skaliert gut, erfordert
+aber technisches Personal an jeder Schule für die
+Konfiguration.~\cite{keycloak-docs}
+
+\textbf{E-Mail-basierte Rollenerkennung:} An der HTL Leonding wäre
+alternativ eine Lösung über E-Mail-Adressen denkbar, da Lehrpersonen
+E-Mails mit der Domain \texttt{@htl-leonding.ac.at} haben, während
+Schüler:innen \texttt{@students.htl-leonding.ac.at} verwenden. Dieser
+Ansatz ist einfach zu implementieren, setzt aber voraus, dass alle
+Schulen eine konsistente E-Mail-Konvention verwenden -- was nicht
+immer gegeben ist.
+
+\textbf{Auth0 Enterprise:} Auth0 bietet LDAP-Integration in höheren
+Tarifen und könnte mehrere Schulverzeichnisse über eine zentrale
+Plattform verwalten.~\cite{auth0-pricing} Der Vorteil liegt in der
+einfachen Verwaltung; der Nachteil in der Abhängigkeit von einem
+externen Anbieter und den laufenden Kosten.
+
+\textbf{Manuelles Rollenmanagement:} Eine einfache, aber weniger
+elegante Lösung wäre ein manuelles Freigabesystem, bei dem sich
+Lehrpersonen registrieren und ihre Rolle von einem Administrator
+bestätigt bekommt. Dies würde keine
+schulische Infrastruktur voraussetzen, bedeutet aber manuellen
+Aufwand und bietet weniger Sicherheit als eine automatische Prüfung
+über ein vertrauenswürdiges Verzeichnis.
+
+Das grundlegende Problem bleibt: Es gibt keine universelle, automatische
+Möglichkeit zu verifizieren, ob jemand wirklich Lehrperson an einer
+bestimmten Schule ist -- außer über ein Verzeichnis, das die Schule
+selbst kontrolliert. Für eine Ausweitung von LearnHub wäre daher eine
+individuelle Lösung je Schule notwendig, die auf der jeweiligen
+IT-Infrastruktur aufbaut.
