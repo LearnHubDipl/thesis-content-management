@@ -60,6 +60,28 @@
 	\lst@ifdisplaystyle\scriptsize\fi
 }
 \makeatother
+\lstdefinestyle{htmlstyle}{
+  language=HTML,
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{bluekeywords}\bfseries,
+  stringstyle=\color{redstrings},
+  commentstyle=\color{greencomments}\itshape,
+  breaklines=true,
+  numbers=left,
+  numberstyle=\tiny\color{lightgray},
+  xleftmargin=2em,
+}
+\lstdefinestyle{tsstyle}{
+  language=TypeScript,
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{bluekeywords}\bfseries,
+  stringstyle=\color{redstrings},
+  commentstyle=\color{greencomments}\itshape,
+  breaklines=true,
+  numbers=left,
+  numberstyle=\tiny\color{lightgray},
+  xleftmargin=2em,
+}
 
 \renewcommand{\lstlistlistingname}{List of Listings}
 % TODO: define other languages as needed

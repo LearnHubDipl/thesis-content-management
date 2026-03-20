@@ -1,0 +1,360 @@
+\setauthor{\firstauthor}
+
+% ============================================================
+%  Authentifizierung & Autorisierung -- Implementierung
+%  (gehört in Kapitel 3: Praktische Umsetzung)
+% ============================================================
+
+Dieses Kapitel beschreibt die konkrete Implementierung der
+Authentifizierung und Autorisierung in LearnHub -- aufbauend auf den
+Grundlagen aus Kapitel~\ref{chapter:tech}.
+
+\subsection{Frontend}
+
+\subsubsection{Keycloak-Initialisierung}
+
+Das Frontend nutzt die Bibliothek \texttt{keycloak-angular} für die
+Integration.~\cite{keycloak-docs} Die Initialisierung erfolgt beim
+App-Start über einen \texttt{APP\_INITIALIZER}, der sicherstellt,
+dass Keycloak vollständig geladen ist, bevor die Anwendung
+startet:
+
+\begin{lstlisting}[style=tsstyle,
+                   caption={Keycloak-Initialisierung (keycloak.provider.ts)},
+                   label={lst:keycloak-init}]
+export function initializeKeycloak(
+  keycloak: KeycloakService,
+  injector: Injector
+) {
+  return async () => {
+    const authenticated = await keycloak.init({
+      config: {
+        url: 'https://auth.htl-leonding.ac.at',
+        realm: '2526_5bhitm',
+        clientId: 'frontend',
+      },
+      initOptions: {
+        onLoad: 'login-required',
+        checkLoginIframe: false,
+        pkceMethod: 'S256',
+      },
+      enableBearerInterceptor: false,
+    });
+
+    if (authenticated) {
+      const userInitService =
+        injector.get(UserInitializationService);
+      await userInitService.initializeUser();
+    }
+
+    return authenticated;
+  };
+}
+\end{lstlisting}
+
+Die Option \texttt{onLoad: 'login-required'} bewirkt, dass nicht
+angemeldete Nutzer:innen sofort zur Keycloak-Loginseite
+weitergeleitet werden. \texttt{pkceMethod: 'S256'} aktiviert den
+Authorization Code Flow mit PKCE.~\cite{oauth2-rfc} Nach erfolgreicher
+Anmeldung ruft \texttt{UserInitializationService.initializeUser()}
+den Backend-Endpunkt auf, der den Nutzer anlegt oder abruft.
+
+\subsubsection{Auth Guard}
+
+Der \texttt{AuthGuard} schützt Angular-Routen vor unauthentifizierten
+Zugriffen und prüft optional auf Rollenanforderungen:
+
+\begin{lstlisting}[style=tsstyle,
+                   caption={AuthGuard (auth.guard.ts)},
+                   label={lst:auth-guard}]
+@Injectable({ providedIn: 'root' })
+export class AuthGuard extends KeycloakAuthGuard {
+
+  public async isAccessAllowed(
+    route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot
+  ): Promise<boolean> {
+
+    if (!this.authenticated) {
+      await this.keycloak.login({
+        redirectUri: window.location.origin + state.url,
+      });
+      return false;
+    }
+
+    const requiredRoles = route.data['roles'] as string[];
+    if (!Array.isArray(requiredRoles) || requiredRoles.length === 0) {
+      return true;
+    }
+
+    const hasRole = requiredRoles.some(r => this.roles.includes(r));
+    if (!hasRole) {
+      this.router.navigate(['/not-authorized']);
+      return false;
+    }
+
+    return true;
+  }
+}
+\end{lstlisting}
+
+Ist der Nutzer nicht angemeldet, erfolgt eine automatische
+Weiterleitung zur Keycloak-Loginseite. Fehlt eine erforderliche Rolle,
+wird zur \texttt{/not-authorized}-Seite weitergeleitet. Routen ohne
+\texttt{roles}-Angabe sind für alle angemeldeten Nutzer:innen
+zugänglich.
+
+\subsubsection{Auth Interceptor}
+
+Der \texttt{AuthInterceptor} fügt jeder ausgehenden HTTP-Anfrage
+automatisch das Bearer-Token als Header hinzu:
+
+\begin{lstlisting}[style=tsstyle,
+                   caption={Auth Interceptor (auth.interceptor.ts)},
+                   label={lst:auth-interceptor}]
+export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  const keycloak = inject(KeycloakService);
+  const token = keycloak.getKeycloakInstance().token;
+
+  if (token) {
+    const cloned = req.clone({
+      setHeaders: { Authorization: `Bearer ${token}` }
+    });
+    return next(cloned).pipe(
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 401) {
+          keycloak.login();
+        }
+        return throwError(() => error);
+      })
+    );
+  }
+
+  keycloak.login();
+  return throwError(() => new Error('No authentication token'));
+};
+\end{lstlisting}
+
+Bei einem HTTP-401-Fehler (abgelaufenes Token) wird der Nutzer
+automatisch erneut zur Loginseite weitergeleitet.
+
+\subsubsection{User Initialization Service}
+
+Nach erfolgreicher Anmeldung registriert \texttt{UserInitializationService}
+den Nutzer im Backend und hält das Ergebnis als reaktiven
+\texttt{BehaviorSubject} für alle Komponenten verfügbar:
+
+\begin{lstlisting}[style=tsstyle,
+                   caption={UserInitializationService (user-initialization.service.ts)},
+                   label={lst:user-init-service}]
+@Injectable({ providedIn: 'root' })
+export class UserInitializationService {
+  private currentUserSubject =
+    new BehaviorSubject<UserSlim | null>(null);
+  public currentUser$ = this.currentUserSubject.asObservable();
+
+  async initializeUser(): Promise<UserSlim | null> {
+    if (this.currentUserSubject.value) {
+      return this.currentUserSubject.value;
+    }
+    if (!this.keycloakService.isLoggedIn()) return null;
+
+    const user =
+      await this.userService.registerOrGetCurrentUserAsync();
+    this.currentUserSubject.next(user);
+    return user;
+  }
+}
+\end{lstlisting}
+
+\subsection{Backend}
+
+\subsubsection{JWT-Validierung}
+
+Das Backend validiert bei jeder Anfrage das mitgeschickte JWT über
+einen \texttt{JwtRequestFilter}. Der Filter prüft:
+
+\begin{enumerate}
+    \item Ist ein \texttt{Authorization: Bearer}-Header vorhanden?
+    \item Ist die RS256-Signatur mit dem öffentlichen Keycloak-Schlüssel
+    gültig?
+    \item Ist das Token noch nicht abgelaufen?
+\end{enumerate}
+
+Bei ungültigem Token wird die Anfrage mit HTTP~401 abgebrochen. Ist
+das Token gültig, wird ein \texttt{CustomSecurityContext} erstellt,
+der die extrahierten Nutzerinformationen für alle Endpoints
+bereitstellt:
+
+\begin{lstlisting}[language=Java,
+                   caption={CustomSecurityContext (CustomSecurityContext.java)},
+                   label={lst:custom-security-context}]
+public record CustomSecurityContext(
+    String keycloakSub,
+    String username,
+    String email,
+    String distinguishedName,
+    boolean isStudent
+) implements SecurityContext {
+
+    @Override
+    public Principal getUserPrincipal() {
+        return () -> username;
+    }
+
+    @Override
+    public boolean isUserInRole(String role) {
+        return switch (role) {
+            case "teacher" -> !isStudent;
+            case "student" -> isStudent;
+            default        -> false;
+        };
+    }
+
+    @Override public boolean isSecure() { return true; }
+
+    @Override
+    public String getAuthenticationScheme() { return "Bearer"; }
+}
+\end{lstlisting}
+
+\subsubsection{Rechte im Backend}
+
+Da LearnHub einen eigenen \texttt{JwtRequestFilter} implementiert (kein
+Standard-Quarkus-OIDC), verhält sich \texttt{@PermitAll} anders als im
+Standard-Fall. Der Filter liest bei \texttt{@PermitAll}-Endpoints das
+Token, falls vorhanden, \textit{optional}: Ist ein gültiges Token im
+Header, wird der \texttt{CustomSecurityContext} befüllt. Ist keines
+vorhanden, läuft die Anfrage trotzdem durch.~\cite{quarkus-security-jwt}
+
+In der Praxis bedeutet das für LearnHub:
+
+\begin{itemize}
+    \item \texttt{@PermitAll} -- Token ist \textit{optional}. Ist eines
+    vorhanden und gültig, steht der SecurityContext bereit. Wird in
+    LearnHub für den \texttt{/register}-Endpoint verwendet, der das
+    Token zwar verarbeitet, aber nicht erzwingt -- damit der
+    Registrierungsaufruf direkt nach dem Login funktioniert, bevor
+    der erste vollständige Anfragezyklus abgeschlossen ist.
+    \item \texttt{@RolesAllowed("teacher")} -- Token ist
+    \textit{Pflicht}, und der Nutzer muss als Lehrperson erkannt
+    werden (kein \texttt{OU=Students} im DN). Schüler:innen erhalten
+    HTTP~403.
+    \item \texttt{@RolesAllowed(\{"student", "teacher"\})} -- Token
+    ist Pflicht. Alle angemeldeten Nutzer:innen dürfen zugreifen,
+    unabhängig von der Rolle.
+\end{itemize}
+
+\begin{lstlisting}[language=Java,
+                   caption={Annotationen an Beispiel-Endpoints (QuestionResource.java)},
+                   label={lst:roles-backend}]
+@Path("/api/questions")
+public class QuestionResource {
+
+    // Alle angemeldeten Nutzer koennen oeffentliche Fragen abrufen
+    @GET
+    @RolesAllowed({"student", "teacher"})
+    public List<QuestionDto> getPublicQuestions() { ... }
+
+    // Nur Lehrpersonen duerfen Fragen freigeben
+    @PATCH
+    @Path("/{id}/public")
+    @RolesAllowed("teacher")
+    public Response approveQuestion(@PathParam("id") Long id,
+        @Context SecurityContext sc) { ... }
+
+    // Alle angemeldeten Nutzer koennen eigene Fragen anlegen
+    @POST
+    @RolesAllowed({"student", "teacher"})
+    public Response createQuestion(QuestionDto dto,
+        @Context SecurityContext sc) { ... }
+}
+\end{lstlisting}
+
+\subsubsection{Testing: HTTP-Dateien}
+
+Da alle Endpoints ein gültiges JWT erfordern, wurde das Testen ohne
+laufendes Frontend über zwei Werkzeuge gelöst.
+
+\textbf{HTTP-Dateien} sind Textdateien mit der Endung \texttt{.http},
+die direkt in IntelliJ IDEA ausgeführt werden können. Listing
+\ref{lst:auth-http} zeigt die Datei für die Authentifizierung: Das
+Token wird von Keycloak geholt und automatisch als Variable
+gespeichert, die alle folgenden Requests verwenden.
+
+\begin{lstlisting}[caption={auth.http -- Token holen und Endpoints testen},
+                   label={lst:auth-http}]
+### Token von Keycloak holen
+POST https://auth.htl-leonding.ac.at/realms/2526_5bhitm
+     /protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=password&client_id=frontend
+  &username={{KC_USER}}&password={{KC_PASSWORD}}
+
+> {%
+    client.global.set("access_token",
+      response.body.access_token);
+  %}
+
+### User registrieren / abrufen
+POST http://localhost:8080/api/users/register
+Authorization: Bearer {{access_token}}
+\end{lstlisting}
+
+Die Zugangsdaten werden in \texttt{http-client.private.env.json}
+gespeichert, die zwingend in \texttt{.gitignore} eingetragen sein
+muss:
+
+\begin{lstlisting}[language=json,
+                   caption={http-client.private.env.json (nicht ins Repository)},
+                   label={lst:http-client-env}]
+{
+  "dev": {
+    "KC_USER":     "your-htl-username",
+    "KC_PASSWORD": "your-htl-password"
+  }
+}
+\end{lstlisting}
+
+\subsubsection{User-Registrierung beim ersten Login}
+
+Da Keycloak lediglich die Authentifizierung übernimmt, führt das
+Backend eine eigene Nutzer-Tabelle. Diese ist notwendig, weil
+Datenbankbeziehungen eine lokale ID erfordern und das Attribut
+\texttt{isTeacher} persistent gespeichert werden muss. Beim ersten
+Login wird der Nutzer automatisch angelegt:
+
+\begin{lstlisting}[language=Java,
+                   caption={User-Registrierung beim ersten Login (UserResource.java)},
+                   label={lst:user-register}]
+@POST
+@Path("/register")
+@Transactional
+public Response registerOrGetUser(
+    @Context SecurityContext securityContext
+) {
+    CustomSecurityContext ctx =
+        (CustomSecurityContext) securityContext;
+
+    return userService
+        .findByKeycloakSub(ctx.keycloakSub())
+        .map(existing -> Response.ok(existing).build())
+        .orElseGet(() -> {
+            User user    = new User();
+            user.keycloakSub = ctx.keycloakSub();
+            user.username    = ctx.username();
+            user.email       = ctx.email();
+            user.isTeacher   = !ctx.isStudent();
+            userService.persist(user);
+            return Response.status(Response.Status.CREATED)
+                           .entity(user).build();
+        });
+}
+\end{lstlisting}
+
+Die Rollenzuweisung erfolgt automatisch anhand des
+\texttt{distinguishedName} aus dem JWT: Enthält der DN den Eintrag
+\texttt{OU=Students}, wird \texttt{isTeacher = false} gesetzt;
+andernfalls \texttt{isTeacher = true}. Eine manuelle Zuweisung
+ist nicht erforderlich.
