@@ -258,23 +258,29 @@ Angular Reactive Forms sind ohne zusätzliche Konfiguration gewährleistet~\cite
 Auf Basis der technischen Analyse sowie der verfügbaren Erfahrung des
 Entwicklungsteams wurde \textbf{Bootstrap} als UI-Framework für LearnHub
 gewählt.
-Aus technischer Sicht wäre Tailwind CSS aufgrund der geringen
-Bundle-Size und der maximalen Gestaltungsfreiheit eine geeignete
-Alternative gewesen~\cite{tailwind2023docs}.
-Angular Material hätte durch die native Angular-Integration ebenfalls
-in Betracht gezogen werden können, erfordert jedoch ein tieferes
-Verständnis des Angular-Material-Theming-Systems, was angesichts des
-verfügbaren Zeitrahmens einen unverhältnismäßigen Mehraufwand bedeutet
-hätte~\cite{angularmaterial2023docs}.
-Der ausschlaggebende Faktor war die bestehende Vertrautheit des Teams
-mit Bootstrap aus dem schulischen Unterricht.
-Angular Material und Tailwind CSS waren zum Projektstart im Team noch
-nicht bekannt, sodass eine Einarbeitungsphase den Entwicklungsprozess verzögert hätte.
-Ein weiterer Vorteil von Bootstrap ist sein klares, schlichtes 
-Designsystem: Die vordefinierten Komponenten und das Grid-System 
-liefern ohne großen Konfigurationsaufwand eine konsistente und 
-professionelle Benutzeroberfläche. Für ein Projekt mit begrenztem 
-Zeitrahmen stellt dies einen erheblichen Vorteil dar, da gestalterische 
-Entscheidungen weitgehend durch das Framework vorgegeben werden und 
-der Fokus vollständig auf die funktionale Implementierung gelegt 
-werden kann.
+
+Der ausschlaggebende Faktor war der Entwicklungsaufwand: Bootstrap war
+im Team bereits aus dem Schulunterricht bekannt und wurde in kleineren
+Projekten eingesetzt. Dadurch entfiel eine Einarbeitungsphase vollständig
+-- die Entwicklung konnte sofort beginnen, ohne Zeit mit dem Erlernen
+eines neuen Frameworks zu verbringen. Dieser Vorteil wiegt bei einem
+Projekt mit festem Abgabetermin besonders schwer.~\cite{bootstrap}
+
+Tailwind CSS wäre aus technischer Sicht aufgrund der geringen Bundle-Size
+und der maximalen Gestaltungsfreiheit eine interessante Alternative
+gewesen.~\cite{tailwind} Der Ansatz, jede Komponente selbst aus
+Utility-Klassen aufzubauen, hätte jedoch zu einem erheblich höheren
+initialen Zeitaufwand geführt -- Zeit, die im Projekt besser in die
+funktionale Implementierung investiert werden konnte.
+
+Angular Material hätte durch die native Angular-Integration technisch
+gut gepasst.~\cite{angular-material} Das Framework war zum Projektstart
+allerdings im Team noch unbekannt und erfordert zusätzlich ein Verständnis
+des Angular-Material-Theming-Systems, was eine separate Einarbeitungsphase
+bedeutet hätte.
+
+Bootstrap liefert ohne großen Konfigurationsaufwand eine konsistente
+und professionelle Benutzeroberfläche. Die vordefinierten Komponenten
+und das Grid-System decken alle in LearnHub benötigten UI-Elemente ab --
+von Formularen über Modals bis zu responsiven Layouts -- und ermöglichten
+eine schnelle, fokussierte Entwicklung der eigentlichen Funktionalität.
