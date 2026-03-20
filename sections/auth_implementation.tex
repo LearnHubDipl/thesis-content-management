@@ -9,7 +9,9 @@ Dieses Kapitel beschreibt die konkrete Implementierung der
 Authentifizierung und Autorisierung in LearnHub -- aufbauend auf den
 Grundlagen aus Kapitel~\ref{chapter:tech}.
 
+% ----------------------------------------------------------
 \subsection{Frontend}
+% ----------------------------------------------------------
 
 \subsubsection{Keycloak-Initialisierung}
 
@@ -167,7 +169,9 @@ export class UserInitializationService {
 }
 \end{lstlisting}
 
+% ----------------------------------------------------------
 \subsection{Backend}
+% ----------------------------------------------------------
 
 \subsubsection{JWT-Validierung}
 
@@ -271,7 +275,7 @@ public class QuestionResource {
 }
 \end{lstlisting}
 
-\subsubsection{Testing: HTTP-Dateien}
+\subsubsection{Testing: HTTP-Dateien und Swagger UI}
 
 Da alle Endpoints ein gültiges JWT erfordern, wurde das Testen ohne
 laufendes Frontend über zwei Werkzeuge gelöst.
@@ -316,6 +320,24 @@ muss:
   }
 }
 \end{lstlisting}
+
+\textbf{Swagger UI:} Quarkus generiert unter \texttt{/q/swagger-ui}
+eine interaktive API-Oberfläche.~\cite{quarkus-security-jwt} Das
+Backend definiert dafür ein \texttt{BearerAuth}-Sicherheitsschema in
+der \texttt{application.properties}. Um Endpoints in Swagger zu
+testen, wird zuerst über die HTTP-Datei ein Token von Keycloak geholt.
+Anschließend öffnet man Swagger, klickt oben rechts auf
+\textit{Authorize} und trägt den Token ein -- \textit{ohne} das Prefix
+\texttt{Bearer}, da Swagger dieses automatisch hinzufügt. Nach dem
+Bestätigen sind alle Endpoints mit dem Token authentifiziert und
+können direkt im Browser ausgeführt werden.
+
+Eine Besonderheit beim Testen war, dass das Team aufgrund des fehlenden
+Zugriffs auf die Keycloak-Konfiguration keine eigenen Testkonten anlegen
+konnte. Das Testing erforderte daher stets gültige HTL-Accounts, was
+vor allem das automatisierte Testen von Authentifizierungsabläufen
+erschwerte. Als Workaround wurden die HTTP-Dateien mit den eigenen
+HTL-Zugangsdaten verwendet, was für manuelle Tests ausreichend war.
 
 \subsubsection{User-Registrierung beim ersten Login}
 
