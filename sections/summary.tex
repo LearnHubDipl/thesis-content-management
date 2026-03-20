@@ -1,36 +1,42 @@
 \section{Zusammenfassung}
 
-Aufzählungen:
+LearnHub ist eine Lernplattform die speziell für die 
+Maturavorbereitung an der HTL Leonding entwickelt wurde. 
+Bestehende Plattformen wie StudyDrive oder Knowunity sind 
+auf allgemeinbildende Schulen und Universitäten ausgerichtet 
+und bieten keine Unterstützung für HTL-spezifische Fächer 
+oder die Struktur der Maturaprüfung. LearnHub schließt 
+diese Lücke.
 
-\begin{compactitem}
-    \item Itemize Level 1
-    \begin{compactitem}
-        \item Itemize Level 2
-        \begin{compactitem}
-            \item Itemize Level 3 (vermeiden)
-        \end{compactitem}
-    \end{compactitem}
-\end{compactitem}
+Im Rahmen dieser Diplomarbeit wurden zwei Funktionsbereiche 
+entwickelt. Der \textbf{Maturaupload} ermöglicht es 
+Schüler:innen eigene Mitschriften hochzuladen und einem 
+Fach sowie einem Themenpool zuzuordnen. Lehrkräfte können 
+diese Mitschriften prüfen und freigeben, bevor sie für alle 
+sichtbar werden. Der \textbf{Fragenkonfigurator} erlaubt 
+das Erstellen und Lernen von Fragen, entweder privat für 
+die eigene Vorbereitung oder öffentlich für alle 
+Nutzer:innen der Plattform.
 
-\begin{compactenum}
-    \item Enumerate Level 1
-    \begin{compactenum}
-        \item Enumerate Level 2
-        \begin{compactenum}
-            \item Enumerate Level 3 (vermeiden)
-        \end{compactenum}
-    \end{compactenum}
-\end{compactenum}
+Technisch läuft das Backend auf Java mit Quarkus, das 
+Frontend wurde mit Angular umgesetzt. Die Authentifizierung 
+übernimmt Keycloak, der mit dem LDAP-Verzeichnis der HTL 
+verbunden ist. Dadurch können Schüler:innen und Lehrkräfte 
+ihre gewohnten HTL-Zugangsdaten verwenden, ohne sich extra 
+registrieren zu müssen.
 
-\begin{compactdesc}
-    \item[Desc] Level 1
-    \begin{compactdesc}
-        \item[Desc] Level 2 (vermeiden)
-        \begin{compactdesc}
-            \item[Desc] Level 3 (vermeiden)
-        \end{compactdesc}
-    \end{compactdesc}
-\end{compactdesc}
+Die gesamte Anwendung läuft in Docker-Containern auf einer 
+virtuellen Maschine der HTL Leonding. Mit Docker Compose 
+und Traefik als Reverse-Proxy wurde eine Infrastruktur 
+geschaffen die einfach zu warten und zu aktualisieren ist.
+
+Die Plattform funktioniert stabil und erfüllt alle geplanten 
+Anforderungen. Was wir beim nächsten Mal von Anfang an 
+anders machen würden: CI/CD. Der manuelle Deployment-Prozess 
+hat funktioniert, war aber zeitaufwendig und fehleranfällig. 
+Eine GitHub Actions Pipeline wurde zwar bereits aufgesetzt, 
+aber eine vollständige Automatisierung von Anfang an hätte 
+viel Zeit gespart.
 
 \section{Ausblick}
 
@@ -39,7 +45,7 @@ Intelligenz sinnvoll einzusetzen. Die bestehende Struktur mit Fächern,
 Themenpools, Fragen und Mitschriften liefert bereits strukturierte 
 Daten, auf denen KI-Funktionen aufbauen können.
 
-\subsubsection{Automatische Fragengenierung aus Mitschriften}
+\subsection{Automatische Fragengenerierung aus Mitschriften}
 
 Eine naheliegende Erweiterung wäre die automatische Generierung von 
 Fragen aus hochgeladenen Mitschriften. Beim Upload einer Mitschrift 
@@ -55,7 +61,7 @@ GPT-4 oder einem selbst gehosteten Modell umsetzbar. Das Backend
 würde nach dem Upload die PDF-Datei an das Modell schicken und 
 die generierten Fragen als Vorschläge in der Datenbank speichern.
 
-\subsubsection{Intelligente Lernempfehlungen}
+\subsection{Intelligente Lernempfehlungen}
 
 Eine weitere Möglichkeit wäre ein personalisiertes Lernsystem. 
 Aktuell werden dem Schüler alle Fragen eines Themenpools 
@@ -69,7 +75,7 @@ Dafür müsste das Backend Lernfortschritte pro Nutzer und Frage
 speichern. Auf Basis dieser Daten könnte ein einfaches Modell 
 berechnen welche Fragen als nächstes gezeigt werden sollen.
 
-\subsubsection{KI-gestützter Chat-Tutor}
+\subsection{KI-gestützter Chat-Tutor}
 
 Ähnlich wie bei Knowunity könnte LearnHub einen KI-gestützten 
 Chat-Tutor integrieren. Schüler:innen könnten Fragen zu einem 
@@ -84,7 +90,7 @@ Datenbank geladen und zusammen mit der Frage des Schülers an
 das Sprachmodell geschickt. Das Modell antwortet dann auf Basis 
 dieser konkreten Inhalte.
 
-\subsubsection{Automatische Bewertung von Freitextantworten}
+\subsection{Automatische Bewertung von Freitextantworten}
 
 Aktuell gibt der Lernmodus keine Rückmeldung ob eine Freitextantwort 
 richtig oder falsch ist, der Schüler muss das selbst einschätzen. 

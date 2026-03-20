@@ -15,14 +15,26 @@ Dockerfile mit den grundlegenden Befehlen.
     \label{fig:dockerfile-example}
 \end{figure}
 
-Die Anweisung \texttt{FROM} legt das Basis-Image fest, auf dem das neue 
-Image aufbaut. Mit \texttt{WORKDIR} wird das Arbeitsverzeichnis innerhalb 
-des Containers gesetzt. \texttt{COPY} kopiert Dateien vom Host-System in 
-das Image, während \texttt{RUN} Befehle während des Build-Prozesses 
-ausführt, zum Beispiel das Installieren von Abhängigkeiten. \texttt{EXPOSE} 
-dokumentiert den Port, auf dem die Anwendung lauscht, und \texttt{CMD} 
-definiert den Befehl, der beim Starten des Containers ausgeführt wird 
-\cite{docker_dockerfile}.
+\texttt{FROM} gibt an welches Basis-Image verwendet wird, also 
+quasi das Betriebssystem auf dem die Anwendung läuft, zum 
+Beispiel \texttt{FROM ubuntu:22.04}.
+
+\texttt{WORKDIR} legt fest in welchem Ordner innerhalb des 
+Containers gearbeitet wird, ähnlich wie ein \texttt{cd} Befehl 
+im Terminal.
+
+\texttt{COPY} kopiert Dateien vom eigenen Rechner in das Image, 
+zum Beispiel den Quellcode der Anwendung.
+
+\texttt{RUN} führt einen Befehl aus während das Image gebaut 
+wird, zum Beispiel das Installieren von Abhängigkeiten mit 
+\texttt{npm install}.
+
+\texttt{EXPOSE} gibt an auf welchem Port die Anwendung 
+erreichbar ist, zum Beispiel Port 8080 für ein Backend.
+
+\texttt{CMD} definiert was passiert wenn der Container 
+gestartet wird, also welcher Befehl die Anwendung startet.
 
 \subsubsection{Multi-Stage Builds}
 

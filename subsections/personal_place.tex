@@ -6,12 +6,12 @@ persönlichen Bereich. Dort werden die eigenen Nutzerdaten sowie
 der Status der hochgeladenen Mitschriften angezeigt. Über den 
 Logout-Button kann die aktive Sitzung beendet werden.
 
-\subsection{Ansicht als Schüler:in}
+\paragraph{Ansicht als Schüler:in}
 
 Schüler:innen sehen im persönlichen Bereich ihre Nutzerdaten, eine 
 Übersicht ihrer hochgeladenen Mitschriften mit dem jeweiligen 
 Freigabestatus sowie einen Benachrichtigungsbereich. 
-Abbildung~\ref{fig:persoenlicher-bereich-schueler} zeigt diese Ansicht.
+
 
 \begin{figure}[H]
     \centering
@@ -27,8 +27,6 @@ direkt als PDF geöffnet werden.
 
 Zusätzlich gibt es einen Benachrichtigungsbereich, in dem Schüler:innen 
 über Freigaben oder Ablehnungen ihrer Mitschriften informiert werden. 
-Abbildung~\ref{fig:benachrichtigungen} zeigt ein Beispiel einer solchen 
-Benachrichtigung.
 
 \begin{figure}[H]
     \centering
@@ -37,9 +35,52 @@ Benachrichtigung.
     \label{fig:benachrichtigungen}
 \end{figure}
 
-\subsection{Ansicht als Lehrkraft}
+\paragraph{Ansicht als Lehrkraft}
 
 Lehrkräfte sehen dieselben Informationen wie Schüler:innen, haben 
 jedoch zusätzlich Zugriff auf den Button \textit{„Fragen genehmigen"}, 
 über den sie zur Freigabeverwaltung gelangen und dort eingereichte 
 Fragen von Schüler:innen prüfen können.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{pics/abt_2}
+    \caption{Benachrichtigungen im persönlichen Bereich Lehrkraft}
+    \label{fig:benachrichtigungen}
+\end{figure}
+
+\subsubsection{Freigabeprozess}
+
+Der Freigabeprozess stellt sicher, dass nur geprüfte Inhalte 
+öffentlich sichtbar sind.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{pics/usecase_mitschirftenUpload.png}
+    \caption{Freigabeprozess für Mitschriften}
+    \label{fig:freigabe-prozess}
+\end{figure}
+
+Sobald eine Schüler:in eine Mitschrift hochlädt, bekommt diese 
+automatisch den Status \textit{PENDING}. Die Mitschrift ist in 
+diesem Zustand nur für die Ersteller:in selbst sichtbar, also 
+nicht für andere Schüler:innen oder Lehrkräfte im öffentlichen 
+Bereich. Die zuständige Lehrkraft sieht alle ausstehenden 
+Mitschriften in ihrem persönlichen Bereich und kann diese 
+einzeln prüfen.
+
+Hat die Lehrkraft die Mitschrift geprüft, gibt es zwei 
+Möglichkeiten. Entweder wird die Mitschrift freigegeben, 
+womit \texttt{isApproved} in der Datenbank auf \texttt{true} 
+gesetzt wird und die Mitschrift ab sofort für alle Nutzer:innen 
+sichtbar ist. Oder die Lehrkraft lehnt die Mitschrift ab, 
+zum Beispiel weil der Inhalt fehlerhaft oder unvollständig ist. 
+In beiden Fällen erhält die Schüler:in eine Benachrichtigung 
+im persönlichen Bereich, sodass sie immer über den aktuellen 
+Status ihrer Mitschriften informiert ist.
+
+Dieser Prozess hat zwei wesentliche Vorteile. Erstens wird 
+die Qualität der Inhalte auf der Plattform sichergestellt, 
+da keine unkontrollierten Inhalte veröffentlicht werden können. 
+Zweitens bekommen Schüler:innen direktes Feedback von der 
+Lehrkraft, was den Lernprozess unterstützt.

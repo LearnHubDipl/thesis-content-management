@@ -32,14 +32,21 @@ einer Docker Compose Datei mit zwei Services.
 
 \subsubsection{Abhängigkeiten zwischen Services}
 
-In vielen Anwendungen müssen Services in einer bestimmten Reihenfolge 
-gestartet werden. Ein Backend kann beispielsweise erst starten, wenn 
-die Datenbank bereit ist. Docker Compose löst das mit der 
-\texttt{depends\_on} Anweisung \cite{docker_compose}. Dabei kann nicht 
-nur die Startreihenfolge, sondern auch eine Bedingung definiert werden, 
-etwa \texttt{service\_healthy}, was bedeutet dass ein Service erst 
-startet wenn der abhängige Service einen Healthcheck erfolgreich 
-bestanden hat.
+In vielen Anwendungen müssen Services in einer bestimmten 
+Reihenfolge starten. Ein typisches Beispiel: Das Backend 
+versucht beim Start sofort eine Verbindung zur Datenbank 
+herzustellen. Wenn die Datenbank aber noch nicht bereit ist, 
+schlägt das fehl und die Anwendung startet nicht korrekt.
+
+Docker Compose löst das mit der \texttt{depends\_on} Anweisung 
+\cite{docker_compose}. Damit kann man festlegen welcher Service 
+zuerst starten muss. Noch genauer wird es mit der Bedingung 
+\texttt{service\_healthy}: Der abhängige Service startet erst 
+dann, wenn der andere Service einen sogenannten 
+\textbf{Healthcheck} bestanden hat. Ein Healthcheck ist ein 
+kurzer Test der regelmäßig prüft ob ein Service wirklich 
+bereit ist, also zum Beispiel ob die Datenbank tatsächlich 
+Anfragen annimmt und nicht nur gestartet wurde.
 
 \subsubsection{Netzwerke}
 

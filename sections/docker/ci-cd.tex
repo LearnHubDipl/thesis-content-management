@@ -50,7 +50,7 @@ Docker Hub hochgeladen. Sensible Informationen wie Docker Hub
 Passwort oder SSH-Keys werden als \textbf{GitHub Secrets} 
 gespeichert und im Workflow über 
 \texttt{\$\{\{ secrets.NAME \}\}} referenziert, sodass sie 
-nie im Quellcode stehen \cite{github-secrets}.
+nie im Quellcode stehen.
 
 \textbf{Job 3: Deploy}
 
@@ -61,9 +61,6 @@ nicht bei Pull Requests. Der Job baut eine SSH-Verbindung zur VM
 auf und führt dort zwei Befehle aus: \texttt{docker compose pull} 
 lädt die neuen Images, \texttt{docker compose up -d} startet die 
 betroffenen Container neu.
-
-Abbildung~\ref{fig:cicd-pipeline} zeigt den vollständigen 
-Ablauf der CI/CD Pipeline von LearnHub.
 
 \begin{figure}[H]
     \centering

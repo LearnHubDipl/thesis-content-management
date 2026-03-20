@@ -1,0 +1,79 @@
+Podman ist eine Container-Engine die von Red Hat entwickelt wurde 
+und als direkte Alternative zu Docker eingesetzt werden kann. 
+Der Name steht für \textbf{Pod Manager} und orientiert sich 
+am Konzept der Pods aus Kubernetes \cite{podman_docs}.
+
+\subsubsection{Technische Unterschiede}
+
+Der wesentlichste Unterschied zwischen Docker und Podman liegt 
+in der Architektur. Docker benötigt einen zentralen 
+\textbf{Daemon}, also einen Hintergrunddienst der mit 
+Root-Rechten läuft und alle Container verwaltet. Podman 
+verzichtet vollständig auf einen solchen Daemon. Stattdessen 
+wird jeder Container als direkter Kindprozess des aufrufenden 
+Benutzers gestartet \cite{podman_docs}.
+
+Das hat mehrere Konsequenzen:
+
+\begin{itemize}
+    \item \textbf{Rootless Container}: Podman kann Container 
+    ohne Root-Rechte starten. Das erhöht die Sicherheit, da 
+    ein kompromittierter Container keine Root-Rechte auf dem 
+    Host-System erlangen kann \cite{redhat_podman}.
+
+    \item \textbf{Kein Single Point of Failure}: Da kein 
+    zentraler Daemon läuft, kann ein Absturz eines Containers 
+    nicht den gesamten Container-Dienst zum Absturz bringen 
+    \cite{podman_docs}.
+
+    \item \textbf{Systemd Integration}: Podman kann Container 
+    direkt als Systemd-Services betreiben, was die Integration 
+    in Linux-Systeme erleichtert \cite{redhat_podman}.
+
+    \item \textbf{Pods}: Podman unterstützt nativ das Konzept 
+    der Pods, also Gruppen von Containern die sich einen 
+    Netzwerk-Namespace teilen, ähnlich wie bei Kubernetes 
+    \cite{podman_docs}.
+\end{itemize}
+
+Ein weiterer Unterschied ist die OCI-Kompatibilität. Beide 
+Tools erzeugen Images die dem OCI-Standard entsprechen und 
+sind damit grundsätzlich kompatibel. Podman-Images können 
+auf Docker-Registries wie Docker Hub hochgeladen und von 
+Docker verwendet werden und umgekehrt \cite{redhat_podman}.
+
+\subsubsection{Warum Docker und nicht Podman}
+
+Für LearnHub wurde Docker gegenüber Podman aus mehreren 
+Gründen bevorzugt.
+
+\textbf{Docker Compose}: Docker Compose ist das am weitesten 
+verbreitete Tool für die Orchestrierung von Multi-Container 
+Anwendungen auf einem einzelnen Host. Podman bietet zwar mit 
+\texttt{podman-compose} eine Alternative, diese ist jedoch 
+weniger ausgereift und hat eine kleinere Community 
+\cite{podman_docs}.
+
+\textbf{Bekanntheit und Dokumentation}: Docker ist seit 2013 
+der de-facto Standard für Containerisierung und hat eine 
+deutlich größere Community sowie umfangreichere Dokumentation. 
+Für nahezu jedes Problem gibt es bewährte Lösungen und 
+Anleitungen \cite{ionos_docker}.
+
+\textbf{Vorwissen}: Docker wurde bereits im Unterricht 
+behandelt, wodurch das Entwicklungsteam auf vorhandenes 
+Wissen zurückgreifen konnte. Eine Einarbeitung in Podman 
+hätte zusätzliche Zeit erfordert.
+
+\textbf{Traefik Integration}: Traefik als Reverse-Proxy 
+bietet eine sehr gut dokumentierte und erprobte Integration 
+mit Docker. Die automatische Service-Erkennung über den 
+Docker-Socket funktioniert mit Podman zwar prinzipiell auch, 
+ist aber weniger verbreitet und dokumentiert.
+
+Podman bietet technisch interessante Vorteile, vor allem 
+durch rootless Container die sicherer sind als der 
+Docker-Daemon-Ansatz. Für LearnHub war Docker trotzdem die 
+bessere Wahl, weil das Ökosystem ausgereifter ist, die 
+Community größer ist und das Team bereits Erfahrung damit 
+hatte.

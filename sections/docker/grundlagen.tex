@@ -1,13 +1,15 @@
-Containerisierung ist ein Virtualisierungsverfahren, bei dem Anwendungen 
-zusammen mit allen erforderlichen Abhängigkeiten in isolierten 
-Laufzeitumgebungen bereitgestellt werden. Diese Umgebungen werden als 
-\textbf{Container} bezeichnet \cite{docker_overview}.
+Ein Container verpackt eine Anwendung zusammen mit allem was sie 
+zum Laufen braucht, also Bibliotheken, Konfigurationsdateien und 
+Laufzeitumgebungen, in einer isolierten Einheit \cite{docker_overview}.
 
-Anders als klassische virtuelle Maschinen emulieren Container nicht die 
-vollständige Hardware-Schicht, sondern teilen sich den Kernel des 
-Host-Systems. Das führt zu deutlich geringerem Ressourcenverbrauch und 
-kürzeren Startzeiten \cite{redhat_container}. 
-Abbildung~\ref{fig:container-vs-vm} zeigt diesen Unterschied.
+Anders als virtuelle Maschinen brauchen Container kein eigenes 
+Betriebssystem. Sie teilen sich den Kernel des Host-Systems, was 
+sie deutlich schlanker und schneller macht \cite{redhat_container}. 
+Eine virtuelle Maschine startet ein komplettes Betriebssystem 
+inklusive eigenem Kernel, was mehrere Minuten dauern kann. Ein 
+Container hingegen startet in Sekunden, weil er nur die 
+Anwendung selbst hochfährt. Abbildung~\ref{fig:container-vs-vm} 
+zeigt diesen Unterschied.
 
 \begin{figure}[H]
     \centering
@@ -16,53 +18,66 @@ Abbildung~\ref{fig:container-vs-vm} zeigt diesen Unterschied.
     \label{fig:container-vs-vm}
 \end{figure}
 
-Die wichtigsten Eigenschaften von Containern sind:
-
-\begin{itemize}
-    \item \textbf{Isolation}: Jeder Container läuft in einer eigenen 
-    Umgebung und beeinflusst andere Container oder das Host-System 
-    nicht \cite{docker_overview}.
-    
-    \item \textbf{Portabilität}: Ein Container läuft auf jedem System 
-    gleich, egal ob lokaler Entwicklungsrechner, Testserver oder 
-    Cloud-Umgebung \cite{docker_overview}.
-    
-    \item \textbf{Reproduzierbarkeit}: Da alle Abhängigkeiten im 
-    Container enthalten sind, liefert er immer dasselbe Ergebnis, 
-    unabhängig von der Umgebung \cite{redhat_container}.
-\end{itemize}
+Die drei wichtigsten Eigenschaften von Containern sind 
+\textbf{Isolation}, \textbf{Portabilität} und 
+\textbf{Reproduzierbarkeit}. Isolation bedeutet dass jeder 
+Container in seiner eigenen Umgebung läuft und andere Container 
+oder das Host-System nicht beeinflusst. Portabilität bedeutet 
+dass sich ein Container auf jedem System gleich verhält, egal 
+ob lokaler Entwicklungsrechner, Testserver oder 
+Cloud-Umgebung. Reproduzierbarkeit bedeutet dass der Container 
+immer dasselbe Ergebnis liefert, weil alle Abhängigkeiten 
+bereits enthalten sind und nicht separat installiert werden 
+müssen \cite{docker_overview, redhat_container}.
 
 \subsubsection{Images und Container}
 
-Ein wichtiges Konzept ist die Unterscheidung zwischen \textbf{Image} 
-und \textbf{Container}. Ein Image ist eine unveränderliche Vorlage, 
-die den Anwendungscode sowie alle Abhängigkeiten enthält. Ein Container 
-ist die laufende Instanz eines Images \cite{docker_overview}. Diese 
-Trennung erlaubt die Versionierung, Wiederverwendung und einfache 
-Verteilung von Images.
+Ein \textbf{Image} ist eine unveränderliche Vorlage die den 
+Anwendungscode und alle Abhängigkeiten enthält. Ein 
+\textbf{Container} ist die laufende Instanz eines Images 
+\cite{docker_overview}. Der Unterschied lässt sich gut mit 
+einer Klasse und einem Objekt in der Programmierung vergleichen: 
+Das Image ist die Klasse, der Container ist das Objekt. Aus 
+einem einzigen Image können beliebig viele Container gestartet 
+werden, was besonders bei der Skalierung von Vorteil ist.
 
-Images werden in sogenannten \textbf{Registries} gespeichert. Die 
-bekannteste ist \textbf{Docker Hub}, auf der tausende vorgefertigte 
-Images frei verfügbar sind, von Betriebssystem-Images bis hin zu 
-fertigen Anwendungen wie MySQL oder Nginx \cite{docker_overview}.
+Diese Trennung macht es einfach Images zu versionieren, 
+wiederzuverwenden und zu verteilen. Wird eine neue Version 
+der Anwendung gebaut, entsteht ein neues Image mit einem 
+neuen Tag. Das alte Image bleibt erhalten und kann jederzeit 
+wieder verwendet werden, was Rollbacks einfach macht.
+
+Images werden in \textbf{Registries} gespeichert. Die 
+bekannteste ist \textbf{Docker Hub}, wo tausende fertige 
+Images frei verfügbar sind, von einfachen 
+Betriebssystem-Images bis hin zu fertigen Anwendungen wie 
+MySQL, Nginx oder Node.js \cite{docker_overview}. Statt 
+eine Datenbank manuell zu installieren und zu konfigurieren, 
+reicht ein einziger Befehl um ein fertiges MySQL-Image zu 
+starten.
 
 \subsubsection{Docker Engine}
 
-Die \textbf{Docker Engine} verwaltet den kompletten 
-Container-Lebenszyklus, also die Erstellung von Images, deren 
-Verwaltung sowie das Starten und Stoppen von Containern. Sie besteht 
-aus drei Hauptkomponenten \cite{docker_overview}:
+Die \textbf{Docker Engine} kümmert sich um alles rund um 
+Container, also Erstellen, Verwalten, Starten und Stoppen. 
+Sie ist in drei Teile aufgeteilt \cite{docker_overview}:
 
 \begin{itemize}
-    \item \textbf{Docker Daemon}: läuft im Hintergrund und verwaltet 
-    Container, Images, Netzwerke und Volumes.
+    \item \textbf{Docker Daemon}: läuft im Hintergrund und 
+    verwaltet alle Container, Images, Netzwerke und Volumes. 
+    Er ist der zentrale Dienst der die eigentliche Arbeit 
+    erledigt.
     
-    \item \textbf{Docker CLI}: die Kommandozeilen-Schnittstelle, über 
-    die Entwickler mit dem Daemon kommunizieren, zum Beispiel mit 
-    \texttt{docker build} oder \texttt{docker run}.
+    \item \textbf{Docker CLI}: die Kommandozeile über die 
+    man mit dem Daemon kommuniziert. Befehle wie 
+    \texttt{docker build} zum Bauen eines Images oder 
+    \texttt{docker run} zum Starten eines Containers werden 
+    hier eingegeben und vom Daemon ausgeführt.
     
-    \item \textbf{REST API}: ermöglicht die programmatische Steuerung 
-    des Daemons und die Integration in automatisierte Prozesse.
+    \item \textbf{REST API}: ermöglicht die programmatische 
+    Steuerung des Daemons. Das ist besonders für automatisierte 
+    Prozesse wie CI/CD Pipelines wichtig, wo Docker ohne 
+    manuelle Eingabe gesteuert werden muss.
 \end{itemize}
 
 \begin{figure}[H]

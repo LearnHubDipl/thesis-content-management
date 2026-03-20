@@ -1,54 +1,51 @@
-Kubernetes ist eine Plattform zur Orchestrierung von Containern und wird 
-hauptsächlich für den Betrieb verteilter, skalierbarer Anwendungen eingesetzt. 
-Im Unterschied zu Docker Compose, das mehrere Container auf einem einzelnen 
-Host verwaltet, ist Kubernetes für den Betrieb in Cluster-Umgebungen mit 
-mehreren Knoten ausgelegt \cite{kubernetes_docs}.
+Kubernetes ist ein Tool das Container auf mehreren Servern 
+gleichzeitig verwaltet \cite{kubernetes_docs}. Docker Compose 
+ist für einen einzelnen Server gedacht, Kubernetes hingegen 
+für einen sogenannten \textbf{Cluster}, also eine Gruppe von 
+Servern die zusammenarbeiten.
 
 \subsubsection{Wie Kubernetes funktioniert}
 
-Kubernetes abstrahiert Container in sogenannte \textbf{Pods}, die einen 
-oder mehrere eng gekoppelte Container umfassen können. Mehrere Pods werden 
-über \textbf{Services} zugänglich gemacht, während \textbf{Deployments} 
-und \textbf{ReplicaSets} dafür sorgen, dass immer die gewünschte Anzahl 
-an laufenden Instanzen vorhanden ist \cite{kubernetes_docs}.
+In Kubernetes laufen Container nicht direkt, sondern in 
+sogenannten \textbf{Pods}. Ein Pod ist die kleinste Einheit 
+in Kubernetes und enthält einen oder mehrere Container die 
+zusammengehören. Kubernetes sorgt dann dafür dass immer die 
+gewünschte Anzahl an Pods läuft. Fällt ein Pod aus, startet 
+Kubernetes automatisch einen neuen \cite{kubernetes_docs}.
 
-Ein zentrales Merkmal von Kubernetes ist die deklarative Konfiguration: 
-Man definiert den gewünschten Zustand, zum Beispiel dass immer fünf 
-Instanzen eines Services laufen sollen, und Kubernetes sorgt selbstständig 
-dafür, diesen Zustand herzustellen und aufrechtzuerhalten. Fällt eine 
-Instanz aus, startet Kubernetes automatisch eine neue \cite{kubernetes_docs}.
+Das Besondere daran ist die deklarative Konfiguration: Man 
+sagt Kubernetes nicht wie es etwas tun soll, sondern nur 
+was der gewünschte Zustand ist, zum Beispiel dass immer fünf 
+Instanzen des Backends laufen sollen. Den Rest erledigt 
+Kubernetes selbst.
 
 \subsubsection{Ab wann macht Kubernetes Sinn}
 
-Der eigentliche Vorteil von Kubernetes kommt erst bei größeren Systemen 
-zum Tragen. Ein konkretes Beispiel: Läuft eine Anwendung zunächst mit 
-einem einzigen Nginx-Container und steigt die Last plötzlich stark an, 
-kann Kubernetes automatisch auf zwanzig Instanzen hochskalieren und die 
-Last gleichmäßig verteilen. Sinkt die Last wieder, werden die überschüssigen 
-Instanzen automatisch beendet \cite{kubernetes_docs}. Mit Docker Compose 
-auf einer einzelnen virtuellen Maschine ist das nicht möglich.
+Der Vorteil von Kubernetes zeigt sich erst bei größeren 
+Systemen. Ein konkretes Beispiel: Läuft eine Anwendung mit 
+einem einzigen Nginx-Container und steigt die Last plötzlich 
+stark an, kann Kubernetes automatisch auf zwanzig Instanzen 
+hochskalieren und die Last gleichmäßig verteilen. Sinkt die 
+Last wieder, werden die überschüssigen Instanzen automatisch 
+beendet \cite{kubernetes_docs}. Mit Docker Compose auf einer 
+einzelnen VM ist das nicht möglich.
 
-Kubernetes eignet sich daher besonders für:
-\begin{itemize}
-    \item Anwendungen mit stark schwankender Last
-    \item Microservice-Architekturen mit vielen unabhängigen Services
-    \item Systeme mit hohen Anforderungen an Verfügbarkeit und 
-    Ausfallsicherheit
-    \item Cloud-Umgebungen mit mehreren Servern oder Rechenzentren
-\end{itemize}
+Kubernetes eignet sich daher besonders für Anwendungen mit 
+stark schwankender Last, Systeme mit vielen unabhängigen 
+Services und Umgebungen mit mehreren Servern oder 
+Rechenzentren.
 
 \subsubsection{Warum wir Kubernetes nicht verwenden}
 
-Für LearnHub wurde bewusst auf Kubernetes verzichtet. Die Anwendung 
-besteht aus einer überschaubaren Anzahl an Services und wird auf einer 
-einzelnen virtuellen Maschine betrieben. In diesem Umfang bringt 
-Kubernetes keinen Mehrwert, sondern nur zusätzliche Komplexität: Ein 
-Kubernetes-Cluster benötigt eine Control Plane, Worker Nodes und ein 
-eigenes Netzwerkmodell, was den Konfigurationsaufwand deutlich erhöht 
+Für LearnHub wurde bewusst auf Kubernetes verzichtet. Die 
+Anwendung hat nur wenige Services und läuft auf einer 
+einzelnen VM. Ein Kubernetes-Cluster würde hier mehr Aufwand 
+erzeugen als Nutzen bringen, da er eine Control Plane, 
+Worker Nodes und ein eigenes Netzwerkmodell benötigt 
 \cite{kubernetes_docs}.
 
-Docker Compose ist für diesen Anwendungsfall die einfachere und 
-wartungsfreundlichere Lösung. Sollte LearnHub in Zukunft stark wachsen 
-und auf mehreren Servern betrieben werden müssen, wäre eine Migration 
-zu Kubernetes möglich, da die Services bereits klar voneinander getrennt 
-und vollständig containerisiert sind.
+Docker Compose ist für diesen Anwendungsfall die einfachere 
+Lösung. Sollte LearnHub in Zukunft stark wachsen und auf 
+mehreren Servern betrieben werden müssen, wäre eine Migration 
+zu Kubernetes möglich, da die Services bereits klar 
+voneinander getrennt und vollständig containerisiert sind.

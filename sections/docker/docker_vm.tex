@@ -25,10 +25,14 @@ Netzwerk einklinken und ihre Routing-Regeln an Traefik melden.
 
 Für HTTPS wird ein SSL-Zertifikat benötigt. Traefik übernimmt 
 dabei die automatische Ausstellung und Erneuerung des Zertifikats 
-über Let's Encrypt. Die Zertifikatsdaten werden im \texttt{certs} 
-Ordner auf der VM gespeichert, der als Volume in den Traefik 
-Container gemountet ist. Dadurch bleibt das Zertifikat auch nach 
-einem Neustart des Containers erhalten.
+über \textbf{Let's Encrypt}, eine kostenlose Zertifizierungsstelle 
+die von der gemeinnützigen Internet Security Research Group 
+betrieben wird \cite{letsencrypt}. Dadurch ist kein manuelles 
+Eingreifen notwendig, das Zertifikat wird automatisch ausgestellt 
+und rechtzeitig erneuert. Die Zertifikatsdaten werden im 
+\texttt{certs} Ordner auf der VM gespeichert, der als Volume 
+in den Traefik Container gemountet ist. Dadurch bleibt das 
+Zertifikat auch nach einem Neustart des Containers erhalten.
 
 \subsubsection{Deployment-Prozess}
 
@@ -36,47 +40,33 @@ Der Deployment-Prozess läuft in wenigen klar definierten Schritten ab:
 
 \begin{enumerate}
     \item Die Docker-Images für Frontend und Backend werden lokal 
-    gebaut und auf Docker Hub hochgeladen, wo sie öffentlich 
+    gebaut und auf DockerHub hochgeladen, wo sie öffentlich 
     verfügbar sind.
     \item Die Compose Files werden auf die VM übertragen.
-    \item Der Traefik Stack wird gestartet: 
-    \begin{verbatim}
-docker compose up -d
-    \end{verbatim}
-    \item Der LearnHub Stack wird gestartet:
-    \begin{verbatim}
-docker compose up -d
-    \end{verbatim}
+    \item Der Traefik Stack wird gestartet.
+    \item Der LearnHub Stack wird gestartet.
     \item MySQL führt seinen Healthcheck durch. Sobald die Datenbank 
     bereit ist, startet das Backend automatisch und baut die 
     Datenbankverbindung auf.
 \end{enumerate}
 
 Nach dem Start ist die Anwendung unter 
-\texttt{https://vm91.htl-leonding.ac.at} erreichbar. Alle Container 
-sind mit \texttt{restart: always} konfiguriert, was bedeutet dass 
-sie bei einem Absturz oder Neustart der VM automatisch wieder 
-hochfahren, ohne dass manuell eingegriffen werden muss.
+\texttt{https://vm91.htl-leonding.ac.at} erreichbar. Da die 
+Images auf DockerHub öffentlich verfügbar sind, kann die 
+Anwendung jederzeit auf einer anderen VM neu deployed werden, 
+ohne dass Code oder Build-Umgebung mitgenommen werden müssen.
 
 \subsubsection{Updates}
 
 Um eine neue Version der Anwendung zu deployen, wird das neue 
-Docker-Image gebaut und auf Docker Hub hochgeladen. Auf der VM 
-reichen dann zwei Befehle:
-
-\begin{verbatim}
-docker compose pull
-docker compose up -d
-\end{verbatim}
-
-\texttt{docker compose pull} lädt die neuesten Images von Docker 
-Hub herunter. \texttt{docker compose up -d} startet danach nur 
-jene Container neu, deren Image sich geändert hat. Services die 
-nicht aktualisiert wurden laufen ohne Unterbrechung weiter. Da 
-die Daten in Volumes gespeichert sind, gehen bei einem Update 
-weder Datenbankeinträge noch hochgeladene Dateien verloren. Das 
-macht Updates unkompliziert und sicher, da im schlimmsten Fall 
-einfach auf das vorherige Image zurückgewechselt werden kann.
+Docker-Image gebaut und auf DockerHub hochgeladen. Auf der VM 
+werden dann die neuesten Images heruntergeladen und nur jene 
+Container neu gestartet, deren Image sich geändert hat. Services 
+die nicht aktualisiert wurden laufen ohne Unterbrechung weiter. 
+Das bedeutet zum Beispiel dass ein Frontend-Update die Datenbank 
+oder das Backend nicht beeinflusst. Im schlimmsten Fall kann 
+jederzeit auf ein älteres Image zurückgewechselt werden, da 
+DockerHub mehrere Versionen aufbewahrt.
 
 \subsubsection{Monitoring}
 
@@ -84,14 +74,43 @@ Traefik bietet ein eingebautes Dashboard das unter Port 8080
 erreichbar ist. Dort ist auf einen Blick sichtbar welche Services 
 gerade laufen, welche Routen aktiv sind und ob alle Container 
 erreichbar sind. Für eine detailliertere Übersicht können auf 
-der VM direkt Docker-Befehle verwendet werden:
+der VM direkt Docker-Befehle verwendet werden um den Status 
+aller Container anzuzeigen oder die Logs aller Services in 
+Echtzeit zu streamen. Das ist besonders hilfreich um Fehler 
+beim Start der Anwendung oder im laufenden Betrieb schnell 
+zu finden.
 
-\begin{verbatim}
-docker compose ps
-docker compose logs -f
-\end{verbatim}
+\subsubsection{Ausblick: Migration auf die LeoCloud}
 
-\texttt{docker compose ps} zeigt den Status aller Container, 
-\texttt{docker compose logs -f} streamt die Logs aller Services 
-in Echtzeit. Das ist besonders hilfreich um Fehler beim Start 
-der Anwendung oder im laufenden Betrieb schnell zu finden.
+Die HTL Leonding betreibt eine eigene Cloud-Infrastruktur, die 
+sogenannte \textbf{LeoCloud}, die auf Kubernetes basiert. Da 
+LearnHub bereits vollständig containerisiert ist und die Services 
+klar voneinander getrennt sind, wäre eine Migration auf die 
+LeoCloud grundsätzlich möglich.
+
+Der erste Schritt wäre die Umwandlung der bestehenden 
+\texttt{docker-compose.yml} Dateien in Kubernetes Manifeste. 
+Tools wie \texttt{Kompose} können diesen Prozess automatisieren, 
+indem sie Compose-Dateien direkt in Kubernetes Deployments und 
+Services konvertieren \cite{kubernetes_docs}. Für jeden Service 
+würde ein \textbf{Deployment} mit der gewünschten Anzahl an 
+Replikaten sowie ein \textbf{Service} für die interne 
+Kommunikation erstellt werden.
+
+Der Traefik Reverse-Proxy würde durch einen Kubernetes 
+\textbf{Ingress Controller} ersetzt werden, der die 
+Routing-Regeln übernimmt. Die bestehenden Docker Volumes für 
+MySQL-Daten und hochgeladene Dateien würden als Kubernetes 
+\textbf{PersistentVolumeClaims} definiert werden, für die die 
+LeoCloud entsprechende Storage-Klassen bereitstellt.
+
+Der wesentliche Vorteil gegenüber dem aktuellen Setup wäre die 
+automatische Skalierung. Steigt die Last auf der Plattform, 
+etwa vor der Matura wenn viele Schüler:innen gleichzeitig 
+lernen, könnte Kubernetes automatisch weitere Instanzen des 
+Backends starten und die Last verteilen. Im aktuellen Setup 
+auf einer einzelnen VM ist das nicht möglich. Zusätzlich würde 
+Kubernetes bei einem Absturz eines Containers diesen 
+automatisch neu starten und bei einem Ausfall eines Nodes die 
+Services auf andere Nodes verschieben, was die Verfügbarkeit 
+der Plattform erhöht.
