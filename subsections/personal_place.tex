@@ -44,9 +44,9 @@ Fragen von Schüler:innen prüfen können.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{pics/abt_2}
+    \includegraphics[width=0.9\textwidth]{pics/abt_2.jpeg}
     \caption{Benachrichtigungen im persönlichen Bereich Lehrkraft}
-    \label{fig:benachrichtigungen}
+    \label{fig:benachrichtigungen-lehrkraft }
 \end{figure}
 
 \subsubsection{Freigabeprozess}
@@ -71,13 +71,22 @@ einzeln prüfen.
 
 Hat die Lehrkraft die Mitschrift geprüft, gibt es zwei 
 Möglichkeiten. Entweder wird die Mitschrift freigegeben, 
-womit \texttt{isApproved} in der Datenbank auf \texttt{true} 
+womit \texttt{approved} in der meta.json auf \texttt{true} 
 gesetzt wird und die Mitschrift ab sofort für alle Nutzer:innen 
 sichtbar ist. Oder die Lehrkraft lehnt die Mitschrift ab, 
 zum Beispiel weil der Inhalt fehlerhaft oder unvollständig ist. 
 In beiden Fällen erhält die Schüler:in eine Benachrichtigung 
 im persönlichen Bereich, sodass sie immer über den aktuellen 
 Status ihrer Mitschriften informiert ist.
+
+In der aktuellen Implementierung ist eine Freigabe endgültig 
+und kann nicht rückgängig gemacht werden. Eine abgelehnte 
+Mitschrift wird vollständig vom Server gelöscht. Für eine 
+zukünftige Erweiterung wäre es denkbar, einen 
+\texttt{approvedAt} Zeitstempel sowie eine vollständige 
+Statushistorie einzuführen, die jede Änderung nachvollziehbar 
+dokumentiert. Dies würde jedoch ein eigenes 
+\texttt{ApprovalHistory} Entity im Datenmodell erfordern.
 
 Dieser Prozess hat zwei wesentliche Vorteile. Erstens wird 
 die Qualität der Inhalte auf der Plattform sichergestellt, 

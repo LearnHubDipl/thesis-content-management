@@ -1,4 +1,4 @@
-\section{Projektvorgehen}
+\subsection{Projektvorgehen}
 
 Für die Entwicklung von LearnHub wurde das Projektmanagement-Framework 
 \textbf{SCRUM} eingesetzt. Da sich bei Softwareprojekten Anforderungen 
@@ -8,7 +8,7 @@ basiert \cite{dong2024}. Anstatt wie beim Wasserfallmodell alles von
 Anfang an festzulegen, konnten wir Zwischenergebnisse regelmäßig 
 überprüfen und anpassen \cite{kaack2016}.
 
-\subsection{SCRUM}
+\subsubsection{SCRUM}
 
 SCRUM unterteilt die Projektarbeit in zeitlich begrenzte Iterationen, 
 die sogenannten \textbf{Sprints}. Jeder Sprint dauert in der Regel 
@@ -68,15 +68,14 @@ SCRUM definiert drei zentrale Rollen \cite{scrumguide2020}:
     \label{fig:scrum_sprint}
 \end{figure}
 
-\subsection{Versionsverwaltung mit GitHub}
+\subsubsection{Versionsverwaltung mit GitHub}
 
 Für die Versionsverwaltung wurde \textbf{GitHub} eingesetzt, eine 
 webbasierte Plattform die auf Git aufbaut \cite{tharu2025}. GitHub 
 ermöglicht es mehreren Entwickler:innen gleichzeitig am selben 
 Projekt zu arbeiten, ohne sich gegenseitig zu behindern. Änderungen 
 werden in sogenannten \textbf{Commits} festgehalten, wodurch immer 
-nachvollziehbar ist, wer welche Änderungen vorgenommen hat 
-\cite{sekery2020}.
+nachvollziehbar ist, wer welche Änderungen vorgenommen hat.
 
 Zusätzlich wurde GitHub für das Management von Meilensteinen und 
 dem Product Backlog verwendet, was die Verbindung zwischen SCRUM 
@@ -92,10 +91,13 @@ Im Projekt wurden drei Branches verwendet:
     Maturatrainers
 \end{itemize}
 
-Sobald ein Sprint abgeschlossen war, wurden die Änderungen in den 
-main Branch gemerged. Dieser Workflow ermöglichte es, neue Funktionen 
-zu entwickeln ohne die Stabilität des Hauptcodes zu gefährden 
-\cite{tharu2025}.
+Der Arbeitsablauf war dabei folgendermaßen: Änderungen wurden 
+lokal committed und auf den jeweiligen Feature-Branch gepusht. 
+Vor dem Weiterarbeiten wurde regelmäßig der main Branch gepullt 
+um Änderungen des Partnerteams zu integrieren, und anschließend 
+der eigene Branch damit aktualisiert. Sobald ein Sprint 
+abgeschlossen war, wurden die Änderungen in den main Branch 
+gemerged \cite{tharu2025}.
 
 \begin{figure}[H]
     \centering
@@ -104,7 +106,7 @@ zu entwickeln ohne die Stabilität des Hauptcodes zu gefährden
     \label{fig:github_workflow}
 \end{figure}
 
-\subsection{Deployment auf der virtuellen Maschine}
+\subsubsection{Deployment auf der virtuellen Maschine}
 
 Parallel zur Entwicklung wurde die Anwendung auf einer virtuellen 
 Maschine der HTL Leonding betrieben. Nach jedem abgeschlossenen 

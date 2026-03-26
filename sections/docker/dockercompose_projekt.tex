@@ -23,9 +23,10 @@ der einzige Service der Ports nach außen öffnet, nämlich Port 80
 für HTTP und Port 443 für HTTPS. Zusätzlich ist Port 8080 für 
 das Traefik-Dashboard geöffnet. Alle anderen Services sind von 
 außen nicht direkt erreichbar. Das Netzwerk \texttt{learnhubnet} 
-wird hier mit dem Subnetz \texttt{10.4.0.0/16} angelegt und als 
-externes Netzwerk markiert, damit andere Compose Stacks es 
-einbinden können. Traefik erkennt automatisch welche Services 
+wird hier mit dem Subnetz \texttt{10.4.0.0/16} angelegt und 
+definiert. Der LearnHub Stack bindet dieses Netzwerk dann als 
+externes Netzwerk ein, ohne es neu zu definieren, da es bereits 
+hier erstellt wurde. Traefik erkennt automatisch welche Services 
 gestartet werden, indem der Docker-Socket 
 \texttt{/var/run/docker.sock} in den Container gemountet wird. 
 Dadurch kann Traefik die laufenden Container beobachten und deren 

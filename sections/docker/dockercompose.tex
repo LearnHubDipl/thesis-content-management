@@ -25,10 +25,16 @@ einer Docker Compose Datei mit zwei Services.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.75\textwidth]{pics/compose_example.png}
+    \includegraphics[width=0.6\textwidth]{pics/compose_example.png}
     \caption{Beispiel einer einfachen Docker Compose Datei}
     \label{fig:compose-example}
 \end{figure}
+
+Das Beispiel definiert zwei Services: einen Webserver auf Basis 
+von \texttt{nginx:alpine} der auf Port 80 erreichbar ist, und 
+eine MySQL-Datenbank mit einem Volume zur persistenten 
+Datenspeicherung. Beide Services laufen im selben Netzwerk 
+und können sich gegenseitig über ihren Servicenamen erreichen.
 
 \subsubsection{Abhängigkeiten zwischen Services}
 
@@ -67,12 +73,11 @@ sollen, etwa wenn ein Reverse-Proxy in einem eigenen Stack läuft
 Der größte Vorteil von Docker Compose ist die \textbf{Reproduzierbarkeit}: 
 Die gesamte Anwendungsinfrastruktur ist in einer einzigen Datei 
 beschrieben und kann mit einem einzigen Befehl gestartet werden 
-\cite{docker_compose}:
-
-Gerade in der Teamarbeit ist das ein großer Vorteil, da alle Entwickler 
-dieselbe Umgebung verwenden und Konfigurationsunterschiede zwischen 
-einzelnen Rechnern ausgeschlossen werden \cite{docker_compose}.
-Der gesamte Stack wird mit folgendem Befehl gestartet:
+\cite{docker_compose}. Gerade in der Teamarbeit ist das ein großer 
+Vorteil, da alle Entwickler:innen dieselbe Umgebung verwenden und 
+Konfigurationsunterschiede zwischen einzelnen Rechnern ausgeschlossen 
+werden \cite{docker_compose}. Der gesamte Stack wird mit folgendem 
+Befehl gestartet:
 
 \begin{verbatim}
 docker compose up -d

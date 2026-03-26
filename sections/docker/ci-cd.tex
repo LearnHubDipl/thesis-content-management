@@ -4,24 +4,16 @@ Aktuell läuft das Deployment von LearnHub manuell. Bei jeder
 Code-Änderung werden die Docker-Images von Hand gebaut, auf Docker 
 Hub hochgeladen und auf der VM neu gestartet. Das funktioniert für 
 den aktuellen Projektumfang, ist aber auf Dauer fehleranfällig und 
-zeitaufwendig. Eine CI/CD-Pipeline würde diesen Prozess vollständig 
-automatisieren.
-
-CI steht für \textbf{Continuous Integration}: Code-Änderungen werden 
-laufend zusammengeführt und automatische Tests prüfen dabei die 
-Qualität. CD bedeutet \textbf{Continuous Deployment}: Getesteter 
-Code wird automatisch in die Produktion gebracht. Zusammen bilden 
-beide eine durchgehende Automatisierung vom ersten Commit bis zur 
-laufenden Anwendung \cite{fowler2006continuous}.
+zeitaufwendig. Eine vollständige CI/CD-Pipeline würde diesen Prozess 
+automatisieren \cite{fowler2006continuous}.
 
 \subsubsection{GitHub Actions}
 
-Für LearnHub bietet sich \textbf{GitHub Actions} an, da der Code 
+Für LearnHub wurde \textbf{GitHub Actions} eingesetzt, da der Code 
 bereits auf GitHub liegt und GitHub Actions direkt integriert ist. 
 Ein Workflow wird in einer YAML-Datei unter 
 \texttt{.github/workflows/} definiert und von GitHub automatisch 
-ausgeführt wenn ein bestimmtes Ereignis eintritt, zum Beispiel ein 
-Push auf den Main-Branch \cite{github-actions}.
+ausgeführt wenn ein bestimmtes Ereignis eintritt.
 
 Abbildung~\ref{fig:github-actions-workflow} zeigt den aktuellen 
 Workflow für das Backend von LearnHub.
@@ -35,74 +27,76 @@ Workflow für das Backend von LearnHub.
 
 \subsubsection{Aufbau des Workflows}
 
-Der Workflow besteht aus drei Jobs die nacheinander ablaufen:
+Der Workflow wird automatisch ausgelöst wenn Code im 
+\texttt{backend} Verzeichnis auf den Main-Branch gepusht wird. 
+Er besteht aus einem einzigen Job der folgende Schritte ausführt:
 
-\textbf{Job 1 und 2: Build und Test}
+Zuerst wird ein MySQL Container gestartet da der Maven Build 
+eine laufende Datenbank benötigt. Nach einer kurzen Wartezeit 
+bis MySQL bereit ist, wird JDK 21 eingerichtet und das Backend 
+mit \texttt{mvn clean package} gebaut. Danach werden alle 
+Container gebaut und gestartet um zu prüfen ob alles 
+zusammenspielt, anschließend wieder gestoppt.
 
-Die ersten zwei Jobs laufen parallel und sind für Backend und 
-Frontend zuständig. Beim Backend wird der Code mit Maven gebaut 
-und die Tests werden ausgeführt. Beim Frontend werden die 
-Abhängigkeiten installiert, die Tests laufen und das Docker-Image 
-wird gebaut. Beide Jobs taggen das fertige Image mit dem 
-Commit-Hash, sodass später nachvollziehbar ist welches Image aus 
-welchem Code entstanden ist. Anschließend werden die Images auf 
-Docker Hub hochgeladen. Sensible Informationen wie Docker Hub 
-Passwort oder SSH-Keys werden als \textbf{GitHub Secrets} 
-gespeichert und im Workflow über 
-\texttt{\$\{\{ secrets.NAME \}\}} referenziert, sodass sie 
-nie im Quellcode stehen.
+Zum Schluss prüft der Workflow ob der Build Änderungen im 
+\texttt{backend} Verzeichnis erzeugt hat. Falls ja, werden 
+diese automatisch committed und mit der ursprünglichen 
+Commit-Message zurück ins Repository gepusht. Der Commit 
+enthält den Zusatz \texttt{[ci skip]} damit er nicht 
+erneut den Workflow auslöst.
 
-\textbf{Job 3: Deploy}
+Sensible Informationen wie der GitHub Token werden als 
+\textbf{GitHub Secrets} gespeichert und im Workflow über 
+\texttt{\$\{\{ secrets.GITHUB\_TOKEN \}\}} referenziert, 
+sodass sie nie im Quellcode stehen \cite{github_secrets}.
 
-Der Deploy-Job startet erst wenn beide vorherigen Jobs erfolgreich 
-waren. Das wird über die \texttt{needs} Direktive gesteuert. 
-Zusätzlich läuft dieser Job nur bei einem Push auf den Main-Branch, 
-nicht bei Pull Requests. Der Job baut eine SSH-Verbindung zur VM 
-auf und führt dort zwei Befehle aus: \texttt{docker compose pull} 
-lädt die neuen Images, \texttt{docker compose up -d} startet die 
-betroffenen Container neu.
+Abbildung~\ref{fig:cicd-pipeline} zeigt den Ablauf des 
+Workflows als Diagramm.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.85\textwidth]{pics/ci_cd.png}
+    \includegraphics[width=0.75\textwidth]{pics/ci_cd.png}
     \caption{Ablauf der CI/CD Pipeline}
     \label{fig:cicd-pipeline}
 \end{figure}
 
-Wie in Abbildung~\ref{fig:cicd-pipeline} zu sehen, startet 
-der Prozess mit einem Push auf den Main-Branch. GitHub Actions 
-erkennt das Ereignis automatisch und startet die ersten zwei 
-Jobs parallel, einen für das Backend und einen für das Frontend. 
-Schlägt ein Test in einem der beiden Jobs fehl, bricht die 
-gesamte Pipeline sofort ab und die Entwickler:in wird 
-benachrichtigt, sodass kein fehlerhafter Code weiterverarbeitet 
-wird. Erst wenn beide Jobs erfolgreich abgeschlossen sind, 
-startet der Deploy Job, der die neuen Images auf die VM lädt 
-und die Container neu startet. Abschließend prüft ein 
-Health Check ob die Anwendung korrekt läuft, bei einem 
-Fehler wird automatisch auf die vorherige Version zurückgerollt.
+Wie in Abbildung~\ref{fig:cicd-pipeline} zu sehen, wird der 
+Workflow nur ausgelöst wenn Änderungen im \texttt{backend} 
+Verzeichnis auf den Main-Branch gepusht werden. Der Build 
+benötigt eine laufende MySQL Datenbank, weshalb zuerst ein 
+MySQL Container gestartet wird. Schlägt der Maven Build fehl, 
+bricht der Workflow ab und die Entwickler:in wird 
+benachrichtigt. Bei Erfolg werden alle Container kurz gestartet 
+um das Zusammenspiel zu prüfen, dann wieder gestoppt. Falls 
+der Build Änderungen erzeugt hat, werden diese automatisch 
+zurück ins Repository gepusht.
+
+Ein Frontend-Workflow sowie ein automatisches Deployment 
+auf die VM sind aktuell noch nicht implementiert und wären 
+ein sinnvoller nächster Schritt für die Weiterentwicklung 
+der Pipeline.
 
 \subsubsection{Automatisierte Tests}
 
-Ein wesentlicher Teil einer CI/CD-Pipeline sind automatisierte 
-Tests. Für das Quarkus-Backend eignen sich Unit-Tests mit JUnit 5 
-sowie Integration-Tests mit \texttt{@QuarkusTest}, womit die 
-Anwendung in einer Testumgebung gestartet und HTTP-Requests 
-simuliert werden können \cite{quarkus-testing}. Für die 
-Datenbank-Tests kann eine In-Memory H2-Datenbank verwendet werden, 
-um unabhängig von der produktiven MySQL-Datenbank zu bleiben.
+Der aktuelle Workflow führt den Maven Build mit 
+\texttt{mvn clean package} aus, wobei auch die vorhandenen 
+Backend-Tests ausgeführt werden. Für eine vollständigere 
+Teststrategie eignen sich zusätzlich Integration-Tests mit 
+\texttt{@QuarkusTest}, womit HTTP-Requests simuliert werden 
+können \cite{quarkus-testing}. Für Datenbank-Tests kann eine 
+In-Memory H2-Datenbank verwendet werden um unabhängig von der 
+produktiven MySQL-Datenbank zu bleiben.
 
-Für das Angular-Frontend eignen sich Unit-Tests mit Jasmine und 
-Karma für einzelne Components und Services, sowie End-to-End-Tests 
-mit Cypress oder Playwright die reale Benutzerinteraktionen im 
-Browser simulieren \cite{cypress-docs}.
+Für das Angular-Frontend sind aktuell keine automatisierten 
+Tests in der Pipeline implementiert. Sinnvoll wären 
+Unit-Tests mit Jasmine und Karma sowie End-to-End-Tests 
+mit Cypress oder Playwright \cite{cypress-docs}.
 
 \subsubsection{Rollback}
 
-Da jedes Image mit einem Versions-Tag versehen wird, ist ein 
-Rollback einfach: Im Compose File wird der Image-Tag auf eine 
-frühere Version geändert und die Container werden neu gestartet. 
-Die letzten drei bis fünf Versionen sollten dafür in der Registry 
-aufbewahrt werden. Ein automatisierter Health-Check nach jedem 
-Deployment kann fehlerhafte Deployments erkennen und die Pipeline 
-kann bei Bedarf automatisch zur vorherigen Version zurückrollen.
+Da der Quellcode versioniert auf GitHub liegt, ist ein Rollback 
+jederzeit möglich indem ein früherer Commit ausgecheckt und neu 
+gebaut wird. Für eine vollständige Pipeline wäre zusätzlich das 
+Taggen von Docker-Images mit der Versionsnummer sinnvoll, sodass 
+auch auf der VM direkt auf eine frühere Image-Version 
+zurückgewechselt werden kann.

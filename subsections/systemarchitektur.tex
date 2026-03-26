@@ -1,97 +1,9 @@
-LearnHub folgt einem klassischen \textbf{Client-Server-Ansatz}. Das 
-Frontend läuft im Browser und ist für die Darstellung der Oberfläche 
-zuständig. Das Backend verarbeitet alle Anfragen, enthält die 
-Geschäftslogik und kommuniziert mit der Datenbank. Die Kommunikation 
-zwischen Frontend und Backend läuft über REST-APIs, der Datenaustausch 
-erfolgt im JSON-Format. Durch diese klare Aufteilung wird das Prinzip 
-der \textbf{Separation of Concerns} konsequent umgesetzt, also dass 
-jede Schicht nur für ihren eigenen Bereich zuständig ist und nicht 
-in die Aufgaben anderer eingreift.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.85\textwidth]{pics/systemArchiktetur.png}
-    \caption{Übersicht der Systemarchitektur von LearnHub}
-    \label{fig:systemarchitektur}
-\end{figure}
-
-Abbildung~\ref{fig:systemarchitektur} zeigt das Zusammenspiel der 
-einzelnen Komponenten der LearnHub-Plattform.
-
-\subsubsection{Frontend}
-
-Das Frontend wurde mit Angular als Single-Page-Application umgesetzt. 
-Das bedeutet dass Seitenwechsel ohne Neuladen der Seite stattfinden, 
-was ein flüssiges Nutzererlebnis ermöglicht. Das Frontend besteht 
-aus mehreren Angular-Components, die jeweils für einen bestimmten 
-Bereich zuständig sind, etwa den Fragenkonfigurator, den Maturaupload 
-oder den persönlichen Bereich.
-
-Die Kommunikation mit dem Backend ist in Services gekapselt. Diese 
-Services kümmern sich um die HTTP-Anfragen und liefern den Components 
-die benötigten Daten. Durch diese Aufteilung zwischen Components und 
-Services wird die Separation of Concerns auch innerhalb des Frontends 
-umgesetzt: Components sind nur für die Darstellung zuständig, 
-Services für die Logik und Datenbeschaffung. Das macht den Code 
-leichter wartbar und einzelne Teile können unabhängig voneinander 
-geändert oder wiederverwendet werden.
-
-Für die Navigation verwendet das Frontend Angular-Routing. Abhängig 
-von der Rolle des angemeldeten Nutzers werden unterschiedliche Routen 
-freigeschaltet. Ein Schüler sieht andere Navigationspunkte und hat 
-Zugriff auf andere Bereiche als eine Lehrkraft. Diese rollenbasierte 
-Navigation wird direkt im Frontend über Route Guards gesteuert, wobei 
-die eigentliche Berechtigungsprüfung immer im Backend stattfindet.
-
-\subsubsection{Backend}
-
-Das Backend wurde mit Java und Quarkus entwickelt und verarbeitet 
-alle Anfragen aus dem Frontend. Auch hier wird die Separation of 
-Concerns durch eine klare Schichtenarchitektur umgesetzt:
-
-\begin{itemize}
-    \item \textbf{Boundary}: REST-Endpunkte für die Kommunikation 
-    mit dem Frontend. Diese Schicht nimmt Anfragen entgegen und 
-    gibt Antworten zurück, enthält aber keine Geschäftslogik.
-    
-    \item \textbf{Model}: Datenentitäten die direkt auf die 
-    Datenbanktabellen gemappt werden. Jede Entität repräsentiert 
-    ein Objekt aus der Anwendungsdomäne, also zum Beispiel einen 
-    User, ein Fach oder eine Frage.
-    
-    \item \textbf{Repository}: Zuständig für den Datenbankzugriff. 
-    Die Boundary kommuniziert nicht direkt mit der Datenbank, 
-    sondern immer über das Repository.
-    
-    \item \textbf{DTO (Data Transfer Object)}: Datenstrukturen 
-    die speziell für den Transfer zwischen Frontend und Backend 
-    designed sind. DTOs enthalten nur die Felder die das Frontend 
-    tatsächlich braucht, nicht das gesamte Datenmodell.
-    
-    \item \textbf{Mapper}: Übersetzt zwischen Models und DTOs. 
-    Dadurch ist das interne Datenmodell vom Frontend entkoppelt 
-    und kann sich unabhängig davon weiterentwickeln.
-    
-    \item \textbf{Security}: Integration mit Keycloak für 
-    Authentifizierung und Berechtigungschecks. Alle 
-    Sicherheitsprüfungen laufen ausschließlich in dieser Schicht 
-    ab, damit keine sicherheitsrelevante Logik im Frontend 
-    umgesetzt wird.
-\end{itemize}
-
-\subsubsection{Authentifizierung und Autorisierung}
-
-Die Anmeldung läuft über Keycloak, der von der HTL Leonding 
-bereitgestellt wird und mit dem schulischen LDAP-Verzeichnis 
-verbunden ist. Nach erfolgreicher Anmeldung erhält das Frontend 
-ein JWT, das bei jeder Anfrage ans Backend mitgeschickt wird. 
-Das Backend liest die Rolle aus dem Token und entscheidet damit 
-welche Ressourcen der Nutzer erreichen darf. Schüler:innen haben 
-andere Berechtigungen als Lehrer:innen, etwa beim Freigeben von 
-Fragen oder dem Verwalten von Fächern und Themenpools. Da alle 
-Sicherheitsprüfungen im Backend stattfinden, kann die 
-Zugriffskontrolle nicht durch Manipulation des Frontends umgangen 
-werden.
+LearnHub folgt einem klassischen \textbf{Client-Server-Ansatz}. 
+Das Frontend wurde mit Angular als Single-Page-Application 
+umgesetzt, das Backend mit Java und Quarkus. Die Kommunikation 
+zwischen beiden läuft über REST-APIs im JSON-Format, wobei das 
+Prinzip der \textbf{Separation of Concerns} konsequent umgesetzt 
+wird.
 
 \subsubsection{Datenbank}
 
@@ -100,17 +12,17 @@ und Mitschriften, werden in einer relationalen Datenbank gespeichert.
 Relationale Datenbanken eignen sich hier besonders gut, weil die 
 Daten stark miteinander verknüpft sind. Eine Frage gehört zu einem 
 Themenpool, ein Themenpool zu einem Fach, eine Mitschrift zu einem 
-Themenpool und einem Benutzer. Diese Beziehungen lassen sich in 
-einer relationalen Datenbank sauber über Fremdschlüssel abbilden.
+Themenpool und einem Benutzer. Diese Beziehungen lassen sich sauber 
+über Fremdschlüssel abbilden.
 
 Für die lokale Entwicklung wird H2 als In-Memory-Datenbank 
-verwendet, da diese ohne Installation direkt in der Anwendung 
-läuft und beim Start automatisch das Schema erstellt. Im 
-Produktivbetrieb auf der VM kommt MySQL zum Einsatz, das in 
-einem eigenen Docker-Container läuft und seine Daten in einem 
-persistenten Volume speichert. Der Wechsel zwischen H2 und MySQL 
-wird über das Quarkus-Profil gesteuert, also \texttt{dev} für 
-die Entwicklung und \texttt{prod} für den Produktivbetrieb, 
+verwendet, die ohne Installation direkt in der Anwendung läuft 
+und beim Start automatisch das Schema erstellt. Im Produktivbetrieb 
+auf der VM kommt MySQL zum Einsatz, das in einem eigenen 
+Docker-Container läuft und seine Daten in einem persistenten 
+Volume speichert. Der Wechsel zwischen H2 und MySQL wird über 
+das Quarkus-Profil gesteuert, also \texttt{dev} für die 
+Entwicklung und \texttt{prod} für den Produktivbetrieb, 
 ohne dass der Code selbst geändert werden muss.
 
 \subsubsection{Datenmodell}
@@ -126,7 +38,9 @@ mit allen Entitäten und ihren Beziehungen.
 \end{figure}
 
 Das Datenmodell spiegelt direkt die Datenbankstruktur von LearnHub 
-wider. Jede Entität entspricht einer Tabelle in der MySQL-Datenbank.
+wider. Jede Entität entspricht einer Tabelle in der MySQL-Datenbank, 
+die Verbindungen zwischen den Entitäten werden als Fremdschlüssel 
+abgebildet.
 
 Der erste Bereich umfasst die Struktur der Plattform. 
 \textbf{Subject} entspricht der Tabelle für Fächer, 
@@ -137,7 +51,15 @@ den Pfad zur PDF-Datei auf dem Server sowie den Freigabestatus
 (\texttt{isApproved}). Solange \texttt{isApproved} false ist, 
 ist die Mitschrift nur für die Ersteller:in sichtbar. Erst wenn 
 eine Lehrkraft die Mitschrift freigibt, wird der Wert auf true 
-gesetzt und die Mitschrift ist öffentlich sichtbar.
+gesetzt und die Mitschrift ist öffentlich sichtbar. In der 
+tatsächlichen Implementierung werden die Metadaten einer 
+Mitschrift, also Freigabestatus, zuständige Lehrkraft und 
+Zeitstempel, nicht in der Datenbank, sondern in einer 
+gleichnamigen \texttt{meta.json} Datei direkt neben der PDF 
+auf dem Server gespeichert. Dies ermöglicht eine einfache 
+Aktualisierung des Status ohne Datenbankzugriff, hat jedoch 
+den Nachteil dass keine strukturierten Datenbankabfragen 
+über den Status möglich sind.
 
 Der zweite Bereich umfasst das Fragensystem. \textbf{Question} 
 speichert den Fragetext sowie den Typ (\texttt{QuestionType}), 
@@ -152,5 +74,6 @@ Sowohl \textbf{TopicContent} als auch \textbf{Question} können
 haben. Die \textbf{User} Tabelle ist mit beiden Hauptbereichen 
 verknüpft, über Fremdschlüssel wird gespeichert welcher User 
 welche Mitschrift hochgeladen und welche Frage erstellt hat. 
-Das ermöglicht zum Beispiel dass Schüler:innen nur ihre eigenen 
-Mitschriften bearbeiten können.
+Das ermöglicht dass Schüler:innen nur ihre eigenen Mitschriften 
+bearbeiten können, da das Backend bei jeder Anfrage prüft ob 
+der anfragende User der Ersteller des Inhalts ist.

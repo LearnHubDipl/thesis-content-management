@@ -59,12 +59,16 @@ Binärdaten, was effizienter und schneller ist.
 \subsection{Speicherung mit meta.json}
 
 Nachdem die PDF erfolgreich gespeichert wurde, legt das Backend 
-automatisch eine \textbf{meta.json} Datei an. Diese enthält 
-alle relevanten Infos zur Mitschrift: Titel, Name des Uploaders, 
-die Keycloak-ID der hochladenden Person (\texttt{uploaderSub}), 
-die E-Mail der zuständigen Lehrkraft (\texttt{teacherEmail}), 
-deren Keycloak-ID (\texttt{teacherSub}), den Zeitstempel und 
-den aktuellen Freigabestatus.
+automatisch eine \textbf{meta.json} Datei an. Diese wird im 
+selben Ordner wie die PDF-Datei auf dem Server gespeichert, 
+organisiert nach Themenpool-ID unter dem Pfad 
+\texttt{/app/uploads/topic-notes/\{topicPoolId\}/}. 
+Sie enthält alle relevanten Infos zur Mitschrift: Titel, 
+Name des Uploaders, die Keycloak-ID der hochladenden Person 
+(\texttt{uploaderSub}), die E-Mail der zuständigen Lehrkraft 
+(\texttt{teacherEmail}), deren Keycloak-ID 
+(\texttt{teacherSub}), den Zeitstempel und den aktuellen 
+Freigabestatus.
 
 Abbildung~\ref{fig:upload-meta} zeigt die auf dem Server 
 gespeicherten meta.json Dateien, organisiert nach Themenpool-ID. 
@@ -80,13 +84,24 @@ Jede PDF hat eine gleichnamige meta.json im selben Ordner.
 Besonders wichtig sind \texttt{uploaderSub} und 
 \texttt{teacherSub}, also die eindeutigen Keycloak-IDs der 
 beteiligten Personen. Diese IDs sind der zentrale 
-Identifikationsmechanismus im gesamten Freigabeprozess 
-\cite{ionos_docker}.
+Identifikationsmechanismus im gesamten Freigabeprozess.
 
 Der Vorteil dieser Trennung von Inhalt und Metadaten: Der 
 Status einer Mitschrift kann jederzeit durch eine einfache 
 Änderung in der meta.json aktualisiert werden, ohne die 
 PDF-Datei selbst anfassen zu müssen.
+
+Bewusst wurde entschieden, die Metadaten nicht in einer 
+eigenen Datenbanktabelle zu speichern. Da der Dateiname 
+der PDF bereits eindeutig als Schlüssel dient und die 
+meta.json direkt daneben im selben Ordner liegt, ist kein 
+zusätzlicher Datenbankeintrag notwendig um eine Mitschrift 
+eindeutig zu identifizieren. Das Backend liest beim Abrufen 
+einer Mitschrift einfach die zugehörige meta.json ein und 
+gibt deren Inhalt zusammen mit der PDF-URL ans Frontend 
+zurück. Der Dateiname ist damit gleichzeitig der 
+Primärschlüssel des gesamten Systems, er verbindet PDF, 
+Metadaten und öffentliche URL miteinander.
 
 \subsection{Warum kein CDN und keine Datenbank für PDFs}
 
@@ -105,9 +120,16 @@ Einflussbereich der Schule \cite{redhat_container}.
 Die Speicherung der PDFs direkt in MySQL als \texttt{BLOB} 
 wurde ebenfalls verworfen. Datenbanken sind für strukturierte 
 Daten wie Texte und Zahlen optimiert, nicht für große 
-Binärdateien \cite{docker_overview}. Die direkte 
-Dateisystem-Speicherung ist hier performanter und einfacher 
-zu verwalten.
+Binärdateien \cite{docker_overview}. Die direkte Dateisystem-Speicherung ist hier performanter 
+und einfacher zu verwalten, wie die Ordnerstruktur in 
+Abbildung~\ref{fig:upload-ordnerstruktur} zeigt.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{pics/upload_ordnerstruktur.png}
+    \caption{Ordnerstruktur der hochgeladenen Mitschriften auf dem Server}
+    \label{fig:upload-ordnerstruktur}
+\end{figure}
 
 \subsection{Rollenerkennung über den distinguishedName}
 
@@ -115,22 +137,18 @@ Da LearnHub Keycloak zur Authentifizierung verwendet, der
 wiederum mit dem LDAP-Verzeichnis der HTL verbunden ist, 
 enthält der JWT-Token auch LDAP-spezifische Felder wie den 
 \textbf{distinguishedName}, der die Position der Person 
-im Schulnetzwerk beschreibt \cite{ionos_docker}. Wie in 
-Abbildung~\ref{fig:upload-dn-read} zu sehen, wird dieser 
-Wert über \texttt{jwt.getClaim()} direkt aus dem Token 
-ausgelesen.
+im Schulnetzwerk beschreibt. Der Wert 
+wird über \texttt{jwt.getClaim()} direkt aus dem Token 
+ausgelesen:
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.85\textwidth]{pics/upload_dn_read.png}
-    \caption{Auslesen des distinguishedName aus dem JWT-Token}
-    \label{fig:upload-dn-read}
-\end{figure}
+\begin{verbatim}
+String distinguishedName = jwt.getClaim("distinguishedName").asString();
+\end{verbatim}
 
 Dann wird geprüft ob \texttt{OU=STUDENTS} im DN enthalten ist. 
 Wenn ja, ist die Person eine Schüler:in, sonst eine Lehrkraft. 
 Als Fallback wird zusätzlich geprüft ob die E-Mail-Adresse auf 
-\texttt{@students.htl-leonding.ac.at} endet \cite{ionos_docker}. 
+\texttt{@students.htl-leonding.ac.at} endet. 
 
 \begin{figure}[H]
     \centering
@@ -139,19 +157,36 @@ Als Fallback wird zusätzlich geprüft ob die E-Mail-Adresse auf
     \label{fig:upload-dn-check}
 \end{figure}
 
-\subsection{Lehrerliste im Arbeitsspeicher}
+\subsection{Verwaltung der Lehrkräfte}
 
 Für das Dropdown zur Auswahl der Lehrkraft beim Upload wird 
 eine vollständige Liste aller Lehrkräfte der HTL benötigt. 
-Diese Liste ist direkt im Backend als statische Liste 
-hinterlegt und wird beim Start der App einmalig in den 
-Arbeitsspeicher geladen und als \texttt{ConcurrentHashMap} 
-gehalten.
+In der aktuellen Implementierung ist diese Liste direkt im 
+Backend als statische Liste hinterlegt und wird beim Start 
+der App einmalig in den Arbeitsspeicher geladen und als 
+\texttt{ConcurrentHashMap} gehalten.
 
-Der Grund: Lehrkräfte registrieren sich nicht aktiv bei 
-LearnHub. Eine Schüler:in muss aber schon beim Upload eine 
-Lehrkraft auswählen können, bevor sich diese jemals eingeloggt 
-hat. Würde die Liste nur aus der Datenbank geladen, wäre sie 
-am Anfang leer. Wenn sich eine Lehrkraft zum ersten Mal 
-einloggt, wird ihr Keycloak-Sub automatisch mit dem 
-vorhandenen Datensatz verknüpft.
+Der Grund für diesen Ansatz: Lehrkräfte registrieren sich 
+nicht aktiv bei LearnHub. Eine Schüler:in muss aber schon 
+beim Upload eine Lehrkraft auswählen können, bevor sich 
+diese jemals eingeloggt hat. Würde die Liste nur aus der 
+Datenbank geladen, wäre sie am Anfang leer. Da die 
+Lehrerliste der HTL Leonding weitgehend stabil ist und 
+sich im Schuljahr kaum ändert, war diese Lösung für den 
+Rahmen der Diplomarbeit ausreichend. 
+Sie ermöglichte eine schnelle Umsetzung ohne zusätzliche 
+Infrastruktur für ein eigenes Verwaltungsinterface. 
+Wenn sich eine Lehrkraft zum ersten Mal einloggt, wird 
+ihr Keycloak-Sub automatisch mit dem vorhandenen Datensatz 
+verknüpft.
+
+Dieser Ansatz hat jedoch einen wesentlichen Nachteil: 
+Ändert sich die Liste der Lehrkräfte, zum Beispiel durch 
+neue Kolleg:innen oder Abgänge, muss der Quellcode manuell 
+angepasst und die Applikation neu deployed werden. Dies 
+ist keine nachhaltige Lösung für den Produktivbetrieb. 
+Als sinnvolle Weiterentwicklung wäre ein vollständiges 
+CRUD-Interface mit Datenbankpersistenz denkbar, bei dem 
+Lehrkräfte mit entsprechenden Berechtigungen die Liste 
+selbst verwalten können, ohne dass ein Eingriff in den 
+Quellcode notwendig ist.
