@@ -1,11 +1,26 @@
 \setauthor{\secondauthor}
 
+Nutzer:innen können Mitschriften hochladen und einem Fach sowie einem 
+Themenpool zuordnen. Beim Upload müssen ein Titel, eine Beschreibung 
+sowie die zuständige Lehrkraft für die Freigabe angegeben werden. 
+Die Mitschrift wird dabei automatisch dem gewählten Fach und Themenpool 
+zugeordnet, was die spätere Navigation für alle Nutzer:innen erleichtert.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{pics/ab5.png}
+    \caption{Mitschriften-Upload-Formular}
+    \label{fig:mitschriften-upload}
+\end{figure}
+
 \paragraph{Upload als Schüler:in}
 
 Schüler:innen können eigene Mitschriften hochladen. Solange die 
 Mitschrift noch nicht freigegeben ist, wird sie mit dem Status 
 \textit{PENDING} dargestellt und ist nur für die jeweilige Schüler:in 
-sichtbar. Nach der Freigabe durch eine Lehrkraft erhält sie den Status 
+sichtbar. Solange eine Mitschrift noch den Status \textit{PENDING} hat, 
+kann sie von der Schüler:in noch bearbeitet oder gelöscht werden. 
+Nach der Freigabe durch eine Lehrkraft erhält sie den Status 
 \textit{APPROVED} und ist für alle Nutzer:innen sichtbar.
 
 Abbildung~\ref{fig:mitschriften} zeigt die Mitschriftenübersicht mit 
@@ -21,44 +36,6 @@ dem Status der einzelnen Mitschriften.
 \paragraph{Upload als Lehrkraft}
 
 Lehrkräfte können Mitschriften hochladen, die sofort öffentlich sichtbar 
-sind. Zusätzlich können sie alle Mitschriften, unabhängig vom Ersteller, 
-bearbeiten oder löschen und haben damit volle Kontrolle über alle Inhalte 
-der Plattform.
-
-Nutzer:innen können Mitschriften hochladen und einem Fach sowie einem 
-Themenpool zuordnen. Beim Upload müssen ein Titel sowie eine Beschreibung 
-angegeben werden.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{pics/ab5.png}
-    \caption{Mitschriften-Upload-Formular}
-    \label{fig:mitschriften-upload}
-\end{figure}
-
-\subsubsection{Freigabeprozess}
-
-Der Freigabeprozess stellt sicher, dass nur geprüfte Inhalte 
-öffentlich sichtbar sind. Abbildung~\ref{fig:freigabe-prozess} 
-zeigt den genauen Ablauf.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.75\textwidth]{pics/usecase_mitschirftenUpload.png}
-    \caption{Freigabeprozess für Mitschriften}
-    \label{fig:freigabe-prozess}
-\end{figure}
-
-Sobald eine Schüler:in eine Mitschrift hochlädt, bekommt diese 
-automatisch den Status \textit{PENDING}. Die Mitschrift ist in 
-diesem Zustand nur für die Ersteller:in selbst sichtbar. Die 
-zuständige Lehrkraft sieht alle ausstehenden Mitschriften in 
-ihrem persönlichen Bereich und kann diese einzeln prüfen.
-
-Hat die Lehrkraft die Mitschrift geprüft, gibt es zwei 
-Möglichkeiten. Entweder wird die Mitschrift freigegeben, womit 
-\texttt{isApproved} in der Datenbank auf \texttt{true} gesetzt 
-wird und die Mitschrift ab sofort für alle Nutzer:innen sichtbar 
-ist. Oder die Lehrkraft lehnt die Mitschrift ab. In beiden 
-Fällen erhält die Schüler:in eine Benachrichtigung im 
-persönlichen Bereich.
+sind, ohne einen Freigabeprozess durchlaufen zu müssen. Zusätzlich können 
+sie alle Mitschriften der Plattform, unabhängig vom Ersteller, bearbeiten 
+oder löschen.

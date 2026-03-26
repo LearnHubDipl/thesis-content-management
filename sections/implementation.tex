@@ -1,45 +1,45 @@
-\section{Maturavorbereitung}
+\section{Usecase Überblick}
+\input{./subsections/ueberblick.tex}
 
-    \subsection{Überblick}
-    \input{./subsections/ueberblick.tex}
+\section{Maturaunterlagen}
 
-    \subsection{Fächer \& Themenpools}
+    \subsection{Fächer und Themenpools}
     \input{./subsections/maturaupload.tex}
 
-    \subsection{Upload von Mitschriften}
+    \subsection{Upload von Lernmaterialien}
     \input{./subsections/mitschriften.tex}
 
-    \subsection{Fragenkonfigurator}
-    \input{./subsections/fragenkonfigurator.tex}
+\section{Fragenkonfigurator}
+\input{./subsections/fragenkonfigurator.tex}
 
-    \subsection{Persönlicher Bereich}
-    \input{./subsections/personal_place.tex}
+\section{Persönlicher Bereich}
+\input{./subsections/personal_place.tex}
 
-\section{Technische Umsetzung des Upload-Systems}
+\section{Systemarchitektur und Deployment}
+\input{./subsections/systemarchitektur.tex}
+
+    \subsection{Deployment Diagramm}
+    \input{./sections/docker/docker_im_projekt.tex}
+
+    \subsection{Dockerfiles Backend und Frontend}
+    \input{./sections/docker/dockerfile_projekt.tex}
+
+    \subsection{Docker Compose}
+    \input{./sections/docker/dockercompose_projekt.tex}
+
+    \subsection{Deployment auf der virtuellen Maschine}
+    \input{./sections/docker/docker_vm.tex}
+
+    \subsection{CI/CD}
+    \input{./sections/docker/ci-cd.tex}
+
+\section{Umsetzung des Uploads}
 \input{./subsections/upload_system.tex}
-
-\section{Projektverwaltung}
-\input{./subsections/projectmanagement.tex}
 
 \setauthor{\firstauthor}
 \section{Authentifizierung \& Autorisierung}
 \input{./sections/auth_implementation.tex}
 
 \setauthor{\secondauthor}
-\section{Containerisierung \& Deployment}
-\input{./sections/docker/docker_im_projekt.tex}
-
-    \subsection{Dockerfile Backend \& Frontend}
-    \input{./sections/docker/dockerfile_projekt.tex}
-
-    \subsection{Docker Compose Setup}
-    \input{./sections/docker/dockercompose_projekt.tex}
-
-    \subsection{Deployment auf der virtuellen Maschine}
-    \input{./sections/docker/docker_vm.tex}
-
-    \subsection{CI/CD mit GitHub Actions}
-    \input{./sections/docker/ci-cd.tex}
-
-\section{Systemarchitektur}
-\input{./subsections/systemarchitektur.tex}
+\section{Projektvorgehen}
+\input{./subsections/projectmanagement.tex}

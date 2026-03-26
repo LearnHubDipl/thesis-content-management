@@ -10,8 +10,7 @@ Logout-Button kann die aktive Sitzung beendet werden.
 
 Schüler:innen sehen im persönlichen Bereich ihre Nutzerdaten, eine 
 Übersicht ihrer hochgeladenen Mitschriften mit dem jeweiligen 
-Freigabestatus sowie einen Benachrichtigungsbereich. 
-
+Freigabestatus sowie einen Benachrichtigungsbereich.
 
 \begin{figure}[H]
     \centering
@@ -26,7 +25,7 @@ Freigabe} oder \textit{Freigegeben}. Freigegebene Mitschriften können
 direkt als PDF geöffnet werden.
 
 Zusätzlich gibt es einen Benachrichtigungsbereich, in dem Schüler:innen 
-über Freigaben oder Ablehnungen ihrer Mitschriften informiert werden. 
+über Freigaben oder Ablehnungen ihrer Mitschriften informiert werden.
 
 \begin{figure}[H]
     \centering
@@ -45,14 +44,15 @@ Fragen von Schüler:innen prüfen können.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{pics/abt_2.jpeg}
-    \caption{Benachrichtigungen im persönlichen Bereich Lehrkraft}
-    \label{fig:benachrichtigungen-lehrkraft }
+    \caption{Persönlicher Bereich: Lehrkraft}
+    \label{fig:benachrichtigungen-lehrkraft}
 \end{figure}
 
-\subsubsection{Freigabeprozess}
+\subsection{Freigabeprozess}
 
 Der Freigabeprozess stellt sicher, dass nur geprüfte Inhalte 
-öffentlich sichtbar sind.
+öffentlich sichtbar sind. Abbildung~\ref{fig:freigabe-prozess} 
+zeigt den genauen Ablauf.
 
 \begin{figure}[H]
     \centering
@@ -63,11 +63,9 @@ Der Freigabeprozess stellt sicher, dass nur geprüfte Inhalte
 
 Sobald eine Schüler:in eine Mitschrift hochlädt, bekommt diese 
 automatisch den Status \textit{PENDING}. Die Mitschrift ist in 
-diesem Zustand nur für die Ersteller:in selbst sichtbar, also 
-nicht für andere Schüler:innen oder Lehrkräfte im öffentlichen 
-Bereich. Die zuständige Lehrkraft sieht alle ausstehenden 
-Mitschriften in ihrem persönlichen Bereich und kann diese 
-einzeln prüfen.
+diesem Zustand nur für die Ersteller:in selbst sichtbar. Die 
+zuständige Lehrkraft sieht alle ausstehenden Mitschriften in 
+ihrem persönlichen Bereich und kann diese einzeln prüfen.
 
 Hat die Lehrkraft die Mitschrift geprüft, gibt es zwei 
 Möglichkeiten. Entweder wird die Mitschrift freigegeben, 
@@ -76,8 +74,7 @@ gesetzt wird und die Mitschrift ab sofort für alle Nutzer:innen
 sichtbar ist. Oder die Lehrkraft lehnt die Mitschrift ab, 
 zum Beispiel weil der Inhalt fehlerhaft oder unvollständig ist. 
 In beiden Fällen erhält die Schüler:in eine Benachrichtigung 
-im persönlichen Bereich, sodass sie immer über den aktuellen 
-Status ihrer Mitschriften informiert ist.
+im persönlichen Bereich.
 
 In der aktuellen Implementierung ist eine Freigabe endgültig 
 und kann nicht rückgängig gemacht werden. Eine abgelehnte 
@@ -87,9 +84,3 @@ zukünftige Erweiterung wäre es denkbar, einen
 Statushistorie einzuführen, die jede Änderung nachvollziehbar 
 dokumentiert. Dies würde jedoch ein eigenes 
 \texttt{ApprovalHistory} Entity im Datenmodell erfordern.
-
-Dieser Prozess hat zwei wesentliche Vorteile. Erstens wird 
-die Qualität der Inhalte auf der Plattform sichergestellt, 
-da keine unkontrollierten Inhalte veröffentlicht werden können. 
-Zweitens bekommen Schüler:innen direktes Feedback von der 
-Lehrkraft, was den Lernprozess unterstützt.
