@@ -216,22 +216,7 @@ an einzelne Nutzer:innen, sondern an Rollen vergeben werden.~\cite{quarkus-secur
 In LearnHub erfolgt die Rollenzuweisung vollautomatisch anhand des
 \texttt{distinguishedName} im JWT -- eine manuelle Konfiguration ist
 nicht notwendig.
-% ----------------------------------------------------------
-\subsection{Authentifizierungsablauf in LearnHub}
-% ----------------------------------------------------------
 
-Abbildung~\ref{fig:auth-sequence} gibt einen Überblick über den
-vollständigen Authentifizierungsablauf in LearnHub. Die konkrete
-Implementierung der einzelnen Schritte -- Angular-seitige
-Initialisierung, HTTP-Interceptor und Backend-Validierung -- wird
-in Kapitel~\ref{chapter:auth-impl} beschrieben.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth]{./pics/auth_sequence.png}
-    \caption{Sequenzdiagramm: Authentifizierungsablauf in LearnHub}
-    \label{fig:auth-sequence}
-\end{figure}
 % ----------------------------------------------------------
 \subsection{HTTP-Statuscodes der Authentifizierung}
 % ----------------------------------------------------------

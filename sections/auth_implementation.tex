@@ -36,7 +36,13 @@ wiederholtem Login mit HTTP~200. Ab diesem Zeitpunkt fügt der
 HTTP-Anfrage an, und das Backend validiert die Signatur bei jedem
 Aufruf.~\cite{jwt-rfc, oauth2-rfc, pkce-rfc}
 
-
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{./pics/auth_sequence.png}
+    \caption{Sequenzdiagramm: Authentifizierungsablauf in LearnHub}
+    \label{fig:auth-sequence}
+\end{figure}
+ 
 % ----------------------------------------------------------
 \subsection{Frontend}
 % ----------------------------------------------------------
@@ -268,7 +274,7 @@ die sich in den JAX-RS-Annotationen widerspiegeln:
     verwendet. Ist dennoch ein Token vorhanden, wird der
     SecurityContext befüllt -- der Endpoint kann damit optional
     auf Nutzerinformationen zugreifen.
-    \item \texttt{@RolesAllowed(\{"student", "teacher"\})} -- Token
+    \item \texttt{@RolesAllowed(\{"{student}", "teacher"\})} -- Token
     ist Pflicht, Rolle spielt keine Rolle. Alle angemeldeten
     Nutzer:innen dürfen zugreifen. Fehlt das Token, antwortet
     das Backend mit HTTP~401. Ist das Token abgelaufen oder
