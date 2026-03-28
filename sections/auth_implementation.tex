@@ -1,4 +1,5 @@
 \setauthor{\firstauthor}
+\label{chapter:auth-impl}
 
 % ============================================================
 %  Authentifizierung & Autorisierung -- Implementierung
@@ -8,6 +9,33 @@
 Dieses Kapitel beschreibt die konkrete Implementierung der
 Authentifizierung und Autorisierung in LearnHub -- aufbauend auf den
 Grundlagen aus Kapitel~\ref{chapter:tech}.
+
+% ============================================================
+%  Authentifizierung & Autorisierung -- Implementierung
+% ============================================================
+
+\subsection{Authentifizierungsablauf}
+
+Der Ablauf beginnt damit, dass der \texttt{AuthGuard} beim Aufrufen
+einer Route prüft, ob eine aktive Keycloak-Session existiert. Ist
+keine vorhanden, wird der Browser automatisch zur Keycloak-Loginseite
+der HTL weitergeleitet. Die eingegebenen Zugangsdaten werden von
+Keycloak gegen das LDAP-Verzeichnis validiert. Nach erfolgreicher
+Anmeldung sendet Keycloak zunächst einen kurzlebigen Authorization
+Code als URL-Parameter zurück. Das Frontend tauscht diesen Code
+zusammen mit dem Code Verifier über einen sicheren HTTPS-POST-Request
+gegen ein JWT ein.
+
+Das Frontend ruft daraufhin den Backend-Endpunkt
+\texttt{/api/users/register} auf. Das Backend lädt den öffentlichen
+Schlüssel von Keycloak und prüft die RS256-Signatur des JWT, bevor
+es die Anfrage verarbeitet. Bei gültigem Token wird der Nutzer in der
+eigenen Datenbank angelegt -- beim ersten Login mit HTTP~201, bei
+wiederholtem Login mit HTTP~200. Ab diesem Zeitpunkt fügt der
+\texttt{AuthInterceptor} das JWT automatisch an jede ausgehende
+HTTP-Anfrage an, und das Backend validiert die Signatur bei jedem
+Aufruf.~\cite{jwt-rfc, oauth2-rfc, pkce-rfc}
+
 
 % ----------------------------------------------------------
 \subsection{Frontend}

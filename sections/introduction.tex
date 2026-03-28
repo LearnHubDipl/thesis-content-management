@@ -26,12 +26,6 @@ Diese Diplomarbeit entstand im Schuljahr 2025/26 an der HTL Leonding und adressi
 genau diesen Bedarf: eine Lernplattform von Schüler:innen für Schüler:innen, die
 dabei von Lehrpersonen begleitet und qualitätsseitig unterstützt wird.
 
-Um diesen Problemen entgegenzuwirken, entwickeln zwei Diplomarbeitsteams
-gemeinsam die Web-Plattform \textit{LearnHub}, die es Schüler:innen und
-Lehrer:innen der HTL ermöglicht, Mitschriften zentral abzulegen und
-aufzurufen, um sich gezielt und ohne zusätzlichen Stress auf die Matura
-vorzubereiten.
-
 Die Entwicklung von LearnHub wurde in Zusammenarbeit mit einem zweiten
 Diplomarbeitsteam der HTL Leonding realisiert. Während sich die vorliegende
 Arbeit auf das Content-Management-System -- bestehend aus Maturaupload,
@@ -92,7 +86,7 @@ Fragenkonfigurator für die Maturavorbereitung ist nicht vorhanden.
 
 StudySmarter ist eine umfassende Lernplattform, die Karteikarten,
 Zusammenfassungen und Lernpläne anbietet. Die Plattform nutzt das Prinzip
-des \textit{Spaced Repetition} -- dabei werden Lerninhalte in gezielt
+der \textit{Spaced Repetition} -- dabei werden Lerninhalte in gezielt
 steigenden Zeitabständen wiederholt, sodass schwieriger Stoff häufiger
 gezeigt wird als bereits bekannter. Dies soll das Langzeitgedächtnis
 effizienter ansprechen als klassisches Wiederholen in einem Durchgang.
@@ -123,21 +117,6 @@ von Maturaunterlagen sowie das Erstellen von Maturafragen, speziell für
 HTL-spezifische Fächer des österreichischen Bildungssystems, und orientiert
 sich dabei an der realen Struktur der österreichischen Maturaprüfung.
  
-
-\section{Motivation}
-
-Die Entwicklung von LearnHub entstand aus einem konkreten, alltäglichen
-Problem: Schüler:innen der HTL Leonding verbringen vor Prüfungen und der
-Matura unverhältnismäßig viel Zeit damit, geeignete Lernunterlagen zu suchen,
-anstatt diese produktiv zu nutzen. Unterlagen sind über verschiedene Kanäle
--- Teams, Moodle, externe Laufwerke, Papier -- verteilt, unstrukturiert und
-in ihrer Qualität nicht geprüft.
-
-Die Motivation
-bestand darin, eine Lösung zu schaffen, die sowohl Schüler:innen als
-auch Lehrpersonen gezielt unterstützt und dabei die bereits vorhandene
-schulische Infrastruktur -- insbesondere das LDAP-System und die
-HTL-Klassenstruktur -- sinnvoll nutzt.
 
 \section{Zielsetzung}
 
@@ -192,13 +171,12 @@ Fragen zur Maturavorbereitung:
     prüfen und anschließend öffentlich schalten, sodass sie für alle
     Nutzer:innen sichtbar werden.
 
-    \item \textbf{Öffentliche Fragen:} Lerhkräfte können öffentliche Fragen
+    \item \textbf{Öffentliche Fragen:} Lehrkräfte können öffentliche Fragen
     direkt erstellen, bearbeiten und löschen. Alle Nutzer:innen können
     öffentliche Fragen einsehen, diese jedoch nicht bearbeiten.
 
-    \item \textbf{Fragenpool-Übersicht:} Lerhkräfte haben Zugriff auf alle
-    öffentlichen Fragen sowie auf Anfragen zur Freigabe. Sie können zudem
-    eigene private Fragen erstellen.
+    \item \textbf{Fragenpool-Übersicht:} Lehrkräfte haben Zugriff auf alle
+    öffentlichen Fragen sowie auf Anfragen zur Freigabe. Sowohl Lehrkräfte als auch Schüler:innen haben die Möglichkeit, eigene private Fragen zu erstellen, die ausschließlich für sie selbst sichtbar sind. Dies ermöglicht eine individuelle, persönliche Prüfungsvorbereitung, ohne dass Inhalte zwingend mit anderen geteilt werden müssen.
 
     \item \textbf{Lernmodus:} Schüler:innen können sowohl mit öffentlichen
     als auch mit eigenen privaten Fragen üben. Der Lernmodus funktioniert
@@ -213,7 +191,7 @@ Zugriffskontrolle der gesamten Plattform:
 
 \begin{enumerate}
     \item \textbf{Rollenmodell:} Die Plattform unterscheidet zwei
-    Nutzerrollen -- Schüler:inund Lehrer:in -- mit klar
+    Nutzerrollen -- Schüler:in und Lehrer:in -- mit klar
     definierten Berechtigungen.
 
     \item \textbf{Authentifizierung:} Alle HTL-Accounts werden über das

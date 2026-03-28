@@ -8,12 +8,7 @@ Die Sicherheit einer Webanwendung steht und fällt mit zwei grundlegenden
 Fragen: \textit{Wer ist der Nutzer?} -- das ist \textbf{Authentifizierung}
 -- und \textit{Was darf der Nutzer?} -- das ist \textbf{Autorisierung}.
 Für LearnHub wurde eine Lösung benötigt, die beide Aspekte abdeckt und
-gleichzeitig mit dem bestehenden LDAP-System der HTL Leonding kompatibel
-ist.
-
-Dieses Kapitel führt zunächst die notwendigen Grundbegriffe ein, erklärt
-den Authentifizierungsablauf anhand von Diagrammen und vergleicht
-abschließend drei Lösungen.
+gleichzeitig gleichzeitig das bestehende LDAP-System der HTL Leonding nutzt.
 
 % ----------------------------------------------------------
 \subsection{Grundbegriffe}
@@ -44,6 +39,24 @@ wie LearnHub ist der \textbf{Authorization Code Flow mit PKCE}
 (\textit{Proof Key for Code Exchange}) der empfohlene
 Standard.~\cite{oauth2-rfc} Abbildung~\ref{fig:oauth-flow} zeigt diesen
 Ablauf.
+
+Der Grund für den Umweg über den Authorization Code liegt in der
+Sicherheit: Würde Keycloak das JWT direkt bei der ersten Anfrage
+zurückschicken, müsste es als URL-Parameter im Redirect übertragen
+werden -- und URL-Parameter sind im Browser-Verlauf, in Server-Logs
+und in Referrer-Headern sichtbar. Stattdessen sendet Keycloak zunächst
+nur einen kurzlebigen Authorization Code als URL-Parameter. Das
+Frontend tauscht diesen Code anschließend über einen sicheren
+HTTPS-POST-Request direkt aus JavaScript gegen Keycloak ein und erhält
+erst dann das JWT -- ohne dass es jemals in der URL erscheint.
+
+PKCE (\textit{Proof Key for Code Exchange}) fügt eine zusätzliche
+Sicherheitsebene hinzu: Das Frontend generiert zu Beginn des Flows
+einen zufälligen \textit{Code Verifier} und sendet dessen Hash
+(\textit{Code Challenge}) an Keycloak. Beim Token-Tausch muss das
+Frontend den ursprünglichen Code Verifier mitschicken. Keycloak prüft,
+ob der Hash übereinstimmt -- ein abgefangener Authorization Code ist
+damit wertlos, da der Angreifer den Code Verifier nicht kennt.~\cite{pkce-rfc}
 
 \begin{figure}[H]
     \centering
@@ -118,10 +131,10 @@ Verifizieren verwendet wird -- arbeitet RS256 mit einem
 \begin{itemize}
     \item \textbf{Privater Schlüssel (\textit{Private Key}):} Liegt
     ausschließlich beim Identity-Provider (Keycloak). Wird zum
-    \textit{Signieren} des Tokens verwendet. Niemals weitergegeben.
+    \textit{Signieren} des Tokens verwendet.
     \item \textbf{Öffentlicher Schlüssel (\textit{Public Key}):} Wird
     vom Identity-Provider über einen öffentlich abrufbaren
-    Discovery-Endpunkt (\texttt{/realms/\{realm\}/protocol/openid-connect/certs})
+    Discovery-Endpunkt \\\texttt{/realms/\{realm\}/protocol/openid-connect/certs})
     bereitgestellt. Wird vom Backend zum \textit{Verifizieren} der
     Signatur verwendet.
 \end{itemize}
@@ -203,15 +216,15 @@ an einzelne Nutzer:innen, sondern an Rollen vergeben werden.~\cite{quarkus-secur
 In LearnHub erfolgt die Rollenzuweisung vollautomatisch anhand des
 \texttt{distinguishedName} im JWT -- eine manuelle Konfiguration ist
 nicht notwendig.
-
 % ----------------------------------------------------------
 \subsection{Authentifizierungsablauf in LearnHub}
 % ----------------------------------------------------------
 
-Abbildung~\ref{fig:auth-sequence} zeigt den vollständigen
-Authentifizierungsablauf als Sequenzdiagramm. Es beschreibt den
-Normalfall: eine Nutzerin bzw. ein Nutzer öffnet LearnHub und ist noch
-nicht angemeldet.
+Abbildung~\ref{fig:auth-sequence} gibt einen Überblick über den
+vollständigen Authentifizierungsablauf in LearnHub. Die konkrete
+Implementierung der einzelnen Schritte -- Angular-seitige
+Initialisierung, HTTP-Interceptor und Backend-Validierung -- wird
+in Kapitel~\ref{chapter:auth-impl} beschrieben.
 
 \begin{figure}[H]
     \centering
@@ -219,20 +232,6 @@ nicht angemeldet.
     \caption{Sequenzdiagramm: Authentifizierungsablauf in LearnHub}
     \label{fig:auth-sequence}
 \end{figure}
-
-Der Ablauf beginnt damit, dass der \texttt{AuthGuard} beim Aufrufen
-einer Route prüft, ob eine aktive Keycloak-Session existiert. Da keine
-vorhanden ist, wird der Browser automatisch zur Keycloak-Loginseite der
-HTL weitergeleitet. Die eingegebenen Zugangsdaten werden von Keycloak
-gegen das LDAP-Verzeichnis validiert. Nach erfolgreicher Anmeldung
-stellt Keycloak ein JWT aus und leitet zurück zur Anwendung. Das
-Frontend ruft daraufhin den Backend-Endpunkt
-\texttt{/api/users/register} auf, der den Nutzer in der eigenen
-Datenbank anlegt oder -- bei wiederholtem Login -- nur zurückgibt. Ab
-diesem Zeitpunkt fügt der \texttt{AuthInterceptor} das JWT automatisch
-an jede ausgehende HTTP-Anfrage an, und das Backend validiert die
-Signatur bei jedem Aufruf.~\cite{jwt-rfc, oauth2-rfc}
-
 % ----------------------------------------------------------
 \subsection{HTTP-Statuscodes der Authentifizierung}
 % ----------------------------------------------------------
@@ -475,7 +474,7 @@ Infrastruktur würde damit vollständig umgangen.
 
 Keycloak ist die einzige der drei evaluierten Lösungen, die alle
 Anforderungen erfüllt. Die native LDAP-Integration ist der
-entscheidende Faktor: Sie bedeutet, dass LearnHub die an der HTL
+entscheidende Faktor: Sie bedeutet, dass LearnHub die an der 
 bereits vorhandene Infrastruktur vollständig nutzt. Wer an der Schule
 einen Account hat, hat automatisch Zugang -- und wer keinen hat, auch
 keinen Zugang. Dieses Prinzip lässt sich mit Auth0 nur gegen hohe
