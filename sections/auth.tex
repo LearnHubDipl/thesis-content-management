@@ -173,6 +173,7 @@ Schlüssel eindeutig. Betreibt Keycloak mehrere Schlüsselpaare -- etwa
 nach einer Schlüsselrotation -- kann das Backend anhand der Key ID
 exakt den richtigen öffentlichen Schlüssel laden.~\cite{jwt-rfc}
 
+\clearpage
 \paragraph{JWT Payload}
 
 Der Payload enthält die Informationen, die das Backend für
@@ -188,7 +189,8 @@ Authentifizierung und Autorisierung benötigt:
   "email":
     "m.mustermann@students.htl-leonding.ac.at",
   "distinguishedName":
-    "CN=it210999,OU=Students,OU=5BHITM,DC=htl-leonding,DC=local",
+    "CN=it210999,OU=Students,OU=5BHITM,DC=htl-leonding,
+    DC=local",
   "realm_access": {
     "roles": ["default-roles-2526_5bhitm", "offline_access"]
   },

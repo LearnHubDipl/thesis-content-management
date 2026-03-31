@@ -95,10 +95,26 @@ Freigabeprozess zu durchlaufen.
 \textbf{Freitext-Fragen:} Bei diesem Fragetyp erscheint ein zusätzliches Pflichtfeld für
 die Musterlösung bzw. Erklärung.
 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{pics/fragenk_freitext.png}
+    \caption{Fragenkonfigurator: Freitext}
+    \label{fig:fragenkonfigurator-freitext}
+\end{figure}
+
 \textbf{Multiple-Choice-Fragen:} Standardmäßig werden zwei Antwortfelder angezeigt. Über
 einen Plus-Button können bis zu sieben Antwortmöglichkeiten hinzugefügt werden. Die
 korrekte Antwort wird durch Anklicken markiert. Zusätzlich kann eine optionale Erklärung
 hinterlegt werden.
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{pics/fragenk_multiple.png}
+    \caption{Fragenkonfigurator: Multiple Choice}
+    \label{fig:fragenkonfigurator-multiple-choice}
+\end{figure}
 
 \subsubsection{Frage erstellen mit vorausgewähltem Fach und Themenpool}
 \label{sec:frage-erstellen-vorausgewählt}
@@ -120,7 +136,14 @@ eingeben und die Frage speichern.
 
 In der Bearbeitungsansicht werden alle eigenen Fragen strukturiert nach Fächern und
 Themenpools angezeigt. Jede Frage kann über zwei Icons bearbeitet (Stift-Symbol) oder
-gelöscht (Mülleimer-Symbol) werden.
+gelöscht (Mülleimer-Symbol) werden. Jede:r Schüler:in kann ausschließlich eigene Fragen bearbeiten und löschen. Lehrpersonen haben zusätzlich Zugriff auf öffentliche Fragen und können diese ebenfalls bearbeiten und löschen. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{pics/fragen_genehmigen_uebersicht.png}
+    \caption{Fragen bearbeiten und löschen: Übersicht aller eigenen Fragen mit Bearbeiten- und Löschen-Option}
+
+\end{figure}
 
 \textbf{Freitext-Fragen:} Fragestellung und Musterlösung können angepasst werden.
 
@@ -158,7 +181,9 @@ weitergeleitet.
 
 \textbf{Ansicht als Lehrperson:} Lehrpersonen haben zusätzlich Zugriff auf den
 öffentlichen Bereich und können öffentliche Fragen bearbeiten, löschen und deren
-Sichtbarkeit über einen Toggle zwischen öffentlich und privat umschalten.
+Sichtbarkeit über einen Toggle zwischen öffentlich und privat umschalten. 
+Zusätzlich können Lehrkräfte über den Button "Fragen von Schülern genehmigen" zur Freigabeverwaltung wechseln, 
+um eingereichte Fragen zu prüfen und freizugeben.  (\ref{sec:uebersicht-angefragte-fragen})
 
 \begin{figure}[H]
     \centering
@@ -258,7 +283,15 @@ werden alle korrekten Antwortmöglichkeiten sowie eine optionale Erklärung ange
 \textit{Weiter}-Schaltfläche gelangt man zur nächsten Frage; am Ende des Kartensatzes
 erscheint eine Glückwunschseite.
 
-\subsection{Freigabeverwaltung}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{pics/glueckwunsch.png}
+    \caption{Glückwunschseite}
+    \label{fig:glueckwunsch}
+\end{figure}
+\clearpage
+
+\subsection{Freigabeverwaltung von Fragen}
 \label{sec:fragen-genehmigen}
 
 Die Freigabeverwaltung ist ausschließlich für Lehrpersonen zugänglich. Sie dient der
@@ -281,8 +314,7 @@ Schüler:in erhalten -- sie wird \textit{nicht} gelöscht.
 \textbf{Zugriffsmöglichkeiten:} Lehrpersonen gelangen zur Freigabeverwaltung 
 über den Button \textit{Fragen genehmigen} im persönlichen Bereich.
 
-\textbf{Übersicht der angefragten Fragen:}
-
+\textbf{Übersicht der angefragten Fragen:}\label{sec:uebersicht-angefragte-fragen}
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{pics/fragen_genehmigen_uebersicht.png}
@@ -330,6 +362,10 @@ Am unteren Rand der Detailansicht befinden sich zwei Aktionsbuttons:
 \begin{itemize}
     \item \textbf{Frage genehmigen} (orangener Button): Die Frage wird öffentlich
     geschaltet und im Themenpool für alle Nutzer:innen sichtbar. Sie verschwindet
-    anschließend aus der Freigabeverwaltung.
+    anschließend aus der Freigabeverwaltung. Nach erfolgreicher Genehmigung wird
+    eine \textit{MatSnackBar}-Benachrichtigung mit dem Text
+    \textit{„Frage erfolgreich genehmigt!"} oben rechts eingeblendet und die
+    Lehrperson automatisch zur Übersichtsliste weitergeleitet. Im Fehlerfall
+    erscheint ebenfalls eine Snackbar mit der entsprechenden Fehlermeldung.
     \item \textbf{Zurück zur Liste:} Führt zurück zur Übersicht ohne Aktion.
 \end{itemize}
